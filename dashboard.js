@@ -2144,7 +2144,794 @@ window.initMedication = function() {
     medicationManager.init();
 };
 
+// Exercise & Mobility Section Functionality
+const exerciseManager = {
+    // DOM Elements
+    elements: {
+        exerciseSection: document.getElementById('exercise-section'),
+        exerciseContent: document.getElementById('exercise-content')
+    },
 
+    // Exercise Database by Condition and Mobility Level
+    exerciseDatabase: {
+        arthritis: {
+            limited: [
+                {
+                    id: 'gentle_stretching',
+                    name: 'Gentle Range of Motion',
+                    description: 'Slow, controlled leg stretches while pet is lying down',
+                    duration: '5-10 minutes',
+                    frequency: '2-3 times daily',
+                    benefits: 'Maintains joint flexibility, reduces stiffness',
+                    precautions: 'Stop if pet shows signs of pain'
+                },
+                {
+                    id: 'short_walks',
+                    name: 'Short Leisurely Walks',
+                    description: 'Brief walks on flat, soft surfaces',
+                    duration: '5-15 minutes',
+                    frequency: '1-2 times daily',
+                    benefits: 'Maintains muscle mass, mental stimulation',
+                    precautions: 'Avoid slippery surfaces, watch for limping'
+                }
+            ],
+            moderate: [
+                {
+                    id: 'hydrotherapy',
+                    name: 'Water Therapy (if available)',
+                    description: 'Walking in shallow water or swimming',
+                    duration: '10-20 minutes',
+                    frequency: '2-3 times weekly',
+                    benefits: 'Low-impact exercise, builds strength',
+                    precautions: 'Supervision required, proper exit strategy'
+                },
+                {
+                    id: 'figure_eights',
+                    name: 'Gentle Figure Eights',
+                    description: 'Walking in slow figure-eight patterns',
+                    duration: '5-10 minutes',
+                    frequency: 'Daily',
+                    benefits: 'Improves coordination, gentle on joints',
+                    precautions: 'Keep sessions short, provide rest breaks'
+                }
+            ],
+            good: [
+                {
+                    id: 'moderate_walks',
+                    name: 'Moderate Pace Walks',
+                    description: 'Brisk walking on varied terrain',
+                    duration: '15-30 minutes',
+                    frequency: '1-2 times daily',
+                    benefits: 'Cardiovascular health, weight management',
+                    precautions: 'Monitor for fatigue, avoid hard surfaces'
+                }
+            ]
+        },
+        heart_disease: {
+            limited: [
+                {
+                    id: 'potty_breaks',
+                    name: 'Potty Breaks Only',
+                    description: 'Brief outdoor trips for elimination only',
+                    duration: '2-5 minutes',
+                    frequency: 'As needed',
+                    benefits: 'Minimal cardiac stress',
+                    precautions: 'Watch for coughing or breathing difficulty'
+                }
+            ],
+            moderate: [
+                {
+                    id: 'supervised_strolls',
+                    name: 'Supervised Strolls',
+                    description: 'Slow, controlled walking on flat ground',
+                    duration: '5-10 minutes',
+                    frequency: '2-3 times daily',
+                    benefits: 'Maintains mobility without overexertion',
+                    precautions: 'Stop if breathing becomes labored'
+                }
+            ],
+            good: [
+                {
+                    id: 'light_activity',
+                    name: 'Light Activity Sessions',
+                    description: 'Gentle play or short walks',
+                    duration: '10-15 minutes',
+                    frequency: '1-2 times daily',
+                    benefits: 'Maintains quality of life',
+                    precautions: 'Avoid excitement, monitor respiratory rate'
+                }
+            ]
+        },
+        general_geriatric: {
+            limited: [
+                {
+                    id: 'indoor_movement',
+                    name: 'Indoor Movement',
+                    description: 'Encouraging movement around the house',
+                    duration: 'Throughout day',
+                    frequency: 'Multiple short sessions',
+                    benefits: 'Prevents stiffness, maintains circulation',
+                    precautions: 'Provide non-slip surfaces'
+                }
+            ],
+            moderate: [
+                {
+                    id: 'regular_walks',
+                    name: 'Regular Short Walks',
+                    description: 'Consistent daily walking routine',
+                    duration: '10-20 minutes',
+                    frequency: '1-2 times daily',
+                    benefits: 'Maintains muscle tone, mental health',
+                    precautions: 'Adjust based on weather conditions'
+                }
+            ],
+            good: [
+                {
+                    id: 'active_play',
+                    name: 'Low-Impact Play',
+                    description: 'Gentle fetch or toy interaction',
+                    duration: '15-20 minutes',
+                    frequency: 'Daily',
+                    benefits: 'Mental stimulation, bond strengthening',
+                    precautions: 'Avoid jumping or sudden movements'
+                }
+            ]
+        }
+    },
+
+    // Mobility Score Descriptions
+    mobilityLevels: {
+        1: { label: 'Severely Limited', description: 'Difficulty standing, unable to climb stairs' },
+        2: { label: 'Significant Difficulty', description: 'Stiff gait, reluctant to move, struggles with stairs' },
+        3: { label: 'Moderate Limitations', description: 'Noticeable stiffness, slow to rise, cautious on stairs' },
+        4: { label: 'Mild Stiffness', description: 'Slight stiffness after rest, manages stairs slowly' },
+        5: { label: 'Very Mobile', description: 'Moves comfortably, handles stairs well' }
+    },
+
+    // Templates
+    templates: {
+        // Main Exercise View
+        mainView: () => `
+            <div class="exercise-header">
+                <h2>Exercise & Mobility Tracking</h2>
+                ${appState.currentPet ? `
+                    <div class="current-pet-banner">
+                        Tracking for: <strong>${appState.currentPet.name}</strong>
+                        ${appState.currentPet.mobilityScore ? `(Mobility: ${appState.currentPet.mobilityScore}/5)` : ''}
+                    </div>
+                ` : '<p class="warning">Please select a pet first</p>'}
+            </div>
+
+            ${appState.currentPet ? exerciseManager.templates.exerciseDashboard() : exerciseManager.templates.noPetView()}
+        `,
+
+        // View when no pet is selected
+        noPetView: () => `
+            <div class="no-pet-selected">
+                <div class="empty-state">
+                    <h3>No Active Pet Selected</h3>
+                    <p>Please select or add a pet to track exercise and mobility.</p>
+                    <button class="btn btn-primary" onclick="showSection('profiles')">
+                        Manage Pet Profiles
+                    </button>
+                </div>
+            </div>
+        `,
+
+        // Exercise Dashboard
+        exerciseDashboard: () => {
+            const pet = appState.currentPet;
+            const recentActivities = exerciseManager.getRecentActivities(7);
+            const mobilityTrend = exerciseManager.calculateMobilityTrend();
+            
+            return `
+                <div class="exercise-grid">
+                    <div class="exercise-card mobility-tracker">
+                        <div class="card-header">
+                            <h3>Mobility Assessment</h3>
+                            <button class="btn btn-primary btn-sm" onclick="exerciseManager.showMobilityForm()">
+                                Update Score
+                            </button>
+                        </div>
+                        <div class="mobility-content">
+                            ${exerciseManager.templates.mobilityDisplay(pet)}
+                        </div>
+                    </div>
+
+                    <div class="exercise-card activity-log">
+                        <div class="card-header">
+                            <h3>Today's Activity</h3>
+                            <button class="btn btn-primary btn-sm" onclick="exerciseManager.showActivityForm()">
+                                + Log Activity
+                            </button>
+                        </div>
+                        <div class="activity-content">
+                            ${exerciseManager.templates.todayActivity()}
+                        </div>
+                    </div>
+
+                    <div class="exercise-card exercise-suggestions">
+                        <div class="card-header">
+                            <h3>Recommended Exercises</h3>
+                        </div>
+                        <div class="suggestions-content">
+                            ${exerciseManager.templates.exerciseSuggestions(pet)}
+                        </div>
+                    </div>
+
+                    <div class="exercise-card activity-history">
+                        <div class="card-header">
+                            <h3>Activity History</h3>
+                            <button class="btn btn-secondary btn-sm" onclick="exerciseManager.showActivityHistory()">
+                                View All
+                            </button>
+                        </div>
+                        <div class="history-content">
+                            ${exerciseManager.templates.activityHistory(recentActivities)}
+                        </div>
+                    </div>
+
+                    <div class="exercise-card mobility-trend">
+                        <div class="card-header">
+                            <h3>Mobility Trend</h3>
+                        </div>
+                        <div class="trend-content">
+                            ${exerciseManager.templates.mobilityTrend(mobilityTrend)}
+                        </div>
+                    </div>
+
+                    <div class="exercise-card exercise-tips">
+                        <div class="card-header">
+                            <h3>Geriatric Exercise Tips</h3>
+                        </div>
+                        <div class="tips-content">
+                            ${exerciseManager.templates.exerciseTips()}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        // Mobility Display Template
+        mobilityDisplay: (pet) => {
+            const mobilityScore = pet.mobilityScore || 'Not set';
+            const mobilityLevel = exerciseManager.mobilityLevels[mobilityScore];
+            
+            return `
+                <div class="mobility-score-display">
+                    <div class="score-circle ${mobilityScore ? `score-${mobilityScore}` : 'no-score'}">
+                        <span class="score-number">${mobilityScore}</span>
+                        <span class="score-label">/5</span>
+                    </div>
+                    <div class="mobility-info">
+                        <h4>${mobilityLevel ? mobilityLevel.label : 'Not Assessed'}</h4>
+                        <p>${mobilityLevel ? mobilityLevel.description : 'Please complete a mobility assessment'}</p>
+                        ${pet.lastMobilityAssessment ? `
+                            <small>Last assessed: ${formatDate(pet.lastMobilityAssessment)}</small>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div class="mobility-questions">
+                    <h4>Quick Assessment Guide</h4>
+                    <ul class="assessment-questions">
+                        <li>🐕 Can your pet rise from lying down easily?</li>
+                        <li>🏠 Do they navigate stairs confidently?</li>
+                        <li>🚶 Is their gait smooth and even?</li>
+                        <li>⚡ Do they show enthusiasm for walks?</li>
+                    </ul>
+                </div>
+            `;
+        },
+
+        // Today's Activity Template
+        todayActivity: () => {
+            const todayActivities = exerciseManager.getTodayActivities();
+            
+            if (todayActivities.length === 0) {
+                return `
+                    <div class="no-activities">
+                        <p>No activities logged today</p>
+                        <button class="btn btn-primary btn-sm" onclick="exerciseManager.showActivityForm()">
+                            Log Your First Activity
+                        </button>
+                    </div>
+                `;
+            }
+
+            const totalDuration = todayActivities.reduce((sum, activity) => sum + activity.duration, 0);
+            
+            return `
+                <div class="today-activities">
+                    <div class="activity-summary">
+                        <div class="summary-item">
+                            <span class="label">Activities:</span>
+                            <span class="value">${todayActivities.length}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Total Time:</span>
+                            <span class="value">${totalDuration} min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="activities-list">
+                        ${todayActivities.map(activity => `
+                            <div class="activity-item">
+                                <div class="activity-main">
+                                    <strong>${activity.type}</strong>
+                                    <span class="activity-duration">${activity.duration} min</span>
+                                </div>
+                                <div class="activity-details">
+                                    <span class="activity-time">${new Date(activity.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                    ${activity.notes ? `<span class="activity-notes">"${activity.notes}"</span>` : ''}
+                                </div>
+                                <div class="activity-mobility">
+                                    <span class="mobility-after">After: ${activity.mobilityAfter}/5</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        },
+
+        // Exercise Suggestions Template
+        exerciseSuggestions: (pet) => {
+            const suggestions = exerciseManager.generateExerciseSuggestions(pet);
+            
+            if (suggestions.length === 0) {
+                return '<p class="no-suggestions">Complete mobility assessment for personalized suggestions</p>';
+            }
+
+            return `
+                <div class="suggestions-list">
+                    ${suggestions.map(exercise => `
+                        <div class="suggestion-item">
+                            <div class="suggestion-header">
+                                <h4>${exercise.name}</h4>
+                                <span class="exercise-duration">${exercise.duration}</span>
+                            </div>
+                            <p class="exercise-description">${exercise.description}</p>
+                            <div class="exercise-benefits">
+                                <strong>Benefits:</strong> ${exercise.benefits}
+                            </div>
+                            <div class="exercise-precautions">
+                                <strong>Precautions:</strong> ${exercise.precautions}
+                            </div>
+                            <button class="btn btn-secondary btn-xs" onclick="exerciseManager.logSuggestedExercise('${exercise.id}')">
+                                Log This Exercise
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        },
+
+        // Activity History Template
+        activityHistory: (activities) => {
+            if (activities.length === 0) {
+                return '<p class="no-history">No activities recorded yet</p>';
+            }
+
+            // Group activities by date
+            const activitiesByDate = {};
+            activities.forEach(activity => {
+                const date = activity.date;
+                if (!activitiesByDate[date]) {
+                    activitiesByDate[date] = [];
+                }
+                activitiesByDate[date].push(activity);
+            });
+
+            return `
+                <div class="activity-history-list">
+                    ${Object.entries(activitiesByDate).slice(0, 5).map(([date, dateActivities]) => {
+                        const totalDuration = dateActivities.reduce((sum, activity) => sum + activity.duration, 0);
+                        return `
+                            <div class="history-day">
+                                <div class="history-date">${formatDate(date)}</div>
+                                <div class="history-summary">
+                                    <span>${dateActivities.length} activities</span>
+                                    <span>${totalDuration} min total</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        },
+
+        // Mobility Trend Template
+        mobilityTrend: (trend) => {
+            if (!trend || trend.assessments.length === 0) {
+                return '<p class="no-trend">No trend data available</p>';
+            }
+
+            const latestScore = trend.assessments[0].score;
+            const previousScore = trend.assessments.length > 1 ? trend.assessments[1].score : latestScore;
+            const trendDirection = latestScore > previousScore ? 'improving' : latestScore < previousScore ? 'declining' : 'stable';
+
+            return `
+                <div class="trend-display">
+                    <div class="trend-indicator ${trendDirection}">
+                        <span class="trend-arrow">${trendDirection === 'improving' ? '↗' : trendDirection === 'declining' ? '↘' : '→'}</span>
+                        <span class="trend-text">${trendDirection}</span>
+                    </div>
+                    <div class="trend-details">
+                        <div class="trend-score">
+                            <span>Current: ${latestScore}/5</span>
+                            ${trend.assessments.length > 1 ? `<span>Previous: ${previousScore}/5</span>` : ''}
+                        </div>
+                        <div class="trend-period">
+                            Over ${trend.assessments.length} assessment${trend.assessments.length > 1 ? 's' : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        // Exercise Tips Template
+        exerciseTips: () => {
+            return `
+                <div class="tips-list">
+                    <div class="tip-item">
+                        <strong>Consistency Over Intensity</strong>
+                        <p>Short, frequent sessions are better than long, infrequent ones</p>
+                    </div>
+                    <div class="tip-item">
+                        <strong>Watch for Signs</strong>
+                        <p>Stop if you notice limping, excessive panting, or reluctance</p>
+                    </div>
+                    <div class="tip-item">
+                        <strong>Warm Up/Cool Down</strong>
+                        <p>Start and end with gentle walking to prevent injury</p>
+                    </div>
+                    <div class="tip-item">
+                        <strong>Surface Matters</strong>
+                        <p>Grass and soft surfaces are easier on joints than concrete</p>
+                    </div>
+                </div>
+            `;
+        },
+
+        // Mobility Assessment Form
+        mobilityForm: (currentScore = null) => {
+            return `
+                <div class="mobility-form-container">
+                    <div class="form-header">
+                        <h2>Mobility Assessment</h2>
+                        <button class="btn btn-secondary" onclick="exerciseManager.showMainView()">
+                            ← Back to Exercise
+                        </button>
+                    </div>
+
+                    <form id="mobility-form" onsubmit="exerciseManager.handleMobilitySubmit(event)">
+                        <div class="assessment-guide">
+                            <h3>How to Assess Your Pet's Mobility</h3>
+                            <div class="score-guide">
+                                ${Object.entries(exerciseManager.mobilityLevels).map(([score, level]) => `
+                                    <div class="score-option">
+                                        <label class="score-label">
+                                            <input type="radio" name="mobility-score" value="${score}" 
+                                                   ${currentScore == score ? 'checked' : ''}>
+                                            <span class="score-number">${score} - ${level.label}</span>
+                                            <span class="score-description">${level.description}</span>
+                                        </label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mobility-notes">Assessment Notes</label>
+                            <textarea id="mobility-notes" rows="3" placeholder="Any observations about your pet's movement..."></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                Save Assessment
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="exerciseManager.showMainView()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        },
+
+        // Activity Log Form
+        activityForm: () => {
+            return `
+                <div class="activity-form-container">
+                    <div class="form-header">
+                        <h2>Log Activity</h2>
+                        <button class="btn btn-secondary" onclick="exerciseManager.showMainView()">
+                            ← Back to Exercise
+                        </button>
+                    </div>
+
+                    <form id="activity-form" onsubmit="exerciseManager.handleActivitySubmit(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="activity-type">Activity Type *</label>
+                                <select id="activity-type" required>
+                                    <option value="">Select Activity</option>
+                                    <option value="walk">Walk</option>
+                                    <option value="play">Play Session</option>
+                                    <option value="stretching">Stretching</option>
+                                    <option value="hydrotherapy">Water Therapy</option>
+                                    <option value="physical_therapy">Physical Therapy</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="activity-duration">Duration (minutes) *</label>
+                                <input type="number" id="activity-duration" min="1" max="120" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="activity-intensity">Intensity Level</label>
+                                <select id="activity-intensity">
+                                    <option value="gentle">Gentle</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="brisk">Brisk</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="activity-mobility-after">Mobility After Activity (1-5)</label>
+                                <select id="activity-mobility-after">
+                                    <option value="">Select Score</option>
+                                    ${[1,2,3,4,5].map(score => `
+                                        <option value="${score}">${score} - ${exerciseManager.mobilityLevels[score].label}</option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="activity-notes">Notes</label>
+                            <textarea id="activity-notes" rows="3" placeholder="How did your pet handle the activity? Any observations..."></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                Log Activity
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="exerciseManager.showMainView()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+    },
+
+    // Data Management Functions
+    getActivities: function() {
+        if (!appState.currentPet) return [];
+        return utils.loadData(`activities_${appState.currentPet.id}`) || [];
+    },
+
+    saveActivities: function(activities) {
+        if (appState.currentPet) {
+            utils.saveData(`activities_${appState.currentPet.id}`, activities);
+        }
+    },
+
+    getTodayActivities: function() {
+        const activities = this.getActivities();
+        const today = utils.getTodayDate();
+        return activities.filter(activity => activity.date === today)
+                         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    },
+
+    getRecentActivities: function(days = 7) {
+        const activities = this.getActivities();
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+        
+        return activities.filter(activity => new Date(activity.date) >= cutoffDate)
+                         .sort((a, b) => new Date(b.date) - new Date(a.date));
+    },
+
+    getMobilityAssessments: function() {
+        if (!appState.currentPet) return [];
+        return utils.loadData(`mobilityAssessments_${appState.currentPet.id}`) || [];
+    },
+
+    saveMobilityAssessments: function(assessments) {
+        if (appState.currentPet) {
+            utils.saveData(`mobilityAssessments_${appState.currentPet.id}`, assessments);
+        }
+    },
+
+    // Exercise Suggestion Logic
+    generateExerciseSuggestions: function(pet) {
+        if (!pet || !pet.mobilityScore) return [];
+        
+        const mobilityLevel = pet.mobilityScore <= 2 ? 'limited' : 
+                            pet.mobilityScore <= 4 ? 'moderate' : 'good';
+        
+        let suggestions = [];
+        
+        // Add condition-specific exercises
+        if (pet.conditions) {
+            pet.conditions.forEach(condition => {
+                const conditionKey = condition.toLowerCase().replace(' ', '_');
+                if (this.exerciseDatabase[conditionKey] && this.exerciseDatabase[conditionKey][mobilityLevel]) {
+                    suggestions.push(...this.exerciseDatabase[conditionKey][mobilityLevel]);
+                }
+            });
+        }
+        
+        // Add general geriatric exercises if no condition-specific ones found
+        if (suggestions.length === 0 && this.exerciseDatabase.general_geriatric[mobilityLevel]) {
+            suggestions.push(...this.exerciseDatabase.general_geriatric[mobilityLevel]);
+        }
+        
+        return suggestions.slice(0, 3); // Return top 3 suggestions
+    },
+
+    // Mobility Trend Calculation
+    calculateMobilityTrend: function() {
+        const assessments = this.getMobilityAssessments()
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 5); // Last 5 assessments
+        
+        if (assessments.length === 0) return null;
+        
+        return {
+            assessments: assessments,
+            averageScore: assessments.reduce((sum, assessment) => sum + assessment.score, 0) / assessments.length,
+            trend: assessments.length > 1 ? assessments[0].score - assessments[1].score : 0
+        };
+    },
+
+    // Form Handling Functions
+    handleMobilitySubmit: function(event) {
+        event.preventDefault();
+        
+        const score = document.querySelector('input[name="mobility-score"]:checked');
+        const notes = document.getElementById('mobility-notes').value;
+        
+        if (!score) {
+            alert('Please select a mobility score');
+            return;
+        }
+
+        this.saveMobilityAssessment(parseInt(score.value), notes);
+    },
+
+    handleActivitySubmit: function(event) {
+        event.preventDefault();
+        
+        const formData = this.getActivityFormData();
+        if (this.validateActivityForm(formData)) {
+            this.saveActivity(formData);
+        }
+    },
+
+    getActivityFormData: function() {
+        return {
+            type: document.getElementById('activity-type').value,
+            duration: parseInt(document.getElementById('activity-duration').value),
+            intensity: document.getElementById('activity-intensity').value,
+            mobilityAfter: document.getElementById('activity-mobility-after').value ? 
+                          parseInt(document.getElementById('activity-mobility-after').value) : null,
+            notes: document.getElementById('activity-notes').value,
+            date: utils.getTodayDate(),
+            timestamp: new Date().toISOString()
+        };
+    },
+
+    validateActivityForm: function(formData) {
+        if (!formData.type) {
+            alert('Please select activity type');
+            return false;
+        }
+        if (!formData.duration || formData.duration < 1) {
+            alert('Please enter valid duration');
+            return false;
+        }
+        return true;
+    },
+
+    // Save Functions
+    saveMobilityAssessment: function(score, notes) {
+        const assessment = {
+            id: 'mobility_' + Date.now(),
+            score: score,
+            notes: notes,
+            date: utils.getTodayDate(),
+            timestamp: new Date().toISOString()
+        };
+
+        // Update pet's current mobility score
+        appState.currentPet.mobilityScore = score;
+        appState.currentPet.lastMobilityAssessment = new Date().toISOString();
+        petProfilesManager.savePets();
+
+        // Save assessment to history
+        const assessments = this.getMobilityAssessments();
+        assessments.unshift(assessment);
+        this.saveMobilityAssessments(assessments);
+
+        alert(`Mobility assessment saved: Score ${score}/5`);
+        this.showMainView();
+    },
+
+    saveActivity: function(activityData) {
+        const activity = {
+            id: 'activity_' + Date.now(),
+            petId: appState.currentPet.id,
+            ...activityData
+        };
+
+        const activities = this.getActivities();
+        activities.unshift(activity);
+        this.saveActivities(activities);
+
+        alert('Activity logged successfully!');
+        this.showMainView();
+    },
+
+    // View Management
+    showMainView: function() {
+        this.elements.exerciseContent.innerHTML = this.templates.mainView();
+    },
+
+    showMobilityForm: function() {
+        this.elements.exerciseContent.innerHTML = this.templates.mobilityForm(appState.currentPet?.mobilityScore);
+    },
+
+    showActivityForm: function() {
+        this.elements.exerciseContent.innerHTML = this.templates.activityForm();
+    },
+
+    showActivityHistory: function() {
+        alert('Full activity history view will be implemented in next version');
+    },
+
+    // Quick Log Functions
+    logSuggestedExercise: function(exerciseId) {
+        // Find the exercise in the database
+        let exercise = null;
+        Object.values(this.exerciseDatabase).forEach(category => {
+            Object.values(category).forEach(level => {
+                const found = level.find(ex => ex.id === exerciseId);
+                if (found) exercise = found;
+            });
+        });
+
+        if (exercise) {
+            if (confirm(`Log "${exercise.name}" as completed?`)) {
+                this.saveActivity({
+                    type: exercise.name.toLowerCase().replace(' ', '_'),
+                    duration: parseInt(exercise.duration),
+                    intensity: 'gentle',
+                    notes: `Completed suggested exercise: ${exercise.name}`
+                });
+            }
+        }
+    },
+
+    // Initialize Exercise Section
+    init: function() {
+        this.showMainView();
+    }
+};
+
+// Add to global window object
+window.exerciseManager = exerciseManager;
+
+// Initialize function for exercise section
+window.initExercise = function() {
+    exerciseManager.init();
+};
 
 
 
