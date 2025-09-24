@@ -266,6 +266,639 @@ footer p {
 
 
 
+
+/* Nutrition & Diet Planner Section Styles */
+.nutrition-header {
+    margin-bottom: 2rem;
+}
+
+.nutrition-header h2 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+/* Nutrition Grid Layout */
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.nutrition-card {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.calculator {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.feeding-schedule {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.water-tracker {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.food-history {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+/* Calculator Styles */
+.calculator h3 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.calculator-results {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--secondary);
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--neutral-medium);
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-item.highlight {
+    background: var(--secondary-light);
+    margin: 0 -1rem;
+    padding: 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.result-label {
+    color: var(--neutral-text);
+    font-weight: 500;
+}
+
+.result-value {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.result-item.highlight .result-value {
+    color: var(--secondary-dark);
+    font-size: 1.2rem;
+}
+
+.nutrition-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.nutrition-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nutrition-form label {
+    font-weight: 600;
+    color: var(--neutral-text);
+    font-size: 0.95rem;
+}
+
+.nutrition-form select,
+.nutrition-form input {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--background);
+}
+
+.nutrition-form select:focus,
+.nutrition-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+#food-selection-container,
+#custom-food-container {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nutrition-form .form-actions {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+/* Feeding Schedule Styles */
+.feeding-schedule h3 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.feeding-plan {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.feeding-time {
+    flex: 1;
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.feeding-time:hover {
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+.feeding-time h4 {
+    color: var(--primary);
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+}
+
+.feeding-amount {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.feeding-amount .amount {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--secondary);
+    line-height: 1;
+}
+
+.feeding-amount .unit {
+    font-size: 1rem;
+    color: var(--neutral-dark);
+    font-weight: 500;
+}
+
+.feeding-time .feeding-time {
+    color: var(--neutral-dark);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.feeding-notes {
+    background: var(--neutral-light);
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.feeding-notes p {
+    margin: 0.5rem 0;
+    color: var(--neutral-text);
+}
+
+.feeding-notes strong {
+    color: var(--primary);
+}
+
+/* Water Tracker Styles */
+.water-tracker h3 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.water-tracker-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.water-progress {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--info);
+}
+
+.water-goal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.water-goal .label {
+    font-weight: 600;
+    color: var(--neutral-text);
+}
+
+.water-goal .value {
+    font-weight: 600;
+    color: var(--info);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: var(--neutral-medium);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--info), var(--info-light));
+    border-radius: 6px;
+    transition: width 0.5s ease-in-out;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.water-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.water-history {
+    margin-top: 1rem;
+}
+
+.water-history h4 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.water-log-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.water-log-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--surface);
+    border-radius: 6px;
+    border-left: 3px solid var(--info);
+}
+
+.water-log-entry .time {
+    color: var(--neutral-dark);
+    font-size: 0.9rem;
+}
+
+.water-log-entry .amount {
+    color: var(--info);
+    font-weight: 600;
+}
+
+/* Food History Styles */
+.food-history h3 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.food-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.food-history-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent);
+    transition: all 0.3s ease;
+}
+
+.food-history-entry:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.food-date {
+    font-size: 0.85rem;
+    color: var(--neutral-dark);
+    font-weight: 500;
+    min-width: 80px;
+}
+
+.food-details {
+    flex: 1;
+    text-align: left;
+    margin-left: 1rem;
+}
+
+.food-details strong {
+    display: block;
+    color: var(--neutral-text);
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+}
+
+.food-details span {
+    color: var(--neutral-dark);
+    font-size: 0.85rem;
+}
+
+.food-history .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: var(--neutral-medium);
+    color: var(--neutral-text);
+}
+
+.btn-secondary:hover {
+    background: var(--neutral-dark);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-accent {
+    background: var(--accent);
+    color: white;
+}
+
+.btn-accent:hover {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+}
+
+.btn-sm {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+}
+
+/* Empty States */
+.no-pet-selected,
+.no-data {
+    text-align: center;
+    padding: 2rem;
+    color: var(--neutral-dark);
+}
+
+.no-pet-selected .empty-state h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.no-pet-selected .empty-state p {
+    margin-bottom: 1.5rem;
+    color: var(--neutral-text);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .nutrition-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    
+    .calculator,
+    .feeding-schedule,
+    .water-tracker,
+    .food-history {
+        grid-column: 1;
+    }
+    
+    .calculator { grid-row: 1; }
+    .feeding-schedule { grid-row: 2; }
+    .water-tracker { grid-row: 3; }
+    .food-history { grid-row: 4; }
+}
+
+@media (max-width: 768px) {
+    .nutrition-card {
+        padding: 1rem;
+    }
+    
+    .feeding-plan {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .feeding-time {
+        padding: 1rem;
+    }
+    
+    .water-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .food-history-entry {
+        flex-direction: column;
+        gap: 0.75rem;
+        text-align: center;
+    }
+    
+    .food-details {
+        margin-left: 0;
+        text-align: center;
+    }
+    
+    .calculator-results {
+        padding: 1rem;
+    }
+    
+    .result-item {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .water-goal {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .feeding-amount .amount {
+        font-size: 1.75rem;
+    }
+    
+    .nutrition-form .form-actions {
+        text-align: center;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Scrollbar Styling */
+.water-log-list::-webkit-scrollbar,
+.food-history-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.water-log-list::-webkit-scrollbar-track,
+.food-history-list::-webkit-scrollbar-track {
+    background: var(--neutral-light);
+    border-radius: 3px;
+}
+
+.water-log-list::-webkit-scrollbar-thumb,
+.food-history-list::-webkit-scrollbar-thumb {
+    background: var(--neutral-dark);
+    border-radius: 3px;
+}
+
+.water-log-list::-webkit-scrollbar-thumb:hover,
+.food-history-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+/* Animation for water progress */
+@keyframes waterFill {
+    from { width: 0%; }
+    to { width: var(--progress-width); }
+}
+
+.progress-fill {
+    animation: waterFill 1s ease-out;
+}
+
+/* Print Styles */
+@media print {
+    .nutrition-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .btn {
+        display: none;
+    }
+    
+    .water-buttons {
+        display: none;
+    }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+    .progress-fill,
+    .feeding-time,
+    .food-history-entry {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .nutrition-card {
+        border: 2px solid var(--neutral-text);
+    }
+    
+    .result-item.highlight {
+        border: 2px solid var(--secondary-dark);
+    }
+    
+    .progress-bar {
+        border: 1px solid var(--neutral-text);
+    }
+}
+
 /* Medication Manager Section Styles */
 .medication-header {
     margin-bottom: 2rem;
