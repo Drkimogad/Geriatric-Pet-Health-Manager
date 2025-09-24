@@ -819,6 +819,550 @@ window.initProfiles = function() {
     petProfilesManager.init();
 };
 
+// Nutrition & Diet Planner Section Functionality
+const nutritionManager = {
+    // DOM Elements
+    elements: {
+        nutritionSection: document.getElementById('nutrition-section'),
+        nutritionContent: document.getElementById('nutrition-content')
+    },
+
+    // Pre-loaded food database
+    foodDatabase: {
+        diabetic: [
+            { id: 'hill_diabetic', name: 'Hill\'s Prescription Diet w/d', kcalPerCup: 259, type: 'dry' },
+            { id: 'royal_diabetic', name: 'Royal Canin Diabetic', kcalPerCup: 287, type: 'dry' },
+            { id: 'purina_diabetic', name: 'Purina Pro Plan DM', kcalPerCup: 272, type: 'dry' }
+        ],
+        kidney: [
+            { id: 'hill_kd', name: 'Hill\'s Prescription Diet k/d', kcalPerCup: 349, type: 'dry' },
+            { id: 'royal_renal', name: 'Royal Canin Renal', kcalPerCup: 318, type: 'dry' }
+        ],
+        arthritis: [
+            { id: 'hill_jd', name: 'Hill\'s Prescription Diet j/d', kcalPerCup: 346, type: 'dry' },
+            { id: 'purina_joint', name: 'Purina Pro Plan JM', kcalPerCup: 365, type: 'dry' }
+        ],
+        general: [
+            { id: 'hill_senior', name: 'Hill\'s Science Diet Senior', kcalPerCup: 378, type: 'dry' },
+            { id: 'royal_senior', name: 'Royal Canin Senior', kcalPerCup: 342, type: 'dry' },
+            { id: 'purina_senior', name: 'Purina Pro Plan Senior', kcalPerCup: 395, type: 'dry' }
+        ]
+    },
+
+    // Activity level factors
+    activityFactors: {
+        sedentary: 1.2,      // Mostly resting, limited movement
+        low: 1.4,           // Short, gentle walks
+        moderate: 1.6,      // Regular daily exercise
+        active: 1.8         // Still active despite age
+    },
+
+    // Templates
+    templates: {
+        // Main Nutrition View
+        mainView: () => `
+            <div class="nutrition-header">
+                <h2>Nutrition & Diet Planning</h2>
+                ${appState.currentPet ? `
+                    <div class="current-pet-banner">
+                        Planning for: <strong>${appState.currentPet.name}</strong>
+                        ${appState.currentPet.weight ? `(${appState.currentPet.weight} kg)` : ''}
+                    </div>
+                ` : '<p class="warning">Please select a pet first</p>'}
+            </div>
+
+            ${appState.currentPet ? nutritionManager.templates.calculatorView() : nutritionManager.templates.noPetView()}
+        `,
+
+        // View when no pet is selected
+        noPetView: () => `
+            <div class="no-pet-selected">
+                <div class="empty-state">
+                    <h3>No Active Pet Selected</h3>
+                    <p>Please select or add a pet to start nutrition planning.</p>
+                    <button class="btn btn-primary" onclick="showSection('profiles')">
+                        Manage Pet Profiles
+                    </button>
+                </div>
+            </div>
+        `,
+
+        // Calculator and Planning View
+        calculatorView: () => {
+            const pet = appState.currentPet;
+            const nutritionData = nutritionManager.calculateNutritionNeeds(pet);
+            
+            return `
+                <div class="nutrition-grid">
+                    <div class="nutrition-card calculator">
+                        <h3>Daily Calorie Calculator</h3>
+                        <div class="calculator-results">
+                            <div class="result-item">
+                                <span class="result-label">Resting Energy (RER):</span>
+                                <span class="result-value">${nutritionData.rer} kcal/day</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Daily Needs (DER):</span>
+                                <span class="result-value">${nutritionData.der} kcal/day</span>
+                            </div>
+                            <div class="result-item highlight">
+                                <span class="result-label">Recommended Intake:</span>
+                                <span class="result-value">${nutritionData.recommended} kcal/day</span>
+                            </div>
+                        </div>
+
+                        <form id="nutrition-form" class="nutrition-form">
+                            <div class="form-group">
+                                <label for="activity-level">Activity Level</label>
+                                <select id="activity-level" onchange="nutritionManager.updateCalculation()">
+                                    <option value="sedentary" ${pet.activityLevel === 'sedentary' ? 'selected' : ''}>
+                                        Sedentary (Mostly resting)
+                                    </option>
+                                    <option value="low" ${pet.activityLevel === 'low' ? 'selected' : ''}>
+                                        Low (Short gentle walks)
+                                    </option>
+                                    <option value="moderate" ${pet.activityLevel === 'moderate' ? 'selected' : ''}>
+                                        Moderate (Regular exercise)
+                                    </option>
+                                    <option value="active" ${pet.activityLevel === 'active' ? 'selected' : ''}>
+                                        Active (Still very active)
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="weight-goal">Weight Goal</label>
+                                <select id="weight-goal" onchange="nutritionManager.updateCalculation()">
+                                    <option value="maintain">Maintain Current Weight</option>
+                                    <option value="loss">Weight Loss</option>
+                                    <option value="gain">Weight Gain</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="food-type">Select Food Type</label>
+                                <select id="food-type" onchange="nutritionManager.updateFoodSelection()">
+                                    <option value="">Choose a food type</option>
+                                    <option value="diabetic">Diabetic Formula</option>
+                                    <option value="kidney">Kidney Support</option>
+                                    <option value="arthritis">Joint Support</option>
+                                    <option value="general">General Senior</option>
+                                    <option value="custom">Custom Food</option>
+                                </select>
+                            </div>
+
+                            <div id="food-selection-container" style="display: none;">
+                                <!-- Dynamic food selection will go here -->
+                            </div>
+
+                            <div id="custom-food-container" style="display: none;">
+                                <div class="form-group">
+                                    <label for="custom-food-name">Food Name</label>
+                                    <input type="text" id="custom-food-name" placeholder="Enter food brand and name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="custom-food-kcal">Calories per Cup (kcal)</label>
+                                    <input type="number" id="custom-food-kcal" placeholder="e.g., 350">
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" onclick="nutritionManager.saveNutritionPlan()">
+                                    Save Nutrition Plan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="nutrition-card feeding-schedule">
+                        <h3>Feeding Schedule</h3>
+                        ${nutritionManager.templates.feedingSchedule(nutritionData)}
+                    </div>
+
+                    <div class="nutrition-card water-tracker">
+                        <h3>Water Intake Tracker</h3>
+                        ${nutritionManager.templates.waterTracker()}
+                    </div>
+
+                    <div class="nutrition-card food-history">
+                        <h3>Food History</h3>
+                        ${nutritionManager.templates.foodHistory()}
+                    </div>
+                </div>
+            `;
+        },
+
+        // Feeding Schedule Template
+        feedingSchedule: (nutritionData) => {
+            const schedule = nutritionData.feedingSchedule || {};
+            return `
+                <div class="feeding-plan">
+                    <div class="feeding-time">
+                        <h4>Morning</h4>
+                        <div class="feeding-amount">
+                            <span class="amount">${schedule.morning || '0'}</span>
+                            <span class="unit">cups</span>
+                        </div>
+                        <span class="feeding-time">8:00 AM</span>
+                    </div>
+                    <div class="feeding-time">
+                        <h4>Evening</h4>
+                        <div class="feeding-amount">
+                            <span class="amount">${schedule.evening || '0'}</span>
+                            <span class="unit">cups</span>
+                        </div>
+                        <span class="feeding-time">6:00 PM</span>
+                    </div>
+                </div>
+                <div class="feeding-notes">
+                    <p><strong>Total Daily:</strong> ${schedule.total || '0'} cups</p>
+                    <p><strong>Food:</strong> ${nutritionData.selectedFood?.name || 'Not selected'}</p>
+                </div>
+            `;
+        },
+
+        // Water Tracker Template
+        waterTracker: () => {
+            const today = utils.getTodayDate();
+            const todayWater = nutritionManager.getTodayWaterIntake();
+            
+            return `
+                <div class="water-tracker-container">
+                    <div class="water-progress">
+                        <div class="water-goal">
+                            <span class="label">Today's Intake:</span>
+                            <span class="value">${todayWater} ml / ${nutritionManager.waterGoal} ml</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${(todayWater / nutritionManager.waterGoal) * 100}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="water-buttons">
+                        <button class="btn btn-secondary btn-sm" onclick="nutritionManager.logWater(100)">
+                            +100 ml
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="nutritionManager.logWater(250)">
+                            +250 ml
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="nutritionManager.logWater(500)">
+                            +500 ml
+                        </button>
+                        <button class="btn btn-accent btn-sm" onclick="nutritionManager.showWaterLog()">
+                            View Log
+                        </button>
+                    </div>
+                    
+                    <div class="water-history">
+                        <h4>Recent Intake</h4>
+                        <div id="water-log-list">
+                            ${nutritionManager.templates.waterLogList()}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        // Water Log List Template
+        waterLogList: () => {
+            const waterLog = nutritionManager.getWaterLog().slice(0, 5);
+            if (waterLog.length === 0) {
+                return '<p class="no-data">No water intake logged today</p>';
+            }
+            
+            return `
+                <ul class="water-log-list">
+                    ${waterLog.map(entry => `
+                        <li class="water-log-entry">
+                            <span class="time">${new Date(entry.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            <span class="amount">+${entry.amount} ml</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        },
+
+        // Food History Template
+        foodHistory: () => {
+            const foodHistory = nutritionManager.getFoodHistory().slice(0, 5);
+            if (foodHistory.length === 0) {
+                return '<p class="no-data">No food history recorded</p>';
+            }
+            
+            return `
+                <div class="food-history-list">
+                    ${foodHistory.map(entry => `
+                        <div class="food-history-entry">
+                            <div class="food-date">${formatDate(entry.date)}</div>
+                            <div class="food-details">
+                                <strong>${entry.foodName}</strong>
+                                <span>${entry.amount} cups • ${entry.calories} kcal</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="nutritionManager.showFullFoodHistory()">
+                    View Full History
+                </button>
+            `;
+        }
+    },
+
+    // Water goal based on weight (ml per day)
+    get waterGoal() {
+        if (!appState.currentPet?.weight) return 1000;
+        return Math.round(appState.currentPet.weight * 50); // 50ml per kg
+    },
+
+    // Calculation Functions
+    calculateNutritionNeeds: function(pet) {
+        if (!pet?.weight) {
+            return { rer: 0, der: 0, recommended: 0 };
+        }
+
+        // Resting Energy Requirement (RER) = 70 × (body weight in kg)^0.75
+        const rer = Math.round(70 * Math.pow(pet.weight, 0.75));
+        
+        // Daily Energy Requirement (DER) = RER × activity factor
+        const activityLevel = pet.activityLevel || 'sedentary';
+        const activityFactor = this.activityFactors[activityLevel] || 1.2;
+        let der = Math.round(rer * activityFactor);
+
+        // Adjust for geriatric pets (slightly lower metabolism)
+        der = Math.round(der * 0.9);
+
+        // Adjust for weight goals
+        const weightGoal = document.getElementById('weight-goal')?.value || 'maintain';
+        if (weightGoal === 'loss') der = Math.round(der * 0.8);
+        if (weightGoal === 'gain') der = Math.round(der * 1.2);
+
+        // Adjust for conditions
+        if (pet.conditions?.includes('Diabetes')) der = Math.round(der * 0.9);
+        if (pet.conditions?.includes('Kidney Disease')) der = Math.round(der * 0.85);
+
+        return {
+            rer,
+            der,
+            recommended: der,
+            feedingSchedule: this.calculateFeedingSchedule(der)
+        };
+    },
+
+    calculateFeedingSchedule: function(dailyCalories) {
+        const selectedFood = this.getSelectedFood();
+        if (!selectedFood || !selectedFood.kcalPerCup) {
+            return { morning: 0, evening: 0, total: 0 };
+        }
+
+        const cupsPerDay = dailyCalories / selectedFood.kcalPerCup;
+        const morningCups = (cupsPerDay * 0.4).toFixed(1);
+        const eveningCups = (cupsPerDay * 0.6).toFixed(1);
+
+        return {
+            morning: morningCups,
+            evening: eveningCups,
+            total: cupsPerDay.toFixed(1)
+        };
+    },
+
+    // Food Selection Functions
+    updateFoodSelection: function() {
+        const foodType = document.getElementById('food-type').value;
+        const foodContainer = document.getElementById('food-selection-container');
+        const customContainer = document.getElementById('custom-food-container');
+
+        if (foodType === 'custom') {
+            foodContainer.style.display = 'none';
+            customContainer.style.display = 'block';
+        } else if (foodType && foodType !== 'custom') {
+            customContainer.style.display = 'none';
+            foodContainer.style.display = 'block';
+            this.renderFoodOptions(foodType);
+        } else {
+            foodContainer.style.display = 'none';
+            customContainer.style.display = 'none';
+        }
+        
+        this.updateCalculation();
+    },
+
+    renderFoodOptions: function(foodType) {
+        const foods = this.foodDatabase[foodType] || [];
+        const container = document.getElementById('food-selection-container');
+        
+        container.innerHTML = `
+            <div class="form-group">
+                <label for="food-selection">Select Food</label>
+                <select id="food-selection" onchange="nutritionManager.updateCalculation()">
+                    <option value="">Choose a food</option>
+                    ${foods.map(food => `
+                        <option value="${food.id}" data-kcal="${food.kcalPerCup}">
+                            ${food.name} (${food.kcalPerCup} kcal/cup)
+                        </option>
+                    `).join('')}
+                </select>
+            </div>
+        `;
+    },
+
+    getSelectedFood: function() {
+        const foodSelection = document.getElementById('food-selection');
+        if (foodSelection && foodSelection.value) {
+            const selectedOption = foodSelection.options[foodSelection.selectedIndex];
+            return {
+                id: foodSelection.value,
+                name: selectedOption.text,
+                kcalPerCup: parseInt(selectedOption.dataset.kcal)
+            };
+        }
+        
+        // Check for custom food
+        const customName = document.getElementById('custom-food-name')?.value;
+        const customKcal = document.getElementById('custom-food-kcal')?.value;
+        if (customName && customKcal) {
+            return {
+                id: 'custom',
+                name: customName,
+                kcalPerCup: parseInt(customKcal)
+            };
+        }
+
+        return null;
+    },
+
+    // Water Tracking Functions
+    logWater: function(amount) {
+        if (!appState.currentPet) return;
+
+        const waterEntry = {
+            id: 'water_' + Date.now(),
+            petId: appState.currentPet.id,
+            amount: amount,
+            timestamp: new Date().toISOString(),
+            date: utils.getTodayDate()
+        };
+
+        let waterLog = this.getWaterLog();
+        waterLog.push(waterEntry);
+        this.saveWaterLog(waterLog);
+        
+        this.renderWaterTracker();
+    },
+
+    getWaterLog: function() {
+        if (!appState.currentPet) return [];
+        const log = utils.loadData(`waterLog_${appState.currentPet.id}`) || [];
+        return log.filter(entry => entry.date === utils.getTodayDate());
+    },
+
+    getTodayWaterIntake: function() {
+        return this.getWaterLog().reduce((total, entry) => total + entry.amount, 0);
+    },
+
+    saveWaterLog: function(waterLog) {
+        if (appState.currentPet) {
+            utils.saveData(`waterLog_${appState.currentPet.id}`, waterLog);
+        }
+    },
+
+    // Food History Functions
+    logFood: function(foodData) {
+        if (!appState.currentPet) return;
+
+        const foodEntry = {
+            id: 'food_' + Date.now(),
+            petId: appState.currentPet.id,
+            ...foodData,
+            date: utils.getTodayDate(),
+            timestamp: new Date().toISOString()
+        };
+
+        let foodHistory = this.getFoodHistory();
+        foodHistory.unshift(foodEntry); // Add to beginning
+        this.saveFoodHistory(foodHistory);
+    },
+
+    getFoodHistory: function() {
+        if (!appState.currentPet) return [];
+        return utils.loadData(`foodHistory_${appState.currentPet.id}`) || [];
+    },
+
+    saveFoodHistory: function(foodHistory) {
+        if (appState.currentPet) {
+            utils.saveData(`foodHistory_${appState.currentPet.id}`, foodHistory);
+        }
+    },
+
+    // Update Functions
+    updateCalculation: function() {
+        if (!appState.currentPet) return;
+        
+        // Save activity level to pet profile
+        const activityLevel = document.getElementById('activity-level').value;
+        if (appState.currentPet.activityLevel !== activityLevel) {
+            appState.currentPet.activityLevel = activityLevel;
+            petProfilesManager.savePets();
+        }
+
+        this.renderNutritionView();
+    },
+
+    // Rendering Functions
+    renderNutritionView: function() {
+        if (this.elements.nutritionContent) {
+            this.elements.nutritionContent.innerHTML = this.templates.mainView();
+        }
+    },
+
+    renderWaterTracker: function() {
+        const waterTrackerElement = document.querySelector('.water-tracker');
+        if (waterTrackerElement) {
+            waterTrackerElement.innerHTML = this.templates.waterTracker();
+        }
+    },
+
+    // Save Nutrition Plan
+    saveNutritionPlan: function() {
+        if (!appState.currentPet) return;
+
+        const nutritionPlan = {
+            calculatedOn: new Date().toISOString(),
+            needs: this.calculateNutritionNeeds(appState.currentPet),
+            selectedFood: this.getSelectedFood(),
+            activityLevel: document.getElementById('activity-level').value,
+            weightGoal: document.getElementById('weight-goal').value
+        };
+
+        utils.saveData(`nutritionPlan_${appState.currentPet.id}`, nutritionPlan);
+        alert('Nutrition plan saved successfully!');
+    },
+
+    // View Management
+    showWaterLog: function() {
+        const waterLog = this.getWaterLog();
+        alert('Full water log view will be implemented in next version');
+    },
+
+    showFullFoodHistory: function() {
+        alert('Full food history view will be implemented in next version');
+    },
+
+    // Initialize Nutrition Section
+    init: function() {
+        this.renderNutritionView();
+    }
+};
+
+// Add to global window object
+window.nutritionManager = nutritionManager;
+
+// Initialize function for nutrition section
+window.initNutrition = function() {
+    nutritionManager.init();
+};
+
+
+
 
 
 
