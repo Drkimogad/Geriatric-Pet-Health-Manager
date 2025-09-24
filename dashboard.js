@@ -372,6 +372,457 @@ const loadPetData = (petId) => {
     appState.todayTasks = taskManager.generateTodayTasks();
 };
 
+//====================================
+// Pet Profiles Section Functionality
+//=======================================
+const petProfilesManager = {
+    // DOM Elements for Pet Profiles
+    elements: {
+        profilesSection: document.getElementById('profiles-section'),
+        profilesContent: document.getElementById('profiles-content')
+    },
+
+    // Templates for Pet Profiles
+    templates: {
+        // Main Profiles View
+        mainView: () => `
+            <div class="profiles-header">
+                <h2>Manage Your Pet Profiles</h2>
+                <button class="btn btn-primary" onclick="petProfilesManager.showAddForm()">
+                    + Add New Pet
+                </button>
+            </div>
+            
+            <div class="pets-list" id="pets-list">
+                ${petProfilesManager.templates.petsList()}
+            </div>
+        `,
+
+        // Pets List Template
+        petsList: () => {
+            if (appState.pets.length === 0) {
+                return `
+                    <div class="no-pets">
+                        <p>No pets added yet. Add your first pet to get started!</p>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="pets-grid">
+                    ${appState.pets.map(pet => `
+                        <div class="pet-card" data-pet-id="${pet.id}">
+                            <div class="pet-card-header">
+                                <h3>${pet.name}</h3>
+                                <div class="pet-actions">
+                                    <button class="btn-icon" onclick="petProfilesManager.editPet('${pet.id}')" title="Edit">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-icon" onclick="petProfilesManager.viewPet('${pet.id}')" title="View Details">
+                                        👁️
+                                    </button>
+                                    <button class="btn-icon delete" onclick="petProfilesManager.deletePet('${pet.id}')" title="Delete">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="pet-card-body">
+                                <div class="pet-info-row">
+                                    <span class="label">Species:</span>
+                                    <span class="value">${pet.species || 'Not set'}</span>
+                                </div>
+                                <div class="pet-info-row">
+                                    <span class="label">Breed:</span>
+                                    <span class="value">${pet.breed || 'Not set'}</span>
+                                </div>
+                                <div class="pet-info-row">
+                                    <span class="label">Age:</span>
+                                    <span class="value">${calculateAge(pet.birthDate) || 'Unknown'} years</span>
+                                </div>
+                                <div class="pet-info-row">
+                                    <span class="label">Weight:</span>
+                                    <span class="value">${pet.weight ? pet.weight + ' kg' : 'Not set'}</span>
+                                </div>
+                                <div class="pet-info-row">
+                                    <span class="label">Conditions:</span>
+                                    <span class="value">${pet.conditions?.length > 0 ? pet.conditions.join(', ') : 'None'}</span>
+                                </div>
+                            </div>
+                            <div class="pet-card-footer">
+                                <button class="btn btn-secondary btn-sm" onclick="petProfilesManager.setCurrentPet('${pet.id}')">
+                                    Set as Active
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        },
+
+        // Add/Edit Pet Form
+        petForm: (pet = null) => {
+            const isEdit = !!pet;
+            return `
+                <div class="pet-form-container">
+                    <div class="form-header">
+                        <h2>${isEdit ? 'Edit' : 'Add'} Pet Profile</h2>
+                        <button class="btn btn-secondary" onclick="petProfilesManager.showMainView()">
+                            ← Back to List
+                        </button>
+                    </div>
+                    
+                    <form id="pet-form" onsubmit="petProfilesManager.handleSubmit(event)">
+                        <input type="hidden" id="pet-id" value="${pet?.id || ''}">
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="pet-name">Pet Name *</label>
+                                <input type="text" id="pet-name" value="${pet?.name || ''}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="pet-species">Species *</label>
+                                <select id="pet-species" required>
+                                    <option value="">Select Species</option>
+                                    <option value="dog" ${pet?.species === 'dog' ? 'selected' : ''}>Dog</option>
+                                    <option value="cat" ${pet?.species === 'cat' ? 'selected' : ''}>Cat</option>
+                                    <option value="other" ${pet?.species === 'other' ? 'selected' : ''}>Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="pet-breed">Breed</label>
+                                <input type="text" id="pet-breed" value="${pet?.breed || ''}" 
+                                       placeholder="e.g., Labrador, Siamese">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="pet-birthdate">Birth Date *</label>
+                                <input type="date" id="pet-birthdate" value="${pet?.birthDate || ''}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="pet-weight">Weight (kg)</label>
+                                <input type="number" id="pet-weight" value="${pet?.weight || ''}" 
+                                       step="0.1" min="0" placeholder="Current weight">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="pet-body-condition">Body Condition Score (1-9)</label>
+                                <select id="pet-body-condition">
+                                    <option value="">Select BCS</option>
+                                    ${[1,2,3,4,5,6,7,8,9].map(score => `
+                                        <option value="${score}" ${pet?.bodyConditionScore === score ? 'selected' : ''}>
+                                            ${score} - ${score <= 3 ? 'Underweight' : score <= 6 ? 'Ideal' : 'Overweight'}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Health Conditions</label>
+                            <div class="conditions-checklist">
+                                ${['Diabetes', 'Epilepsy', 'Arthritis', 'Kidney Disease', 'Heart Disease', 'Thyroid', 'Dental Disease', 'Cancer', 'Allergies', 'None'].map(condition => `
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" value="${condition}" 
+                                            ${pet?.conditions?.includes(condition) ? 'checked' : ''}>
+                                        ${condition}
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pet-mobility">Mobility Score (1-5)</label>
+                            <select id="pet-mobility">
+                                <option value="">Select Mobility Score</option>
+                                <option value="1" ${pet?.mobilityScore === 1 ? 'selected' : ''}>1 - Severely Limited</option>
+                                <option value="2" ${pet?.mobilityScore === 2 ? 'selected' : ''}>2 - Significant Difficulty</option>
+                                <option value="3" ${pet?.mobilityScore === 3 ? 'selected' : ''}>3 - Moderate Limitations</option>
+                                <option value="4" ${pet?.mobilityScore === 4 ? 'selected' : ''}>4 - Mild Stiffness</option>
+                                <option value="5" ${pet?.mobilityScore === 5 ? 'selected' : ''}>5 - Very Mobile</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pet-vet">Primary Veterinarian</label>
+                            <input type="text" id="pet-vet" value="${pet?.vetInfo?.name || ''}" 
+                                   placeholder="Vet name or clinic">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pet-notes">Additional Notes</label>
+                            <textarea id="pet-notes" rows="3" placeholder="Any additional health notes...">${pet?.notes || ''}</textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                ${isEdit ? 'Update' : 'Add'} Pet Profile
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="petProfilesManager.showMainView()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        },
+
+        // Pet Detail View
+        petDetail: (pet) => `
+            <div class="pet-detail-container">
+                <div class="detail-header">
+                    <h2>${pet.name}'s Profile</h2>
+                    <button class="btn btn-secondary" onclick="petProfilesManager.showMainView()">
+                        ← Back to List
+                    </button>
+                </div>
+                
+                <div class="pet-detail-grid">
+                    <div class="detail-section">
+                        <h3>Basic Information</h3>
+                        <div class="detail-info">
+                            <div class="info-row">
+                                <span class="label">Species:</span>
+                                <span class="value">${pet.species ? pet.species.charAt(0).toUpperCase() + pet.species.slice(1) : 'Not set'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Breed:</span>
+                                <span class="value">${pet.breed || 'Not set'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Age:</span>
+                                <span class="value">${calculateAge(pet.birthDate)} years</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Birth Date:</span>
+                                <span class="value">${formatDate(pet.birthDate) || 'Unknown'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>Health Information</h3>
+                        <div class="detail-info">
+                            <div class="info-row">
+                                <span class="label">Weight:</span>
+                                <span class="value">${pet.weight ? pet.weight + ' kg' : 'Not set'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Body Condition:</span>
+                                <span class="value">${pet.bodyConditionScore ? pet.bodyConditionScore + '/9' : 'Not set'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Mobility Score:</span>
+                                <span class="value">${pet.mobilityScore ? pet.mobilityScore + '/5' : 'Not set'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Conditions:</span>
+                                <span class="value">${pet.conditions?.length > 0 ? pet.conditions.join(', ') : 'None reported'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section full-width">
+                        <h3>Care Team</h3>
+                        <div class="detail-info">
+                            <div class="info-row">
+                                <span class="label">Primary Vet:</span>
+                                <span class="value">${pet.vetInfo?.name || 'Not specified'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${pet.notes ? `
+                    <div class="detail-section full-width">
+                        <h3>Additional Notes</h3>
+                        <div class="notes-content">
+                            <p>${pet.notes}</p>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="detail-actions">
+                    <button class="btn btn-primary" onclick="petProfilesManager.editPet('${pet.id}')">
+                        Edit Profile
+                    </button>
+                    <button class="btn btn-secondary" onclick="petProfilesManager.setCurrentPet('${pet.id}')">
+                        Set as Active Pet
+                    </button>
+                </div>
+            </div>
+        `
+    },
+
+    // View Management
+    showMainView: function() {
+        this.elements.profilesContent.innerHTML = this.templates.mainView();
+    },
+
+    showAddForm: function() {
+        this.elements.profilesContent.innerHTML = this.templates.petForm();
+    },
+
+    showEditForm: function(petId) {
+        const pet = appState.pets.find(p => p.id === petId);
+        if (pet) {
+            this.elements.profilesContent.innerHTML = this.templates.petForm(pet);
+        }
+    },
+
+    showPetDetail: function(petId) {
+        const pet = appState.pets.find(p => p.id === petId);
+        if (pet) {
+            this.elements.profilesContent.innerHTML = this.templates.petDetail(pet);
+        }
+    },
+
+    // CRUD Operations
+    handleSubmit: function(event) {
+        event.preventDefault();
+        
+        const formData = this.getFormData();
+        if (!this.validateForm(formData)) {
+            return;
+        }
+
+        const petId = document.getElementById('pet-id').value;
+        if (petId) {
+            this.updatePet(petId, formData);
+        } else {
+            this.addPet(formData);
+        }
+    },
+
+    getFormData: function() {
+        const conditions = [];
+        document.querySelectorAll('.conditions-checklist input:checked').forEach(checkbox => {
+            if (checkbox.value !== 'None') {
+                conditions.push(checkbox.value);
+            }
+        });
+
+        return {
+            name: document.getElementById('pet-name').value.trim(),
+            species: document.getElementById('pet-species').value,
+            breed: document.getElementById('pet-breed').value.trim(),
+            birthDate: document.getElementById('pet-birthdate').value,
+            weight: document.getElementById('pet-weight').value ? parseFloat(document.getElementById('pet-weight').value) : null,
+            bodyConditionScore: document.getElementById('pet-body-condition').value ? parseInt(document.getElementById('pet-body-condition').value) : null,
+            mobilityScore: document.getElementById('pet-mobility').value ? parseInt(document.getElementById('pet-mobility').value) : null,
+            conditions: conditions.length > 0 ? conditions : ['None'],
+            vetInfo: {
+                name: document.getElementById('pet-vet').value.trim()
+            },
+            notes: document.getElementById('pet-notes').value.trim(),
+            createdAt: new Date().toISOString()
+        };
+    },
+
+    validateForm: function(formData) {
+        if (!formData.name) {
+            alert('Please enter a pet name');
+            return false;
+        }
+        if (!formData.species) {
+            alert('Please select a species');
+            return false;
+        }
+        if (!formData.birthDate) {
+            alert('Please enter a birth date');
+            return false;
+        }
+        return true;
+    },
+
+    addPet: function(petData) {
+        const newPet = {
+            id: 'pet_' + Date.now(),
+            ...petData
+        };
+
+        appState.pets.push(newPet);
+        this.savePets();
+        this.showMainView();
+        alert(`${newPet.name} has been added successfully!`);
+    },
+
+    updatePet: function(petId, petData) {
+        const petIndex = appState.pets.findIndex(p => p.id === petId);
+        if (petIndex !== -1) {
+            appState.pets[petIndex] = {
+                ...appState.pets[petIndex],
+                ...petData,
+                updatedAt: new Date().toISOString()
+            };
+            
+            this.savePets();
+            this.showMainView();
+            alert('Pet profile updated successfully!');
+        }
+    },
+
+    deletePet: function(petId) {
+        if (confirm('Are you sure you want to delete this pet profile? This action cannot be undone.')) {
+            appState.pets = appState.pets.filter(p => p.id !== petId);
+            this.savePets();
+            
+            if (appState.currentPet?.id === petId) {
+                appState.currentPet = null;
+                utils.saveData('currentPet', null);
+            }
+            
+            this.showMainView();
+            alert('Pet profile deleted successfully');
+        }
+    },
+
+    viewPet: function(petId) {
+        this.showPetDetail(petId);
+    },
+
+    editPet: function(petId) {
+        this.showEditForm(petId);
+    },
+
+    setCurrentPet: function(petId) {
+        const pet = appState.pets.find(p => p.id === petId);
+        if (pet) {
+            appState.currentPet = pet;
+            utils.saveData('currentPet', pet);
+            alert(`${pet.name} is now your active pet!`);
+            showDashboard(); // Return to dashboard with new active pet
+        }
+    },
+
+    // Data Persistence
+    savePets: function() {
+        const user = authFunctions?.getCurrentUser();
+        if (user) {
+            utils.saveData(`pets_${user.id}`, appState.pets);
+        }
+    },
+
+    // Initialize Profiles Section
+    init: function() {
+        this.showMainView();
+    }
+};
+
+// Add to global window object for HTML event handlers
+window.petProfilesManager = petProfilesManager;
+
+// Initialize function for profiles section
+window.initProfiles = function() {
+    petProfilesManager.init();
+};
+
+
+
+
+
 // Initialize Dashboard
 const initDashboard = () => {
     loadAppData();
@@ -396,11 +847,3 @@ window.logActivity = () => {
     sectionManager.showSection('exercise');
 };
 
-// Export for testing/development
-window.dashboardApp = {
-    appState,
-    utils,
-    taskManager,
-    sectionManager,
-    renderDashboard
-};
