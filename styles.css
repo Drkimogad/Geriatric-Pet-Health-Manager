@@ -264,6 +264,632 @@ footer p {
     display: block;
 }
 
+
+
+
+
+/* Exercise & Mobility Section Styles */
+.exercise-header {
+    margin-bottom: 2rem;
+}
+
+.exercise-header h2 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+/* Exercise Grid Layout */
+.exercise-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto auto;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.exercise-card {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mobility-tracker {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.activity-log {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.exercise-suggestions {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.activity-history {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.mobility-trend {
+    grid-column: 1;
+    grid-row: 3;
+}
+
+.exercise-tips {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+/* Mobility Score Display */
+.mobility-score-display {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.score-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    position: relative;
+}
+
+.score-circle.score-1 { background: var(--error); color: white; }
+.score-circle.score-2 { background: var(--warning); color: var(--neutral-text); }
+.score-circle.score-3 { background: var(--info); color: white; }
+.score-circle.score-4 { background: var(--secondary-light); color: var(--neutral-text); }
+.score-circle.score-5 { background: var(--success); color: white; }
+.score-circle.no-score { 
+    background: var(--neutral-medium); 
+    color: var(--neutral-dark);
+    border: 2px dashed var(--neutral-dark);
+}
+
+.score-number {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.mobility-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary);
+    font-size: 1.2rem;
+}
+
+.mobility-info p {
+    margin: 0 0 0.5rem 0;
+    color: var(--neutral-text);
+}
+
+.mobility-info small {
+    color: var(--neutral-dark);
+    font-style: italic;
+}
+
+.mobility-questions {
+    background: var(--surface);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary);
+}
+
+.mobility-questions h4 {
+    margin: 0 0 0.75rem 0;
+    color: var(--primary);
+}
+
+.assessment-questions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.assessment-questions li {
+    padding: 0.5rem 0;
+    color: var(--neutral-text);
+    border-bottom: 1px solid var(--neutral-medium);
+}
+
+.assessment-questions li:last-child {
+    border-bottom: none;
+}
+
+/* Activity Log Styles */
+.today-activities {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.activity-summary {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--neutral-medium);
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.summary-item .label {
+    font-size: 0.9rem;
+    color: var(--neutral-dark);
+    margin-bottom: 0.25rem;
+}
+
+.summary-item .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.activity-item {
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 8px;
+    border-left: 4px solid var(--secondary);
+}
+
+.activity-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.activity-main strong {
+    color: var(--neutral-text);
+    font-size: 1.1rem;
+}
+
+.activity-duration {
+    background: var(--primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.activity-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--neutral-dark);
+}
+
+.activity-notes {
+    font-style: italic;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.activity-mobility {
+    margin-top: 0.5rem;
+    text-align: right;
+}
+
+.mobility-after {
+    background: var(--neutral-medium);
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: var(--neutral-text);
+}
+
+/* Exercise Suggestions */
+.suggestions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.suggestion-item:hover {
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.suggestion-header h4 {
+    margin: 0;
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+.exercise-duration {
+    background: var(--accent);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.exercise-description {
+    margin: 0 0 0.75rem 0;
+    color: var(--neutral-text);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.exercise-benefits,
+.exercise-precautions {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.exercise-benefits strong {
+    color: var(--success);
+}
+
+.exercise-precautions strong {
+    color: var(--warning);
+}
+
+/* Activity History */
+.activity-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-day {
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-light);
+}
+
+.history-date {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.history-summary {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--neutral-dark);
+}
+
+/* Mobility Trend */
+.trend-display {
+    text-align: center;
+    padding: 1rem;
+}
+
+.trend-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.trend-indicator.improving {
+    background: var(--success);
+    color: white;
+}
+
+.trend-indicator.declining {
+    background: var(--error);
+    color: white;
+}
+
+.trend-indicator.stable {
+    background: var(--info);
+    color: white;
+}
+
+.trend-arrow {
+    font-size: 1.5rem;
+}
+
+.trend-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.trend-score {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--neutral-text);
+}
+
+.trend-period {
+    color: var(--neutral-dark);
+    font-size: 0.9rem;
+}
+
+/* Exercise Tips */
+.tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tip-item {
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 8px;
+    border-left: 4px solid var(--secondary);
+}
+
+.tip-item strong {
+    color: var(--primary);
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.tip-item p {
+    margin: 0;
+    color: var(--neutral-text);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Form Styles */
+.mobility-form-container,
+.activity-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.assessment-guide {
+    margin-bottom: 2rem;
+}
+
+.assessment-guide h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.score-guide {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.score-option {
+    padding: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.score-option:hover {
+    border-color: var(--primary-light);
+    background: var(--surface);
+}
+
+.score-label {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.score-label input[type="radio"] {
+    margin-right: 0.5rem;
+}
+
+.score-number {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+}
+
+.score-description {
+    color: var(--neutral-text);
+    font-size: 0.9rem;
+}
+
+/* Empty States */
+.no-activities,
+.no-suggestions,
+.no-history,
+.no-trend {
+    text-align: center;
+    padding: 2rem;
+    color: var(--neutral-dark);
+    font-style: italic;
+}
+
+.no-activities .btn {
+    margin-top: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .exercise-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    
+    .mobility-tracker,
+    .activity-log,
+    .exercise-suggestions,
+    .activity-history,
+    .mobility-trend,
+    .exercise-tips {
+        grid-column: 1;
+    }
+    
+    .mobility-tracker { grid-row: 1; }
+    .activity-log { grid-row: 2; }
+    .exercise-suggestions { grid-row: 3; }
+    .activity-history { grid-row: 4; }
+    .mobility-trend { grid-row: 5; }
+    .exercise-tips { grid-row: 6; }
+}
+
+@media (max-width: 768px) {
+    .exercise-card {
+        padding: 1rem;
+    }
+    
+    .mobility-score-display {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .score-circle {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .score-number {
+        font-size: 2rem;
+    }
+    
+    .activity-summary {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .suggestion-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .trend-score {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .activity-details {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .activity-notes {
+        max-width: 100%;
+        white-space: normal;
+    }
+    
+    .history-summary {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .score-option {
+        padding: 0.75rem;
+    }
+}
+
+/* Scrollbar Styling */
+.today-activities::-webkit-scrollbar,
+.suggestions-list::-webkit-scrollbar,
+.activity-history-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.today-activities::-webkit-scrollbar-track,
+.suggestions-list::-webkit-scrollbar-track,
+.activity-history-list::-webkit-scrollbar-track {
+    background: var(--neutral-light);
+    border-radius: 3px;
+}
+
+.today-activities::-webkit-scrollbar-thumb,
+.suggestions-list::-webkit-scrollbar-thumb,
+.activity-history-list::-webkit-scrollbar-thumb {
+    background: var(--neutral-dark);
+    border-radius: 3px;
+}
+
+.today-activities::-webkit-scrollbar-thumb:hover,
+.suggestions-list::-webkit-scrollbar-thumb:hover,
+.activity-history-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+/* Animation for trend indicators */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.trend-indicator.improving {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Print Styles */
+@media print {
+    .exercise-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .btn {
+        display: none;
+    }
+}
+
 /* Reminders & Appointments Section Styles */
 .reminders-header {
     margin-bottom: 2rem;
