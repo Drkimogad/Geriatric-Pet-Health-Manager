@@ -2933,6 +2933,787 @@ window.initExercise = function() {
     exerciseManager.init();
 };
 
+// Reminders & Appointments Section Functionality
+const remindersManager = {
+    // DOM Elements
+    elements: {
+        remindersSection: document.getElementById('reminders-section'),
+        remindersContent: document.getElementById('reminders-content')
+    },
+
+    // Reminder Types and Templates
+    reminderTypes: {
+        vet: {
+            label: 'Vet Appointment',
+            icon: '🏥',
+            color: 'var(--error)',
+            fields: ['clinic', 'doctor', 'purpose', 'preparation']
+        },
+        medication_refill: {
+            label: 'Medication Refill',
+            icon: '💊',
+            color: 'var(--warning)',
+            fields: ['pharmacy', 'medication', 'prescriptionNumber']
+        },
+        grooming: {
+            label: 'Grooming',
+            icon: '✂️',
+            color: 'var(--info)',
+            fields: ['groomer', 'service', 'specialInstructions']
+        },
+        vaccination: {
+            label: 'Vaccination Due',
+            icon: '💉',
+            color: 'var(--accent)',
+            fields: ['vaccine', 'clinic', 'notes']
+        },
+        checkup: {
+            label: 'Routine Checkup',
+            icon: '👨‍⚕️',
+            color: 'var(--primary)',
+            fields: ['purpose', 'clinic', 'fastingRequired']
+        },
+        bloodwork: {
+            label: 'Blood Work',
+            icon: '🩸',
+            color: 'var(--secondary)',
+            fields: ['testType', 'fastingRequired', 'clinic']
+        },
+        dental: {
+            label: 'Dental Care',
+            icon: '🦷',
+            color: 'var(--primary-light)',
+            fields: ['procedure', 'clinic', 'anesthesia']
+        },
+        other: {
+            label: 'Other',
+            icon: '📌',
+            color: 'var(--neutral-dark)',
+            fields: ['description']
+        }
+    },
+
+    // Recurrence Options
+    recurrenceOptions: {
+        none: 'Does not repeat',
+        daily: 'Daily',
+        weekly: 'Weekly',
+        monthly: 'Monthly',
+        yearly: 'Yearly',
+        custom: 'Custom'
+    },
+
+    // Priority Levels
+    priorityLevels: {
+        high: { label: 'High', color: 'var(--error)' },
+        medium: { label: 'Medium', color: 'var(--warning)' },
+        low: { label: 'Low', color: 'var(--info)' }
+    },
+
+    // Templates
+    templates: {
+        // Main Reminders View
+        mainView: () => `
+            <div class="reminders-header">
+                <h2>Reminders & Appointments</h2>
+                ${appState.currentPet ? `
+                    <div class="current-pet-banner">
+                        Managing reminders for: <strong>${appState.currentPet.name}</strong>
+                    </div>
+                ` : '<p class="warning">Please select a pet first</p>'}
+            </div>
+
+            ${appState.currentPet ? remindersManager.templates.remindersDashboard() : remindersManager.templates.noPetView()}
+        `,
+
+        // View when no pet is selected
+        noPetView: () => `
+            <div class="no-pet-selected">
+                <div class="empty-state">
+                    <h3>No Active Pet Selected</h3>
+                    <p>Please select or add a pet to manage reminders.</p>
+                    <button class="btn btn-primary" onclick="showSection('profiles')">
+                        Manage Pet Profiles
+                    </button>
+                </div>
+            </div>
+        `,
+
+        // Reminders Dashboard
+        remindersDashboard: () => {
+            const upcomingReminders = remindersManager.getUpcomingReminders(7);
+            const overdueReminders = remindersManager.getOverdueReminders();
+            
+            return `
+                <div class="reminders-grid">
+                    <div class="reminders-card calendar-view">
+                        <div class="card-header">
+                            <h3>Calendar</h3>
+                            <div class="calendar-nav">
+                                <button class="btn-icon" onclick="remindersManager.previousMonth()">←</button>
+                                <span id="current-month">${remindersManager.getCurrentMonthYear()}</span>
+                                <button class="btn-icon" onclick="remindersManager.nextMonth()">→</button>
+                            </div>
+                        </div>
+                        <div class="calendar-content">
+                            ${remindersManager.templates.calendarView()}
+                        </div>
+                    </div>
+
+                    <div class="reminders-card upcoming-reminders">
+                        <div class="card-header">
+                            <h3>Upcoming This Week</h3>
+                            <button class="btn btn-primary btn-sm" onclick="remindersManager.showAddForm()">
+                                + Add Reminder
+                            </button>
+                        </div>
+                        <div class="upcoming-content">
+                            ${remindersManager.templates.upcomingReminders(upcomingReminders)}
+                        </div>
+                    </div>
+
+                    <div class="reminders-card reminder-list">
+                        <div class="card-header">
+                            <h3>All Reminders</h3>
+                            <div class="view-toggle">
+                                <button class="btn btn-secondary btn-sm active" onclick="remindersManager.toggleView('list')">
+                                    List
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="remindersManager.toggleView('grid')">
+                                    Grid
+                                </button>
+                            </div>
+                        </div>
+                        <div class="reminders-content">
+                            ${remindersManager.templates.remindersList()}
+                        </div>
+                    </div>
+
+                    <div class="reminders-card overdue-alerts">
+                        <div class="card-header">
+                            <h3>Overdue & Alerts</h3>
+                        </div>
+                        <div class="alerts-content">
+                            ${remindersManager.templates.overdueAlerts(overdueReminders)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        // Calendar View Template
+        calendarView: () => {
+            const days = remindersManager.getCalendarDays();
+            
+            return `
+                <div class="calendar">
+                    <div class="calendar-header">
+                        ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => `
+                            <div class="calendar-day-header">${day}</div>
+                        `).join('')}
+                    </div>
+                    <div class="calendar-days">
+                        ${days.map(day => `
+                            <div class="calendar-day ${day.isCurrentMonth ? '' : 'other-month'} ${day.isToday ? 'today' : ''} ${day.hasReminders ? 'has-reminders' : ''}" 
+                                 onclick="remindersManager.showDayReminders('${day.date}')">
+                                <span class="day-number">${day.date.getDate()}</span>
+                                ${day.hasReminders ? '<span class="reminder-dot"></span>' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        },
+
+        // Upcoming Reminders Template
+        upcomingReminders: (reminders) => {
+            if (reminders.length === 0) {
+                return '<p class="no-reminders">No upcoming reminders this week</p>';
+            }
+
+            return `
+                <div class="upcoming-list">
+                    ${reminders.map(reminder => `
+                        <div class="upcoming-item ${reminder.priority}">
+                            <div class="reminder-icon" style="color: ${remindersManager.reminderTypes[reminder.type].color}">
+                                ${remindersManager.reminderTypes[reminder.type].icon}
+                            </div>
+                            <div class="reminder-details">
+                                <div class="reminder-title">${reminder.title}</div>
+                                <div class="reminder-date">
+                                    ${formatDate(reminder.date)} at ${reminder.time || 'All day'}
+                                </div>
+                                ${reminder.location ? `<div class="reminder-location">${reminder.location}</div>` : ''}
+                            </div>
+                            <div class="reminder-actions">
+                                <button class="btn-icon" onclick="remindersManager.completeReminder('${reminder.id}')" title="Mark Complete">
+                                    ✅
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        },
+
+        // Reminders List Template
+        remindersList: () => {
+            const reminders = remindersManager.getReminders();
+            
+            if (reminders.length === 0) {
+                return `
+                    <div class="empty-state">
+                        <p>No reminders set up yet.</p>
+                        <button class="btn btn-primary" onclick="remindersManager.showAddForm()">
+                            Add Your First Reminder
+                        </button>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="reminders-list">
+                    ${reminders.map(reminder => `
+                        <div class="reminder-list-item ${reminder.priority} ${reminder.completed ? 'completed' : ''}">
+                            <div class="reminder-main">
+                                <div class="reminder-type-icon" style="background-color: ${remindersManager.reminderTypes[reminder.type].color}">
+                                    ${remindersManager.reminderTypes[reminder.type].icon}
+                                </div>
+                                <div class="reminder-info">
+                                    <div class="reminder-header">
+                                        <h4>${reminder.title}</h4>
+                                        <span class="reminder-priority">${remindersManager.priorityLevels[reminder.priority].label}</span>
+                                    </div>
+                                    <div class="reminder-dates">
+                                        <span class="reminder-date">${formatDate(reminder.date)}</span>
+                                        ${reminder.time ? `<span class="reminder-time">${reminder.time}</span>` : ''}
+                                        ${reminder.recurrence !== 'none' ? `<span class="reminder-recurrence">${reminder.recurrence}</span>` : ''}
+                                    </div>
+                                    ${reminder.description ? `<p class="reminder-description">${reminder.description}</p>` : ''}
+                                </div>
+                            </div>
+                            <div class="reminder-actions">
+                                ${!reminder.completed ? `
+                                    <button class="btn btn-success btn-xs" onclick="remindersManager.completeReminder('${reminder.id}')">
+                                        Complete
+                                    </button>
+                                ` : `
+                                    <span class="completed-badge">Completed</span>
+                                `}
+                                <button class="btn-icon" onclick="remindersManager.editReminder('${reminder.id}')" title="Edit">
+                                    ✏️
+                                </button>
+                                <button class="btn-icon delete" onclick="remindersManager.deleteReminder('${reminder.id}')" title="Delete">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        },
+
+        // Overdue Alerts Template
+        overdueAlerts: (reminders) => {
+            if (reminders.length === 0) {
+                return '<p class="no-alerts">No overdue reminders</p>';
+            }
+
+            return `
+                <div class="alerts-list">
+                    ${reminders.map(reminder => `
+                        <div class="alert-item overdue">
+                            <div class="alert-icon">⚠️</div>
+                            <div class="alert-content">
+                                <strong>${reminder.title}</strong>
+                                <p>Was due: ${formatDate(reminder.date)}</p>
+                                <small>${remindersManager.reminderTypes[reminder.type].label}</small>
+                            </div>
+                            <button class="btn btn-primary btn-xs" onclick="remindersManager.rescheduleReminder('${reminder.id}')">
+                                Reschedule
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        },
+
+        // Add/Edit Reminder Form
+        reminderForm: (reminder = null) => {
+            const isEdit = !!reminder;
+            const today = new Date().toISOString().split('T')[0];
+            
+            return `
+                <div class="reminder-form-container">
+                    <div class="form-header">
+                        <h2>${isEdit ? 'Edit' : 'Add'} Reminder</h2>
+                        <button class="btn btn-secondary" onclick="remindersManager.showMainView()">
+                            ← Back to Reminders
+                        </button>
+                    </div>
+
+                    <form id="reminder-form" onsubmit="remindersManager.handleSubmit(event)">
+                        <input type="hidden" id="reminder-id" value="${reminder?.id || ''}">
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="reminder-type">Reminder Type *</label>
+                                <select id="reminder-type" required onchange="remindersManager.updateFormFields()">
+                                    <option value="">Select Type</option>
+                                    ${Object.entries(remindersManager.reminderTypes).map(([key, type]) => `
+                                        <option value="${key}" ${reminder?.type === key ? 'selected' : ''}>
+                                            ${type.icon} ${type.label}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reminder-title">Title *</label>
+                                <input type="text" id="reminder-title" value="${reminder?.title || ''}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reminder-date">Date *</label>
+                                <input type="date" id="reminder-date" value="${reminder?.date || today}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reminder-time">Time</label>
+                                <input type="time" id="reminder-time" value="${reminder?.time || ''}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reminder-priority">Priority</label>
+                                <select id="reminder-priority">
+                                    ${Object.entries(remindersManager.priorityLevels).map(([key, level]) => `
+                                        <option value="${key}" ${reminder?.priority === key ? 'selected' : ''}>
+                                            ${level.label}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reminder-recurrence">Recurrence</label>
+                                <select id="reminder-recurrence">
+                                    ${Object.entries(remindersManager.recurrenceOptions).map(([key, label]) => `
+                                        <option value="${key}" ${reminder?.recurrence === key ? 'selected' : ''}>
+                                            ${label}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reminder-description">Description</label>
+                            <textarea id="reminder-description" rows="3" placeholder="Additional details...">${reminder?.description || ''}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reminder-location">Location</label>
+                            <input type="text" id="reminder-location" value="${reminder?.location || ''}" 
+                                   placeholder="Clinic name, address, etc.">
+                        </div>
+
+                        <div id="type-specific-fields">
+                            <!-- Dynamic fields based on reminder type will appear here -->
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="reminder-notifications" ${reminder?.notifications !== false ? 'checked' : ''}>
+                                Send reminder notifications
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                ${isEdit ? 'Update' : 'Add'} Reminder
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="remindersManager.showMainView()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        },
+
+        // Day Reminders Modal Template
+        dayRemindersModal: (date, reminders) => {
+            return `
+                <div class="modal-overlay" onclick="remindersManager.hideDayReminders()">
+                    <div class="modal-content" onclick="event.stopPropagation()">
+                        <div class="modal-header">
+                            <h3>Reminders for ${formatDate(date)}</h3>
+                            <button class="btn-icon" onclick="remindersManager.hideDayReminders()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            ${reminders.length === 0 ? `
+                                <p class="no-reminders">No reminders for this day</p>
+                            ` : `
+                                <div class="day-reminders-list">
+                                    ${reminders.map(reminder => `
+                                        <div class="day-reminder-item ${reminder.priority}">
+                                            <div class="reminder-type">${remindersManager.reminderTypes[reminder.type].icon} ${remindersManager.reminderTypes[reminder.type].label}</div>
+                                            <div class="reminder-title">${reminder.title}</div>
+                                            ${reminder.time ? `<div class="reminder-time">${reminder.time}</div>` : ''}
+                                            <div class="reminder-actions">
+                                                <button class="btn btn-primary btn-xs" onclick="remindersManager.editReminder('${reminder.id}')">
+                                                    Edit
+                                                </button>
+                                                <button class="btn btn-success btn-xs" onclick="remindersManager.completeReminder('${reminder.id}')">
+                                                    Complete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `}
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" onclick="remindersManager.showAddFormWithDate('${date}')">
+                                Add Reminder for This Day
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    },
+
+    // Calendar Management
+    currentMonth: new Date().getMonth(),
+    currentYear: new Date().getFullYear(),
+
+    getCurrentMonthYear: function() {
+        return new Date(this.currentYear, this.currentMonth).toLocaleDateString('en-US', { 
+            month: 'long', 
+            year: 'numeric' 
+        });
+    },
+
+    getCalendarDays: function() {
+        const days = [];
+        const firstDay = new Date(this.currentYear, this.currentMonth, 1);
+        const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
+        const startDay = firstDay.getDay();
+        const daysInMonth = lastDay.getDate();
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Previous month days
+        const prevMonthLastDay = new Date(this.currentYear, this.currentMonth, 0).getDate();
+        for (let i = startDay - 1; i >= 0; i--) {
+            const date = new Date(this.currentYear, this.currentMonth - 1, prevMonthLastDay - i);
+            days.push({
+                date: date,
+                isCurrentMonth: false,
+                isToday: false,
+                hasReminders: this.hasRemindersOnDate(date)
+            });
+        }
+
+        // Current month days
+        for (let i = 1; i <= daysInMonth; i++) {
+            const date = new Date(this.currentYear, this.currentMonth, i);
+            days.push({
+                date: date,
+                isCurrentMonth: true,
+                isToday: date.getTime() === today.getTime(),
+                hasReminders: this.hasRemindersOnDate(date)
+            });
+        }
+
+        // Next month days
+        const totalCells = 42; // 6 weeks
+        const nextMonthDays = totalCells - days.length;
+        for (let i = 1; i <= nextMonthDays; i++) {
+            const date = new Date(this.currentYear, this.currentMonth + 1, i);
+            days.push({
+                date: date,
+                isCurrentMonth: false,
+                isToday: false,
+                hasReminders: this.hasRemindersOnDate(date)
+            });
+        }
+
+        return days;
+    },
+
+    previousMonth: function() {
+        this.currentMonth--;
+        if (this.currentMonth < 0) {
+            this.currentMonth = 11;
+            this.currentYear--;
+        }
+        this.renderRemindersView();
+    },
+
+    nextMonth: function() {
+        this.currentMonth++;
+        if (this.currentMonth > 11) {
+            this.currentMonth = 0;
+            this.currentYear++;
+        }
+        this.renderRemindersView();
+    },
+
+    // Data Management Functions
+    getReminders: function() {
+        if (!appState.currentPet) return [];
+        return utils.loadData(`reminders_${appState.currentPet.id}`) || [];
+    },
+
+    saveReminders: function(reminders) {
+        if (appState.currentPet) {
+            utils.saveData(`reminders_${appState.currentPet.id}`, reminders);
+        }
+    },
+
+    getUpcomingReminders: function(days = 7) {
+        const reminders = this.getReminders().filter(reminder => !reminder.completed);
+        const today = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(today.getDate() + days);
+        
+        return reminders.filter(reminder => {
+            const reminderDate = new Date(reminder.date);
+            return reminderDate >= today && reminderDate <= futureDate;
+        }).sort((a, b) => new Date(a.date) - new Date(b.date));
+    },
+
+    getOverdueReminders: function() {
+        const reminders = this.getReminders().filter(reminder => !reminder.completed);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        return reminders.filter(reminder => {
+            const reminderDate = new Date(reminder.date);
+            reminderDate.setHours(0, 0, 0, 0);
+            return reminderDate < today;
+        }).sort((a, b) => new Date(a.date) - new Date(b.date));
+    },
+
+    hasRemindersOnDate: function(date) {
+        const reminders = this.getReminders().filter(reminder => !reminder.completed);
+        const dateString = date.toISOString().split('T')[0];
+        
+        return reminders.some(reminder => reminder.date === dateString);
+    },
+
+    getRemindersOnDate: function(dateString) {
+        const reminders = this.getReminders().filter(reminder => !reminder.completed);
+        return reminders.filter(reminder => reminder.date === dateString);
+    },
+
+    // Form Handling Functions
+    handleSubmit: function(event) {
+        event.preventDefault();
+        const formData = this.getFormData();
+        
+        if (this.validateForm(formData)) {
+            const reminderId = document.getElementById('reminder-id').value;
+            if (reminderId) {
+                this.updateReminder(reminderId, formData);
+            } else {
+                this.addReminder(formData);
+            }
+        }
+    },
+
+    getFormData: function() {
+        return {
+            type: document.getElementById('reminder-type').value,
+            title: document.getElementById('reminder-title').value.trim(),
+            date: document.getElementById('reminder-date').value,
+            time: document.getElementById('reminder-time').value || null,
+            priority: document.getElementById('reminder-priority').value,
+            recurrence: document.getElementById('reminder-recurrence').value,
+            description: document.getElementById('reminder-description').value.trim(),
+            location: document.getElementById('reminder-location').value.trim(),
+            notifications: document.getElementById('reminder-notifications').checked,
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+    },
+
+    validateForm: function(formData) {
+        if (!formData.type) {
+            alert('Please select reminder type');
+            return false;
+        }
+        if (!formData.title) {
+            alert('Please enter a title');
+            return false;
+        }
+        if (!formData.date) {
+            alert('Please select a date');
+            return false;
+        }
+        return true;
+    },
+
+    updateFormFields: function() {
+        const type = document.getElementById('reminder-type').value;
+        const fieldsContainer = document.getElementById('type-specific-fields');
+        
+        if (type && this.reminderTypes[type]) {
+            const fields = this.reminderTypes[type].fields;
+            fieldsContainer.innerHTML = fields.map(field => `
+                <div class="form-group">
+                    <label for="reminder-${field}">${field.replace(/_/g, ' ').toUpperCase()}</label>
+                    <input type="text" id="reminder-${field}" placeholder="Enter ${field.replace(/_/g, ' ')}">
+                </div>
+            `).join('');
+        } else {
+            fieldsContainer.innerHTML = '';
+        }
+    },
+
+    // CRUD Operations
+    addReminder: function(reminderData) {
+        const newReminder = {
+            id: 'reminder_' + Date.now(),
+            petId: appState.currentPet.id,
+            ...reminderData
+        };
+
+        const reminders = this.getReminders();
+        reminders.push(newReminder);
+        this.saveReminders(reminders);
+
+        alert('Reminder added successfully!');
+        this.showMainView();
+    },
+
+    updateReminder: function(reminderId, reminderData) {
+        const reminders = this.getReminders();
+        const reminderIndex = reminders.findIndex(reminder => reminder.id === reminderId);
+        
+        if (reminderIndex !== -1) {
+            reminders[reminderIndex] = {
+                ...reminders[reminderIndex],
+                ...reminderData,
+                updatedAt: new Date().toISOString()
+            };
+            
+            this.saveReminders(reminders);
+            alert('Reminder updated successfully!');
+            this.showMainView();
+        }
+    },
+
+    deleteReminder: function(reminderId) {
+        if (confirm('Are you sure you want to delete this reminder?')) {
+            const reminders = this.getReminders().filter(reminder => reminder.id !== reminderId);
+            this.saveReminders(reminders);
+            alert('Reminder deleted successfully');
+            this.showMainView();
+        }
+    },
+
+    completeReminder: function(reminderId) {
+        const reminders = this.getReminders();
+        const reminder = reminders.find(reminder => reminder.id === reminderId);
+        
+        if (reminder) {
+            reminder.completed = true;
+            reminder.completedAt = new Date().toISOString();
+            this.saveReminders(reminders);
+            alert('Reminder marked as completed!');
+            this.showMainView();
+        }
+    },
+
+    rescheduleReminder: function(reminderId) {
+        const newDate = prompt('Enter new date (YYYY-MM-DD):');
+        if (newDate) {
+            const reminders = this.getReminders();
+            const reminder = reminders.find(reminder => reminder.id === reminderId);
+            
+            if (reminder) {
+                reminder.date = newDate;
+                reminder.completed = false;
+                delete reminder.completedAt;
+                this.saveReminders(reminders);
+                alert('Reminder rescheduled!');
+                this.showMainView();
+            }
+        }
+    },
+
+    // View Management
+    showMainView: function() {
+        this.elements.remindersContent.innerHTML = this.templates.mainView();
+    },
+
+    showAddForm: function() {
+        this.elements.remindersContent.innerHTML = this.templates.reminderForm();
+    },
+
+    showAddFormWithDate: function(date) {
+        this.elements.remindersContent.innerHTML = this.templates.reminderForm();
+        document.getElementById('reminder-date').value = date;
+        this.hideDayReminders();
+    },
+
+    showEditForm: function(reminderId) {
+        const reminders = this.getReminders();
+        const reminder = reminders.find(reminder => reminder.id === reminderId);
+        if (reminder) {
+            this.elements.remindersContent.innerHTML = this.templates.reminderForm(reminder);
+        }
+    },
+
+    showDayReminders: function(dateString) {
+        const date = new Date(dateString);
+        const reminders = this.getRemindersOnDate(date.toISOString().split('T')[0]);
+        
+        const modal = document.createElement('div');
+        modal.innerHTML = this.templates.dayRemindersModal(date, reminders);
+        document.body.appendChild(modal);
+    },
+
+    hideDayReminders: function() {
+        const modal = document.querySelector('.modal-overlay');
+        if (modal) {
+            modal.remove();
+        }
+    },
+
+    toggleView: function(viewType) {
+        // Implementation for switching between list and grid views
+        alert(`${viewType} view will be implemented in next version`);
+    },
+
+    editReminder: function(reminderId) {
+        this.showEditForm(reminderId);
+    },
+
+    // Rendering
+    renderRemindersView: function() {
+        if (this.elements.remindersContent) {
+            this.elements.remindersContent.innerHTML = this.templates.mainView();
+        }
+    },
+
+    // Initialize Reminders Section
+    init: function() {
+        this.showMainView();
+    }
+};
+
+// Add to global window object
+window.remindersManager = remindersManager;
+
+// Initialize function for reminders section
+window.initReminders = function() {
+    remindersManager.init();
+};
 
 
 
