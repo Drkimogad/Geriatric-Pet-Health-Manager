@@ -1360,7 +1360,789 @@ window.nutritionManager = nutritionManager;
 window.initNutrition = function() {
     nutritionManager.init();
 };
+// Medication Manager Section Functionality
+const medicationManager = {
+    // DOM Elements
+    elements: {
+        medicationSection: document.getElementById('medication-section'),
+        medicationContent: document.getElementById('medication-content')
+    },
 
+    // Medication Database with Standard Dosages
+    medicationDatabase: {
+        diabetes: [
+            { 
+                id: 'insulin_glargine', 
+                name: 'Insulin Glargine (Lantus)', 
+                type: 'injection',
+                standardDosage: '0.25-0.5 IU/kg twice daily',
+                maxDosage: '1 IU/kg per dose',
+                instructions: 'Give with meals, monitor glucose levels'
+            },
+            { 
+                id: 'insulin_vetsulin', 
+                name: 'Vetsulin (Porcine Insulin Zinc)', 
+                type: 'injection',
+                standardDosage: '0.5 IU/kg twice daily',
+                maxDosage: '1.5 IU/kg per dose',
+                instructions: 'Shake well before use, give with meals'
+            }
+        ],
+        epilepsy: [
+            { 
+                id: 'phenobarbital', 
+                name: 'Phenobarbital', 
+                type: 'tablet',
+                standardDosage: '2-3 mg/kg twice daily',
+                maxDosage: '6 mg/kg per day',
+                instructions: 'Monitor liver enzymes regularly'
+            },
+            { 
+                id: 'potassium_bromide', 
+                name: 'Potassium Bromide', 
+                type: 'liquid',
+                standardDosage: '30-40 mg/kg once daily',
+                maxDosage: '60 mg/kg per day',
+                instructions: 'Give with food, maintain consistent salt intake'
+            },
+            { 
+                id: 'levetiracetam', 
+                name: 'Levetiracetam (Keppra)', 
+                type: 'tablet',
+                standardDosage: '20 mg/kg three times daily',
+                maxDosage: '60 mg/kg per day',
+                instructions: 'May cause drowsiness initially'
+            }
+        ],
+        arthritis: [
+            { 
+                id: 'carprofen', 
+                name: 'Carprofen (Rimadyl)', 
+                type: 'tablet',
+                standardDosage: '2 mg/kg twice daily',
+                maxDosage: '4 mg/kg per day',
+                instructions: 'Give with food, monitor kidney function'
+            },
+            { 
+                id: 'meloxicam', 
+                name: 'Meloxicam (Metacam)', 
+                type: 'liquid',
+                standardDosage: '0.1 mg/kg first dose, then 0.05 mg/kg daily',
+                maxDosage: '0.1 mg/kg per day',
+                instructions: 'Initial loading dose, then maintenance'
+            },
+            { 
+                id: 'gabapentin', 
+                name: 'Gabapentin', 
+                type: 'capsule',
+                standardDosage: '5-10 mg/kg twice daily',
+                maxDosage: '20 mg/kg per day',
+                instructions: 'May cause sedation, adjust gradually'
+            }
+        ],
+        thyroid: [
+            { 
+                id: 'levothyroxine', 
+                name: 'Levothyroxine', 
+                type: 'tablet',
+                standardDosage: '0.02 mg/kg twice daily',
+                maxDosage: '0.8 mg per day',
+                instructions: 'Give on empty stomach, monitor T4 levels'
+            }
+        ],
+        heart: [
+            { 
+                id: 'enalapril', 
+                name: 'Enalapril', 
+                type: 'tablet',
+                standardDosage: '0.5 mg/kg once daily',
+                maxDosage: '1 mg/kg per day',
+                instructions: 'Monitor kidney function, blood pressure'
+            },
+            { 
+                id: 'furosemide', 
+                name: 'Furosemide (Lasix)', 
+                type: 'tablet',
+                standardDosage: '1-2 mg/kg twice daily',
+                maxDosage: '6 mg/kg per day',
+                instructions: 'Ensure adequate water intake, monitor electrolytes'
+            }
+        ]
+    },
+
+    // Frequency Options
+    frequencyOptions: {
+        'once_daily': { label: 'Once Daily', times: ['08:00'] },
+        'twice_daily': { label: 'Twice Daily', times: ['08:00', '20:00'] },
+        'three_times': { label: 'Three Times Daily', times: ['08:00', '14:00', '20:00'] },
+        'every_other_day': { label: 'Every Other Day', times: ['08:00'] },
+        'weekly': { label: 'Once Weekly', times: ['08:00'] },
+        'as_needed': { label: 'As Needed', times: [] }
+    },
+
+    // Templates
+    templates: {
+        // Main Medication View
+        mainView: () => `
+            <div class="medication-header">
+                <h2>Medication Management</h2>
+                ${appState.currentPet ? `
+                    <div class="current-pet-banner">
+                        Managing medications for: <strong>${appState.currentPet.name}</strong>
+                    </div>
+                ` : '<p class="warning">Please select a pet first</p>'}
+            </div>
+
+            ${appState.currentPet ? medicationManager.templates.medicationDashboard() : medicationManager.templates.noPetView()}
+        `,
+
+        // View when no pet is selected
+        noPetView: () => `
+            <div class="no-pet-selected">
+                <div class="empty-state">
+                    <h3>No Active Pet Selected</h3>
+                    <p>Please select or add a pet to manage medications.</p>
+                    <button class="btn btn-primary" onclick="showSection('profiles')">
+                        Manage Pet Profiles
+                    </button>
+                </div>
+            </div>
+        `,
+
+        // Medication Dashboard
+        medicationDashboard: () => {
+            const pet = appState.currentPet;
+            const todayMeds = medicationManager.getTodayMedications();
+            const upcomingRefills = medicationManager.getUpcomingRefills();
+            
+            return `
+                <div class="medication-grid">
+                    <div class="medication-card today-schedule">
+                        <div class="card-header">
+                            <h3>Today's Medication Schedule</h3>
+                            <span class="date">${new Date().toLocaleDateString()}</span>
+                        </div>
+                        <div class="schedule-content">
+                            ${medicationManager.templates.todaySchedule(todayMeds)}
+                        </div>
+                    </div>
+
+                    <div class="medication-card medication-list">
+                        <div class="card-header">
+                            <h3>Current Medications</h3>
+                            <button class="btn btn-primary btn-sm" onclick="medicationManager.showAddForm()">
+                                + Add Medication
+                            </button>
+                        </div>
+                        <div class="medications-content">
+                            ${medicationManager.templates.medicationList()}
+                        </div>
+                    </div>
+
+                    <div class="medication-card refill-alerts">
+                        <div class="card-header">
+                            <h3>Refill Reminders</h3>
+                        </div>
+                        <div class="refills-content">
+                            ${medicationManager.templates.refillAlerts(upcomingRefills)}
+                        </div>
+                    </div>
+
+                    <div class="medication-card dosage-calculator">
+                        <div class="card-header">
+                            <h3>Dosage Calculator</h3>
+                        </div>
+                        <div class="calculator-content">
+                            ${medicationManager.templates.dosageCalculator()}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        // Today's Schedule Template
+        todaySchedule: (medications) => {
+            if (medications.length === 0) {
+                return '<p class="no-data">No medications scheduled for today</p>';
+            }
+
+            // Group by time
+            const scheduleByTime = {};
+            medications.forEach(med => {
+                med.schedule.forEach(time => {
+                    if (!scheduleByTime[time]) {
+                        scheduleByTime[time] = [];
+                    }
+                    scheduleByTime[time].push(med);
+                });
+            });
+
+            return `
+                <div class="time-slots">
+                    ${Object.keys(scheduleByTime).sort().map(time => `
+                        <div class="time-slot">
+                            <div class="time-header">
+                                <span class="time">${time}</span>
+                                <span class="status">Pending</span>
+                            </div>
+                            <div class="medications-at-time">
+                                ${scheduleByTime[time].map(med => `
+                                    <div class="medication-item" data-med-id="${med.id}">
+                                        <div class="med-info">
+                                            <strong>${med.name}</strong>
+                                            <span>${med.dosage}</span>
+                                        </div>
+                                        <div class="med-actions">
+                                            <button class="btn btn-success btn-xs" onclick="medicationManager.logDose('${med.id}', '${time}')">
+                                                ✅ Given
+                                            </button>
+                                            <button class="btn btn-warning btn-xs" onclick="medicationManager.skipDose('${med.id}', '${time}')">
+                                                ⏭️ Skip
+                                            </button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        },
+
+        // Medication List Template
+        medicationList: () => {
+            const medications = medicationManager.getMedications();
+            if (medications.length === 0) {
+                return `
+                    <div class="empty-state">
+                        <p>No medications added yet.</p>
+                        <button class="btn btn-primary" onclick="medicationManager.showAddForm()">
+                            Add First Medication
+                        </button>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="medications-list">
+                    ${medications.map(med => `
+                        <div class="medication-list-item" data-med-id="${med.id}">
+                            <div class="med-header">
+                                <h4>${med.name}</h4>
+                                <div class="med-actions">
+                                    <button class="btn-icon" onclick="medicationManager.editMedication('${med.id}')" title="Edit">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-icon delete" onclick="medicationManager.deleteMedication('${med.id}')" title="Delete">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="med-details">
+                                <div class="detail-row">
+                                    <span class="label">Dosage:</span>
+                                    <span class="value">${med.dosage}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Frequency:</span>
+                                    <span class="value">${medicationManager.frequencyOptions[med.frequency]?.label || med.frequency}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Next Dose:</span>
+                                    <span class="value">${medicationManager.getNextDoseTime(med)}</span>
+                                </div>
+                                ${med.refillDate ? `
+                                    <div class="detail-row">
+                                        <span class="label">Refill Due:</span>
+                                        <span class="value ${new Date(med.refillDate) <= new Date() ? 'warning' : ''}">
+                                            ${formatDate(med.refillDate)}
+                                        </span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        },
+
+        // Refill Alerts Template
+        refillAlerts: (refills) => {
+            if (refills.length === 0) {
+                return '<p class="no-alerts">No refills needed soon</p>';
+            }
+
+            return `
+                <div class="refill-list">
+                    ${refills.map(med => `
+                        <div class="refill-item ${med.daysUntilRefill <= 0 ? 'urgent' : med.daysUntilRefill <= 7 ? 'warning' : 'info'}">
+                            <div class="refill-med">${med.name}</div>
+                            <div class="refill-date">
+                                Due: ${formatDate(med.refillDate)}
+                                ${med.daysUntilRefill <= 0 ? ' (OVERDUE)' : med.daysUntilRefill <= 7 ? ` (in ${med.daysUntilRefill} days)` : ''}
+                            </div>
+                            <button class="btn btn-primary btn-xs" onclick="medicationManager.logRefill('${med.id}')">
+                                Mark Refilled
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        },
+
+        // Dosage Calculator Template
+        dosageCalculator: () => {
+            return `
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label for="calc-condition">Condition</label>
+                        <select id="calc-condition" onchange="medicationManager.updateMedicationOptions()">
+                            <option value="">Select Condition</option>
+                            <option value="diabetes">Diabetes</option>
+                            <option value="epilepsy">Epilepsy</option>
+                            <option value="arthritis">Arthritis</option>
+                            <option value="thyroid">Thyroid</option>
+                            <option value="heart">Heart Disease</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="calc-medication">Medication</label>
+                        <select id="calc-medication" onchange="medicationManager.calculateDosage()">
+                            <option value="">Select Medication</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="calc-weight">Pet Weight (kg)</label>
+                        <input type="number" id="calc-weight" value="${appState.currentPet?.weight || ''}" 
+                               step="0.1" min="0" onchange="medicationManager.calculateDosage()">
+                    </div>
+
+                    <div id="dosage-result" class="dosage-result" style="display: none;">
+                        <h4>Recommended Dosage</h4>
+                        <div class="result-content">
+                            <!-- Dynamic content will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        // Add/Edit Medication Form
+        medicationForm: (medication = null) => {
+            const isEdit = !!medication;
+            const petWeight = appState.currentPet?.weight || 0;
+            
+            return `
+                <div class="medication-form-container">
+                    <div class="form-header">
+                        <h2>${isEdit ? 'Edit' : 'Add'} Medication</h2>
+                        <button class="btn btn-secondary" onclick="medicationManager.showMainView()">
+                            ← Back to Medications
+                        </button>
+                    </div>
+
+                    <form id="medication-form" onsubmit="medicationManager.handleSubmit(event)">
+                        <input type="hidden" id="medication-id" value="${medication?.id || ''}">
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="med-name">Medication Name *</label>
+                                <input type="text" id="med-name" value="${medication?.name || ''}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="med-condition">Condition *</label>
+                                <select id="med-condition" required>
+                                    <option value="">Select Condition</option>
+                                    <option value="diabetes" ${medication?.condition === 'diabetes' ? 'selected' : ''}>Diabetes</option>
+                                    <option value="epilepsy" ${medication?.condition === 'epilepsy' ? 'selected' : ''}>Epilepsy</option>
+                                    <option value="arthritis" ${medication?.condition === 'arthritis' ? 'selected' : ''}>Arthritis</option>
+                                    <option value="thyroid" ${medication?.condition === 'thyroid' ? 'selected' : ''}>Thyroid</option>
+                                    <option value="heart" ${medication?.condition === 'heart' ? 'selected' : ''}>Heart Disease</option>
+                                    <option value="other" ${medication?.condition === 'other' ? 'selected' : ''}>Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="med-dosage">Dosage *</label>
+                                <input type="text" id="med-dosage" value="${medication?.dosage || ''}" 
+                                       placeholder="e.g., 10 mg" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="med-frequency">Frequency *</label>
+                                <select id="med-frequency" required>
+                                    <option value="">Select Frequency</option>
+                                    ${Object.entries(medicationManager.frequencyOptions).map(([key, freq]) => `
+                                        <option value="${key}" ${medication?.frequency === key ? 'selected' : ''}>
+                                            ${freq.label}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="med-start-date">Start Date</label>
+                                <input type="date" id="med-start-date" value="${medication?.startDate || ''}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="med-refill-date">Refill Due Date</label>
+                                <input type="date" id="med-refill-date" value="${medication?.refillDate || ''}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="med-instructions">Special Instructions</label>
+                            <textarea id="med-instructions" rows="3" placeholder="Any special instructions...">${medication?.instructions || ''}</textarea>
+                        </div>
+
+                        ${petWeight > 0 ? `
+                            <div class="dosage-check">
+                                <h4>Dosage Safety Check</h4>
+                                <p>Based on ${petWeight} kg weight:</p>
+                                <div id="dosage-safety-result">
+                                    <!-- Safety check results will appear here -->
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                ${isEdit ? 'Update' : 'Add'} Medication
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="medicationManager.showMainView()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+    },
+
+    // Data Management Functions
+    getMedications: function() {
+        if (!appState.currentPet) return [];
+        return utils.loadData(`medications_${appState.currentPet.id}`) || [];
+    },
+
+    saveMedications: function(medications) {
+        if (appState.currentPet) {
+            utils.saveData(`medications_${appState.currentPet.id}`, medications);
+        }
+    },
+
+    getTodayMedications: function() {
+        const medications = this.getMedications();
+        const today = utils.getTodayDate();
+        
+        return medications.filter(med => {
+            if (!med.startDate || med.startDate <= today) {
+                // Check if medication is scheduled for today based on frequency
+                return this.isMedicationScheduledToday(med);
+            }
+            return false;
+        });
+    },
+
+    isMedicationScheduledToday: function(medication) {
+        const today = new Date();
+        const startDate = new Date(medication.startDate || today);
+        
+        if (today < startDate) return false;
+
+        switch (medication.frequency) {
+            case 'once_daily':
+                return true;
+            case 'twice_daily':
+                return true;
+            case 'three_times':
+                return true;
+            case 'every_other_day':
+                const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+                return daysDiff % 2 === 0;
+            case 'weekly':
+                return today.getDay() === startDate.getDay();
+            case 'as_needed':
+                return false; // PRN medications don't have scheduled doses
+            default:
+                return true;
+        }
+    },
+
+    getUpcomingRefills: function() {
+        const medications = this.getMedications().filter(med => med.refillDate);
+        const today = new Date();
+        
+        return medications.map(med => {
+            const refillDate = new Date(med.refillDate);
+            const daysUntilRefill = Math.ceil((refillDate - today) / (1000 * 60 * 60 * 24));
+            
+            return {
+                ...med,
+                daysUntilRefill: daysUntilRefill
+            };
+        }).filter(med => med.daysUntilRefill <= 30) // Only show refills due in next 30 days
+          .sort((a, b) => a.daysUntilRefill - b.daysUntilRefill);
+    },
+
+    // Dosage Calculation Functions
+    updateMedicationOptions: function() {
+        const condition = document.getElementById('calc-condition').value;
+        const medicationSelect = document.getElementById('calc-medication');
+        
+        medicationSelect.innerHTML = '<option value="">Select Medication</option>';
+        
+        if (condition && this.medicationDatabase[condition]) {
+            this.medicationDatabase[condition].forEach(med => {
+                const option = document.createElement('option');
+                option.value = med.id;
+                option.textContent = med.name;
+                option.dataset.dosage = med.standardDosage;
+                option.dataset.maxDosage = med.maxDosage;
+                medicationSelect.appendChild(option);
+            });
+        }
+    },
+
+    calculateDosage: function() {
+        const medicationSelect = document.getElementById('calc-medication');
+        const weightInput = document.getElementById('calc-weight');
+        const resultDiv = document.getElementById('dosage-result');
+        
+        if (!medicationSelect.value || !weightInput.value) {
+            resultDiv.style.display = 'none';
+            return;
+        }
+
+        const selectedOption = medicationSelect.options[medicationSelect.selectedIndex];
+        const weight = parseFloat(weightInput.value);
+        const dosageRange = selectedOption.dataset.dosage;
+        const maxDosage = selectedOption.dataset.maxDosage;
+
+        // Extract numeric values from dosage range (e.g., "2-3 mg/kg" -> [2, 3])
+        const dosageMatch = dosageRange.match(/(\d+\.?\d*)-(\d+\.?\d*)/);
+        if (!dosageMatch) return;
+
+        const minDosePerKg = parseFloat(dosageMatch[1]);
+        const maxDosePerKg = parseFloat(dosageMatch[2]);
+
+        const calculatedMin = (minDosePerKg * weight).toFixed(2);
+        const calculatedMax = (maxDosePerKg * weight).toFixed(2);
+
+        resultDiv.style.display = 'block';
+        resultDiv.querySelector('.result-content').innerHTML = `
+            <div class="dosage-range">
+                <strong>${calculatedMin} - ${calculatedMax} mg per dose</strong>
+            </div>
+            <div class="dosage-info">
+                <p>Based on: ${dosageRange}</p>
+                <p>Maximum: ${maxDosage}</p>
+                <p class="warning">Always consult your veterinarian before administering medication</p>
+            </div>
+        `;
+    },
+
+    // Medication Logging Functions
+    logDose: function(medicationId, time) {
+        const logEntry = {
+            medicationId: medicationId,
+            time: time,
+            date: utils.getTodayDate(),
+            timestamp: new Date().toISOString(),
+            status: 'given'
+        };
+
+        let medicationLog = utils.loadData(`medicationLog_${appState.currentPet.id}`) || [];
+        medicationLog.push(logEntry);
+        utils.saveData(`medicationLog_${appState.currentPet.id}`, medicationLog);
+
+        alert('Dose logged as given');
+        this.renderMedicationView();
+    },
+
+    skipDose: function(medicationId, time) {
+        if (confirm('Are you sure you want to skip this dose?')) {
+            const logEntry = {
+                medicationId: medicationId,
+                time: time,
+                date: utils.getTodayDate(),
+                timestamp: new Date().toISOString(),
+                status: 'skipped',
+                reason: prompt('Reason for skipping (optional):') || 'Not specified'
+            };
+
+            let medicationLog = utils.loadData(`medicationLog_${appState.currentPet.id}`) || [];
+            medicationLog.push(logEntry);
+            utils.saveData(`medicationLog_${appState.currentPet.id}`, medicationLog);
+
+            alert('Dose logged as skipped');
+            this.renderMedicationView();
+        }
+    },
+
+    logRefill: function(medicationId) {
+        const medications = this.getMedications();
+        const medication = medications.find(med => med.id === medicationId);
+        
+        if (medication) {
+            medication.refillDate = null; // Clear refill date
+            this.saveMedications(medications);
+            alert('Refill logged successfully');
+            this.renderMedicationView();
+        }
+    },
+
+    // View Management
+    showMainView: function() {
+        this.elements.medicationContent.innerHTML = this.templates.mainView();
+    },
+
+    showAddForm: function() {
+        this.elements.medicationContent.innerHTML = this.templates.medicationForm();
+    },
+
+    showEditForm: function(medicationId) {
+        const medications = this.getMedications();
+        const medication = medications.find(med => med.id === medicationId);
+        if (medication) {
+            this.elements.medicationContent.innerHTML = this.templates.medicationForm(medication);
+        }
+    },
+
+    // CRUD Operations
+    handleSubmit: function(event) {
+        event.preventDefault();
+        const formData = this.getFormData();
+        
+        if (this.validateForm(formData)) {
+            const medicationId = document.getElementById('medication-id').value;
+            if (medicationId) {
+                this.updateMedication(medicationId, formData);
+            } else {
+                this.addMedication(formData);
+            }
+        }
+    },
+
+    getFormData: function() {
+        return {
+            name: document.getElementById('med-name').value.trim(),
+            condition: document.getElementById('med-condition').value,
+            dosage: document.getElementById('med-dosage').value.trim(),
+            frequency: document.getElementById('med-frequency').value,
+            startDate: document.getElementById('med-start-date').value || new Date().toISOString().split('T')[0],
+            refillDate: document.getElementById('med-refill-date').value || null,
+            instructions: document.getElementById('med-instructions').value.trim(),
+            createdAt: new Date().toISOString()
+        };
+    },
+
+    validateForm: function(formData) {
+        if (!formData.name) {
+            alert('Please enter medication name');
+            return false;
+        }
+        if (!formData.condition) {
+            alert('Please select a condition');
+            return false;
+        }
+        if (!formData.dosage) {
+            alert('Please enter dosage');
+            return false;
+        }
+        if (!formData.frequency) {
+            alert('Please select frequency');
+            return false;
+        }
+        return true;
+    },
+
+    addMedication: function(medicationData) {
+        const newMedication = {
+            id: 'med_' + Date.now(),
+            ...medicationData
+        };
+
+        const medications = this.getMedications();
+        medications.push(newMedication);
+        this.saveMedications(medications);
+
+        alert('Medication added successfully!');
+        this.showMainView();
+    },
+
+    updateMedication: function(medicationId, medicationData) {
+        const medications = this.getMedications();
+        const medicationIndex = medications.findIndex(med => med.id === medicationId);
+        
+        if (medicationIndex !== -1) {
+            medications[medicationIndex] = {
+                ...medications[medicationIndex],
+                ...medicationData,
+                updatedAt: new Date().toISOString()
+            };
+            
+            this.saveMedications(medications);
+            alert('Medication updated successfully!');
+            this.showMainView();
+        }
+    },
+
+    deleteMedication: function(medicationId) {
+        if (confirm('Are you sure you want to delete this medication?')) {
+            const medications = this.getMedications().filter(med => med.id !== medicationId);
+            this.saveMedications(medications);
+            alert('Medication deleted successfully');
+            this.showMainView();
+        }
+    },
+
+    editMedication: function(medicationId) {
+        this.showEditForm(medicationId);
+    },
+
+    // Utility Functions
+    getNextDoseTime: function(medication) {
+        const times = this.frequencyOptions[medication.frequency]?.times || [];
+        const now = new Date();
+        const currentTime = now.getHours() * 100 + now.getMinutes();
+        
+        for (let time of times) {
+            const [hours, minutes] = time.split(':').map(Number);
+            const timeValue = hours * 100 + minutes;
+            
+            if (timeValue > currentTime) {
+                return time;
+            }
+        }
+        
+        return times.length > 0 ? `Tomorrow ${times[0]}` : 'As needed';
+    },
+
+    // Rendering
+    renderMedicationView: function() {
+        if (this.elements.medicationContent) {
+            this.elements.medicationContent.innerHTML = this.templates.mainView();
+        }
+    },
+
+    // Initialize Medication Section
+    init: function() {
+        this.renderMedicationView();
+    }
+};
+
+// Add to global window object
+window.medicationManager = medicationManager;
+
+// Initialize function for medication section
+window.initMedication = function() {
+    medicationManager.init();
+};
 
 
 
