@@ -10,7 +10,140 @@ let appState = {
     todayTasks: []
 };
 
-// DOM Elements for Dashboard
+
+// =====================
+// VIEW MANAGEMENT SYSTEM
+// =====================
+
+const viewManager = {
+    // DOM Elements
+    elements: {
+        dashboardView: document.getElementById('dashboard-view'),
+        petDetailView: document.getElementById('pet-detail-view'),
+        newProfileWizard: document.getElementById('new-profile-wizard'),
+        returnToList: document.getElementById('return-to-list'),
+        addNewProfile: document.getElementById('add-new-profile'),
+        closeWizard: document.getElementById('close-wizard'),
+        petDetailContent: document.getElementById('pet-detail-content'),
+        wizardContent: document.getElementById('wizard-content')
+    },
+
+    // Show Dashboard View (list of all pets)
+    showDashboard: function() {
+        this.hideAllViews();
+        this.elements.dashboardView.classList.add('view-active');
+        this.elements.dashboardView.classList.remove('view-hidden');
+        this.elements.returnToList.style.display = 'none';
+        this.renderDashboard();
+    },
+
+    // Show Pet Detail View
+    showPetDetail: function(petId) {
+        this.hideAllViews();
+        this.elements.petDetailView.classList.add('view-active');
+        this.elements.petDetailView.classList.remove('view-hidden');
+        this.elements.returnToList.style.display = 'block';
+        this.renderPetDetail(petId);
+    },
+
+    // Show New Profile Wizard
+    showNewProfileWizard: function() {
+        this.hideAllViews();
+        this.elements.newProfileWizard.classList.add('view-active');
+        this.elements.newProfileWizard.classList.remove('view-hidden');
+        this.renderNewProfileWizard();
+    },
+
+    // Hide all views
+    hideAllViews: function() {
+        document.querySelectorAll('main > div').forEach(view => {
+            view.classList.add('view-hidden');
+            view.classList.remove('view-active');
+        });
+    },
+
+    // Render functions will use your existing templates
+    renderDashboard: function() {
+        // Use your existing dashboard rendering logic
+        renderDashboard();
+    },
+
+    renderPetDetail: function(petId) {
+        const pet = appState.pets.find(p => p.id === petId);
+        if (!pet) return;
+        
+        this.elements.petDetailContent.innerHTML = this.generatePetDetailHTML(pet);
+    },
+
+    renderNewProfileWizard: function() {
+        this.elements.wizardContent.innerHTML = this.generateWizardHTML();
+    },
+
+    // Template for pet detail view
+    generatePetDetailHTML: function(pet) {
+        return `
+            <div class="pet-detail-header">
+                <h2>${pet.name}'s Health Profile</h2>
+                <div class="pet-basic-info">
+                    <span>${pet.species} • ${utils.calculateAge(pet.birthDate)} years • ${pet.weight || 'N/A'} kg</span>
+                </div>
+            </div>
+
+            <div class="pet-detail-section">
+                <div class="section-header">
+                    <h3>Pet Details</h3>
+                    <button class="btn btn-secondary" onclick="petProfilesManager.editPet('${pet.id}')">Edit</button>
+                </div>
+                <div class="section-content">
+                    ${petProfilesManager.templates.petDetail(pet)}
+                </div>
+            </div>
+
+            <div class="pet-detail-section">
+                <div class="section-header">
+                    <h3>Medications</h3>
+                    <button class="btn btn-secondary" onclick="medicationManager.showMedicationView('${pet.id}')">Update</button>
+                </div>
+                <div class="section-content">
+                    ${medicationManager.templates.medicationOverview(pet)}
+                </div>
+            </div>
+
+            <div class="pet-detail-section">
+                <div class="section-header">
+                    <h3>Nutrition & Diet</h3>
+                    <button class="btn btn-secondary" onclick="nutritionManager.showNutritionView('${pet.id}')">Update</button>
+                </div>
+                <div class="section-content">
+                    ${nutritionManager.templates.nutritionOverview(pet)}
+                </div>
+            </div>
+
+            <div class="pet-detail-section">
+                <div class="section-header">
+                    <h3>Exercise & Mobility</h3>
+                    <button class="btn btn-secondary" onclick="exerciseManager.showExerciseView('${pet.id}')">Update</button>
+                </div>
+                <div class="section-content">
+                    ${exerciseManager.templates.exerciseOverview(pet)}
+                </div>
+            </div>
+
+            <div class="pet-detail-section">
+                <div class="section-header">
+                    <h3>Reminders & Appointments</h3>
+                    <button class="btn btn-secondary" onclick="remindersManager.showRemindersView('${pet.id}')">Update</button>
+                </div>
+                <div class="section-content">
+                    ${remindersManager.templates.remindersOverview(pet)}
+                </div>
+            </div>
+        `;
+    }
+};
+
+
+// DOM Elements for Dashboard old sections
 const dashboardElements = {
     dashboardSection: document.getElementById('dashboard-section'),
     dashboardContent: document.getElementById('dashboard-content'),
@@ -21,7 +154,9 @@ const dashboardElements = {
     nutritionSection: document.getElementById('nutrition-section'),
     exerciseSection: document.getElementById('exercise-section'),
     remindersSection: document.getElementById('reminders-section')
+
 };
+
 
 // Dashboard Templates
 const dashboardTemplates = {
@@ -328,12 +463,43 @@ const sectionManager = {
 };
 
 // Dashboard Rendering
+// Dashboard Rendering (Update this function)
 const renderDashboard = () => {
-    if (!dashboardElements.dashboardContent) return;
+    // Target the new dashboard-view container instead of dashboard-content
+    const dashboardView = document.getElementById('dashboard-view');
+    if (!dashboardView) return;
     
-    dashboardElements.dashboardContent.innerHTML = dashboardTemplates.mainDashboard();
+    dashboardView.innerHTML = `
+        <!-- Saved Profiles Grid -->
+        <section class="saved-profiles-section">
+            <h2>Your Pet Profiles</h2>
+            <div id="saved-profiles-grid" class="profiles-grid">
+                ${petProfilesManager.templates.petsList()}
+            </div>
+        </section>
+
+        <!-- Dashboard Summary -->
+        <section class="dashboard-summary">
+            <div class="summary-column">
+                <div class="dashboard-card">
+                    <h3>Today's Tasks</h3>
+                    <div id="today-tasks-content">
+                        ${dashboardTemplates.todayTasks()}
+                    </div>
+                </div>
+            </div>
+            <div class="summary-column">
+                <div class="dashboard-card">
+                    <h3>Alerts & Notices</h3>
+                    <div id="alerts-content">
+                        ${dashboardTemplates.alerts()}
+                    </div>
+                </div>
+            </div>
+        </section>
+    `;
     
-    // Set up pet selector event listener
+    // Keep your existing pet selector event listener setup
     const petSelect = document.getElementById('pet-select');
     if (petSelect) {
         petSelect.addEventListener('change', (e) => {
@@ -344,7 +510,7 @@ const renderDashboard = () => {
                     appState.currentPet = selectedPet;
                     utils.saveData('currentPet', appState.currentPet);
                     loadPetData(selectedPet.id);
-                    renderDashboard();
+                    viewManager.showPetDetail(petId); // Use view manager instead
                 }
             }
         });
@@ -375,14 +541,15 @@ const loadPetData = (petId) => {
 //====================================
 // Pet Profiles Section Functionality
 //=======================================
-const petProfilesManager = {
+//const petProfilesManager = {
     // DOM Elements for Pet Profiles
-    elements: {
-        profilesSection: document.getElementById('profiles-section'),
-        profilesContent: document.getElementById('profiles-content')
-    },
+//    elements: {
+  //      profilesSection: document.getElementById('profiles-section'),
+ //       profilesContent: document.getElementById('profiles-content')
+ //   },
 
-    // Templates for Pet Profiles
+// Templates for Pet Profiles
+const petProfilesManager = {
     templates: {
         // Main Profiles View
         mainView: () => `
@@ -400,63 +567,32 @@ const petProfilesManager = {
 
         // Pets List Template
         petsList: () => {
+            // REPLACE THIS ENTIRE FUNCTION with:
             if (appState.pets.length === 0) {
-                return `
-                    <div class="no-pets">
-                        <p>No pets added yet. Add your first pet to get started!</p>
-                    </div>
-                `;
+                return `<div class="no-pets">No pets added yet. Add your first pet to get started!</div>`;
             }
 
-            return `
-                <div class="pets-grid">
-                    ${appState.pets.map(pet => `
-                        <div class="pet-card" data-pet-id="${pet.id}">
-                            <div class="pet-card-header">
-                                <h3>${pet.name}</h3>
-                                <div class="pet-actions">
-                                    <button class="btn-icon" onclick="petProfilesManager.editPet('${pet.id}')" title="Edit">
-                                        ✏️
-                                    </button>
-                                    <button class="btn-icon" onclick="petProfilesManager.viewPet('${pet.id}')" title="View Details">
-                                        👁️
-                                    </button>
-                                    <button class="btn-icon delete" onclick="petProfilesManager.deletePet('${pet.id}')" title="Delete">
-                                        🗑️
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="pet-card-body">
-                                <div class="pet-info-row">
-                                    <span class="label">Species:</span>
-                                    <span class="value">${pet.species || 'Not set'}</span>
-                                </div>
-                                <div class="pet-info-row">
-                                    <span class="label">Breed:</span>
-                                    <span class="value">${pet.breed || 'Not set'}</span>
-                                </div>
-                                <div class="pet-info-row">
-                                    <span class="label">Age:</span>
-                                    <span class="value">${calculateAge(pet.birthDate) || 'Unknown'} years</span>
-                                </div>
-                                <div class="pet-info-row">
-                                    <span class="label">Weight:</span>
-                                    <span class="value">${pet.weight ? pet.weight + ' kg' : 'Not set'}</span>
-                                </div>
-                                <div class="pet-info-row">
-                                    <span class="label">Conditions:</span>
-                                    <span class="value">${pet.conditions?.length > 0 ? pet.conditions.join(', ') : 'None'}</span>
-                                </div>
-                            </div>
-                            <div class="pet-card-footer">
-                                <button class="btn btn-secondary btn-sm" onclick="petProfilesManager.setCurrentPet('${pet.id}')">
-                                    Set as Active
-                                </button>
-                            </div>
-                        </div>
-                    `).join('')}
+            return appState.pets.map(pet => `
+                <div class="pet-profile-card" data-pet-id="${pet.id}">
+                    <div class="pet-card-header">
+                        <h3>${pet.name}</h3>
+                        <span class="pet-species">${pet.species}</span>
+                    </div>
+                    <div class="pet-card-body">
+                        <p><strong>Age:</strong> ${utils.calculateAge(pet.birthDate)} years</p>
+                        <p><strong>Weight:</strong> ${pet.weight || 'N/A'} kg</p>
+                        <p><strong>Conditions:</strong> ${pet.conditions?.join(', ') || 'None'}</p>
+                    </div>
+                    <div class="pet-card-footer">
+                        <button class="btn btn-primary" onclick="petProfilesManager.setCurrentPet('${pet.id}')">
+                            ${appState.currentPet?.id === pet.id ? '✓ Active' : 'Mark Active'}
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewManager.showPetDetail('${pet.id}')">
+                            View Details
+                        </button>
+                    </div>
                 </div>
-            `;
+            `).join('');
         },
 
         // Add/Edit Pet Form
@@ -568,6 +704,7 @@ const petProfilesManager = {
                 </div>
             `;
         },
+        
 
         // Pet Detail View
         petDetail: (pet) => `
@@ -3717,16 +3854,32 @@ window.initReminders = function() {
 
 
 
-// Initialize Dashboard
+// Initialize Dashboard (Update this function)
 const initDashboard = () => {
     loadAppData();
-    renderDashboard();
     
-    // Show dashboard section
-    if (dashboardElements.dashboardSection) {
-        dashboardElements.dashboardSection.style.display = 'block';
+    // Use the new view manager instead of directly showing sections
+    viewManager.showAppUI(); // This shows header, footer, and dashboard view
+    
+    // Update the pet selector with current pets
+    const petSelect = document.getElementById('pet-select');
+    if (petSelect) {
+        petSelect.innerHTML = '<option value="">-- Choose a Pet --</option>' +
+            appState.pets.map(pet => `
+                <option value="${pet.id}" ${pet.id === appState.currentPet?.id ? 'selected' : ''}>
+                    ${pet.name}
+                </option>
+            `).join('');
     }
 };
+
+// Remove or update the old section-based initialization
+// DELETE this part from your current initDashboard:
+/*
+if (dashboardElements.dashboardSection) {
+    dashboardElements.dashboardSection.style.display = 'block';
+}
+*/
 
 // Global functions for HTML event handlers
 window.showSection = sectionManager.showSection;
@@ -3740,4 +3893,24 @@ window.logActivity = () => {
     alert('Activity logging will be implemented in the Exercise section');
     sectionManager.showSection('exercise');
 };
+
+
+// =====================
+// EVENT LISTENERS (At the very bottom)
+// =====================
+document.addEventListener('DOMContentLoaded', function() {
+    // View navigation
+    const returnBtn = document.getElementById('return-to-list');
+    const addProfileBtn = document.getElementById('add-new-profile');
+    const closeWizardBtn = document.getElementById('close-wizard');
+    
+    if (returnBtn) returnBtn.addEventListener('click', () => viewManager.showDashboard());
+    if (addProfileBtn) addProfileBtn.addEventListener('click', () => viewManager.showNewProfileWizard());
+    if (closeWizardBtn) closeWizardBtn.addEventListener('click', () => viewManager.showDashboard());
+    
+    // Initialize the app (this will be called after successful login)
+    window.initDashboard = initDashboard;
+    
+    // Your auth system will call initDashboard() after login
+});
 
