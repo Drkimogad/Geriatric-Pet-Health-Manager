@@ -83,7 +83,7 @@ const dashboardTemplates = {
             <div class="pet-info">
                 <div class="pet-basic">
                     <h4>${pet.name}</h4>
-                    <p><strong>Age:</strong> ${calculateAge(pet.birthDate)} years</p>
+                    <p><strong>Age:</strong> ${utils.calculateAge(pet.birthDate)} years</p>
                     <p><strong>Weight:</strong> ${pet.weight || 'N/A'} kg</p>
                     <p><strong>Condition:</strong> ${pet.conditions?.join(', ') || 'None reported'}</p>
                 </div>
@@ -94,7 +94,7 @@ const dashboardTemplates = {
                     </div>
                     <div class="metric">
                         <span class="metric-label">Last Vet Visit</span>
-                        <span class="metric-value">${formatDate(pet.lastVetVisit) || 'Not recorded'}</span>
+                        <span class="metric-value">${utils.formatDate(pet.lastVetVisit) || 'Not recorded'}</span>
                     </div>
                 </div>
             </div>
@@ -258,6 +258,7 @@ const taskManager = {
 
 //≈===================
 // Section Navigation
+// dashboard navigation specific. stays in dashboard.js 
 const sectionManager = {
     // Show specific section
     showSection: (sectionName) => {
@@ -396,7 +397,7 @@ const petProfilesManager = {
                                 </div>
                                 <div class="pet-info-row">
                                     <span class="label">Age:</span>
-                                    <span class="value">${calculateAge(pet.birthDate) || 'Unknown'} years</span>
+                                    <span class="value">${utils.calculateAge(pet.birthDate) || 'Unknown'} years</span>
                                 </div>
                                 <div class="pet-info-row">
                                     <span class="label">Weight:</span>
@@ -552,11 +553,11 @@ const petProfilesManager = {
                             </div>
                             <div class="info-row">
                                 <span class="label">Age:</span>
-                                <span class="value">${calculateAge(pet.birthDate)} years</span>
+                                <span class="value">${utils.calculateAge(pet.birthDate)} years</span>
                             </div>
                             <div class="info-row">
                                 <span class="label">Birth Date:</span>
-                                <span class="value">${formatDate(pet.birthDate) || 'Unknown'}</span>
+                                <span class="value">${utils.formatDate(pet.birthDate) || 'Unknown'}</span>
                             </div>
                         </div>
                     </div>
@@ -778,6 +779,7 @@ window.initProfiles = function() {
     petProfilesManager.init();
 };
 
+//=====================================================
 // Nutrition & Diet Planner Section Functionality
 const nutritionManager = {
     // DOM Elements
