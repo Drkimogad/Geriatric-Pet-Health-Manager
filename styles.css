@@ -3917,3 +3917,23 @@ footer p {
 .alerts-list::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
 }
+
+
+
+
+
+
+/* Temporary debug styles */
+        .debug-fallback {
+            display: none;
+            padding: 20px;
+            background: #f0f0f0;
+            border: 2px solid red;
+            margin: 20px;
+        }
+        
+        /* Ensure at least something is visible */
+        body {
+            min-height: 100vh;
+            background: white;
+        }
