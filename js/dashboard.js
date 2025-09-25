@@ -811,14 +811,6 @@ const petProfilesManager = {
     }
 };
 
-// Add to global window object for HTML event handlers
-window.petProfilesManager = petProfilesManager;
-
-// Initialize function for profiles section
-window.initProfiles = function() {
-    petProfilesManager.init();
-};
-
 // Nutrition & Diet Planner Section Functionality
 const nutritionManager = {
     // DOM Elements
@@ -1353,13 +1345,7 @@ const nutritionManager = {
     }
 };
 
-// Add to global window object
-window.nutritionManager = nutritionManager;
 
-// Initialize function for nutrition section
-window.initNutrition = function() {
-    nutritionManager.init();
-};
 // Medication Manager Section Functionality
 const medicationManager = {
     // DOM Elements
@@ -2129,20 +2115,6 @@ const medicationManager = {
             this.elements.medicationContent.innerHTML = this.templates.mainView();
         }
     },
-
-    // Initialize Medication Section
-    init: function() {
-        this.renderMedicationView();
-    }
-};
-
-// Add to global window object
-window.medicationManager = medicationManager;
-
-// Initialize function for medication section
-window.initMedication = function() {
-    medicationManager.init();
-};
 
 // Exercise & Mobility Section Functionality
 const exerciseManager = {
@@ -2925,13 +2897,6 @@ const exerciseManager = {
     }
 };
 
-// Add to global window object
-window.exerciseManager = exerciseManager;
-
-// Initialize function for exercise section
-window.initExercise = function() {
-    exerciseManager.init();
-};
 
 // Reminders & Appointments Section Functionality
 const remindersManager = {
@@ -3707,15 +3672,6 @@ const remindersManager = {
     }
 };
 
-// Add to global window object
-window.remindersManager = remindersManager;
-
-// Initialize function for reminders section
-window.initReminders = function() {
-    remindersManager.init();
-};
-
-
 
 // Initialize Dashboard
 const initDashboard = () => {
@@ -3728,16 +3684,39 @@ const initDashboard = () => {
     }
 };
 
-// Global functions for HTML event handlers
+// =====================
+// GLOBAL INITIALIZATION
+// =====================
+// Make all managers available globally for HTML event handlers
+window.petProfilesManager = petProfilesManager;
+window.nutritionManager = nutritionManager;
+window.medicationManager = medicationManager;
+window.exerciseManager = exerciseManager;
+window.remindersManager = remindersManager;
+
+// Make utility functions global
 window.showSection = sectionManager.showSection;
 window.showDashboard = sectionManager.showDashboard;
 window.toggleTaskCompletion = taskManager.toggleTaskCompletion;
 window.formatDate = utils.formatDate;
 window.calculateAge = utils.calculateAge;
-
-// Activity logging function (placeholder)
 window.logActivity = () => {
     alert('Activity logging will be implemented in the Exercise section');
     sectionManager.showSection('exercise');
 };
 
+// Initialize section functions
+window.initProfiles = () => petProfilesManager.init();
+window.initNutrition = () => nutritionManager.init();
+window.initMedication = () => medicationManager.init();
+window.initExercise = () => exerciseManager.init();
+window.initReminders = () => remindersManager.init();
+
+// Main application initialization
+window.initDashboard = initDashboard;
+
+// Auto-initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Geriatric Pet Health Manager Initialized');
+    // You can add auto-start logic here if needed
+});
