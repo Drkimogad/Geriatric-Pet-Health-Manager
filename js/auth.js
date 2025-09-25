@@ -238,27 +238,40 @@ showAuthSections() {
     this.showSignupSection();
 },
     
+
     // Show Application Sections
-// Show Application Sections
 showAppSections() {
+    console.log('showAppSections called'); // DEBUG
+    
     // Hide all auth sections
     Object.values(authSections).forEach(section => {
-        if (section) section.style.display = 'none';
+        if (section) {
+            section.style.display = 'none';
+            console.log('Hiding auth section:', section.id); // DEBUG
+        }
     });
     
-    // USE THE NEW VIEW MANAGER INSTEAD OF OLD SECTION SYSTEM
+    // Check if viewManager exists
+    console.log('viewManager exists:', typeof viewManager !== 'undefined'); // DEBUG
+    
     if (typeof viewManager !== 'undefined') {
+        console.log('Using viewManager.showAppUI()'); // DEBUG
         viewManager.showAppUI(); // Show the main app interface
     } else {
+        console.log('viewManager not found, using fallback'); // DEBUG
         // Fallback to old system if viewManager not loaded yet
         if (appSections.dashboard) {
             appSections.dashboard.style.display = 'block';
+            console.log('Showing dashboard section'); // DEBUG
         }
     }
     
     // Initialize dashboard when shown
     if (typeof initDashboard === 'function') {
+        console.log('Calling initDashboard()'); // DEBUG
         initDashboard();
+    } else {
+        console.log('initDashboard function not found'); // DEBUG
     }
 },
     
