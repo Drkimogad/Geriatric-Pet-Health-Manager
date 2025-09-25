@@ -10,13 +10,25 @@ let appState = {
     todayTasks: []
 };
 
+// DOM Elements for Dashboard old sections
+const dashboardElements = {
+    dashboardSection: document.getElementById('dashboard-section'),
+    dashboardContent: document.getElementById('dashboard-content'),
+    
+    // Other app sections
+    profilesSection: document.getElementById('profiles-section'),
+    medicationSection: document.getElementById('medication-section'),
+    nutritionSection: document.getElementById('nutrition-section'),
+    exerciseSection: document.getElementById('exercise-section'),
+    remindersSection: document.getElementById('reminders-section')
+
+};
 
 // =====================
 // VIEW MANAGEMENT SYSTEM
 // =====================
-
 const viewManager = {
-    // DOM Elements
+    // DOM Elements - UPDATE WITH CORRECT IDs FROM YOUR HTML
     elements: {
         dashboardView: document.getElementById('dashboard-view'),
         petDetailView: document.getElementById('pet-detail-view'),
@@ -25,47 +37,46 @@ const viewManager = {
         addNewProfile: document.getElementById('add-new-profile'),
         closeWizard: document.getElementById('close-wizard'),
         petDetailContent: document.getElementById('pet-detail-content'),
-        wizardContent: document.getElementById('wizard-content')
+        wizardContent: document.getElementById('wizard-content'),
+        appHeader: document.getElementById('app-header'),
+        appFooter: document.getElementById('app-footer')
+    },
+
+    // SIMPLIFIED VERSION - Add showAppUI and hideAppUI methods
+    showAppUI: function() {
+        console.log('showAppUI called');
+        
+        // Show header and footer
+        if (this.elements.appHeader) {
+            this.elements.appHeader.style.display = 'block';
+        }
+        if (this.elements.appFooter) {
+            this.elements.appFooter.style.display = 'block';
+        }
+        
+        // Show dashboard
+        this.showDashboard();
+    },
+     hideAppUI: function() {
+        console.log('hideAppUI called');
+        
+        if (this.elements.appHeader) this.elements.appHeader.style.display = 'none';
+        if (this.elements.appFooter) this.elements.appFooter.style.display = 'none';
+        
+        // Hide all views
+        this.hideAllViews();
     },
 
     // Show Dashboard View (list of all pets)
     showDashboard: function() {
         this.hideAllViews();
-        this.elements.dashboardView.classList.add('view-active');
-        this.elements.dashboardView.classList.remove('view-hidden');
+        if (this.elements.dashboardView) {
+            this.elements.dashboardView.style.display = 'block';
+            this.elements.dashboardView.classList.add('view-active');
+            this.elements.dashboardView.classList.remove('view-hidden');
+        }
         this.elements.returnToList.style.display = 'none';
         this.renderDashboard();
-    },
-
-    // Show Pet Detail View
-    showPetDetail: function(petId) {
-        this.hideAllViews();
-        this.elements.petDetailView.classList.add('view-active');
-        this.elements.petDetailView.classList.remove('view-hidden');
-        this.elements.returnToList.style.display = 'block';
-        this.renderPetDetail(petId);
-    },
-
-    // Show New Profile Wizard
-    showNewProfileWizard: function() {
-        this.hideAllViews();
-        this.elements.newProfileWizard.classList.add('view-active');
-        this.elements.newProfileWizard.classList.remove('view-hidden');
-        this.renderNewProfileWizard();
-    },
-
-    // Hide all views
-    hideAllViews: function() {
-        document.querySelectorAll('main > div').forEach(view => {
-            view.classList.add('view-hidden');
-            view.classList.remove('view-active');
-        });
-    },
-
-    // Render functions will use your existing templates
-    renderDashboard: function() {
-        // Use your existing dashboard rendering logic
-        renderDashboard();
     },
 
     renderPetDetail: function(petId) {
@@ -142,20 +153,10 @@ const viewManager = {
     }
 };
 
+// NOW make viewManager global - AFTER it's defined
+window.viewManager = viewManager;
+console.log('viewManager created and made global');
 
-// DOM Elements for Dashboard old sections
-const dashboardElements = {
-    dashboardSection: document.getElementById('dashboard-section'),
-    dashboardContent: document.getElementById('dashboard-content'),
-    
-    // Other app sections
-    profilesSection: document.getElementById('profiles-section'),
-    medicationSection: document.getElementById('medication-section'),
-    nutritionSection: document.getElementById('nutrition-section'),
-    exerciseSection: document.getElementById('exercise-section'),
-    remindersSection: document.getElementById('reminders-section')
-
-};
 
 
 // Dashboard Templates
