@@ -1,12 +1,5 @@
 // dashboard section utilities
 // Utility Functions
-// Make available globally for HTML onclick handlers
-window.formatDate = utils.formatDate;
-window.calculateAge = utils.calculateAge;
-window.getTodayDate = utils.getTodayDate;
-window.saveData = utils.saveData;
-window.loadData = utils.loadData;
-
 const utils = {
     // Format date for display
     formatDate: (dateString) => {
