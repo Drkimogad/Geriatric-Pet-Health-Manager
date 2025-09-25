@@ -107,6 +107,7 @@ const authUtils = {
 };
 
 // Authentication Functions
+// Authentication Functions
 const authFunctions = {
     // Sign Up Function
     async signUp(email, password) {
@@ -188,19 +189,18 @@ const authFunctions = {
     },
     
     // Sign Out Function
-// Sign Out Function
-signOut() {
-    currentUser = null;
-    localStorage.removeItem('currentUser');
-    
-    // Clear any pet-specific data
-    localStorage.removeItem('currentPet');
-    
-    this.showAuthSections();
-    
-    // Show confirmation message
-    authUtils.showSuccess('You have been logged out successfully.');
-},
+    signOut() {
+        currentUser = null;
+        localStorage.removeItem('currentUser');
+        
+        // Clear any pet-specific data
+        localStorage.removeItem('currentPet');
+        
+        this.showAuthSections();
+        
+        // Show confirmation message
+        authUtils.showSuccess('You have been logged out successfully.');
+    },
     
     // Forgot Password Function
     async forgotPassword(email) {
@@ -222,58 +222,56 @@ signOut() {
     },
     
     // Show Authentication Sections
-// Show Authentication Sections
-showAuthSections() {
-    // USE THE NEW VIEW MANAGER TO HIDE APP UI
-    if (typeof viewManager !== 'undefined') {
-        viewManager.hideAppUI(); // Hide the main app interface
-    } else {
-        // Fallback to old system
-        Object.values(appSections).forEach(section => {
-            if (section) section.style.display = 'none';
-        });
-    }
+    showAuthSections() {
+        // USE THE NEW VIEW MANAGER TO HIDE APP UI
+        if (typeof viewManager !== 'undefined') {
+            viewManager.hideAppUI(); // Hide the main app interface
+        } else {
+            // Fallback to old system
+            Object.values(appSections).forEach(section => {
+                if (section) section.style.display = 'none';
+            });
+        }
+        
+        // Show auth sections based on which one should be visible
+        this.showSignupSection();
+    },
     
-    // Show auth sections based on which one should be visible
-    this.showSignupSection();
-},
-    
-
     // Show Application Sections
-showAppSections() {
-    console.log('showAppSections called'); // DEBUG
-    
-    // Hide all auth sections
-    Object.values(authSections).forEach(section => {
-        if (section) {
-            section.style.display = 'none';
-            console.log('Hiding auth section:', section.id); // DEBUG
+    showAppSections() {
+        console.log('showAppSections called'); // DEBUG
+        
+        // Hide all auth sections
+        Object.values(authSections).forEach(section => {
+            if (section) {
+                section.style.display = 'none';
+                console.log('Hiding auth section:', section.id); // DEBUG
+            }
+        });
+        
+        // Check if viewManager exists
+        console.log('viewManager exists:', typeof viewManager !== 'undefined'); // DEBUG
+        
+        if (typeof viewManager !== 'undefined') {
+            console.log('Using viewManager.showAppUI()'); // DEBUG
+            viewManager.showAppUI(); // Show the main app interface
+        } else {
+            console.log('viewManager not found, using fallback'); // DEBUG
+            // Fallback to old system if viewManager not loaded yet
+            if (appSections.dashboard) {
+                appSections.dashboard.style.display = 'block';
+                console.log('Showing dashboard section'); // DEBUG
+            }
         }
-    });
-    
-    // Check if viewManager exists
-    console.log('viewManager exists:', typeof viewManager !== 'undefined'); // DEBUG
-    
-    if (typeof viewManager !== 'undefined') {
-        console.log('Using viewManager.showAppUI()'); // DEBUG
-        viewManager.showAppUI(); // Show the main app interface
-    } else {
-        console.log('viewManager not found, using fallback'); // DEBUG
-        // Fallback to old system if viewManager not loaded yet
-        if (appSections.dashboard) {
-            appSections.dashboard.style.display = 'block';
-            console.log('Showing dashboard section'); // DEBUG
+        
+        // Initialize dashboard when shown
+        if (typeof initDashboard === 'function') {
+            console.log('Calling initDashboard()'); // DEBUG
+            initDashboard();
+        } else {
+            console.log('initDashboard function not found'); // DEBUG
         }
-    }
-    
-    // Initialize dashboard when shown
-    if (typeof initDashboard === 'function') {
-        console.log('Calling initDashboard()'); // DEBUG
-        initDashboard();
-    } else {
-        console.log('initDashboard function not found'); // DEBUG
-    }
-},
+    },
     
     // Show Signup Section
     showSignupSection() {
@@ -312,6 +310,19 @@ showAppSections() {
     // Get current user
     getCurrentUser() {
         return currentUser;
+    },
+    
+    // Add this function to authFunctions - FIXED PLACEMENT
+    setupLogoutListener: function() {
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to log out?')) {
+                    authFunctions.signOut();
+                }
+            });
+        }
     }
 };
 
@@ -359,21 +370,8 @@ const setupEventListeners = () => {
         });
     }
 };
-// Add this function to authFunctions in auth.js
-setupLogoutListener: function() {
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (confirm('Are you sure you want to log out?')) {
-                authFunctions.signOut();
-            }
-        });
-    }
-}
 
 // Initialize Authentication
-// Update the initAuth function in auth.js
 const initAuth = () => {
     // Check if user is already logged in
     const savedUser = localStorage.getItem('currentUser');
@@ -408,17 +406,6 @@ window.authUtils = authUtils;
 document.addEventListener('DOMContentLoaded', function() {
     // Run the original auth initialization
     initAuth();
-    
-    // Add logout button listener
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (confirm('Are you sure you want to log out?')) {
-                authFunctions.signOut();
-            }
-        });
-    }
     
     // Check if viewManager is already available (dashboard.js loaded first)
     if (typeof viewManager !== 'undefined') {
