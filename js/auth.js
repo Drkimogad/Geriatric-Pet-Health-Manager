@@ -188,11 +188,19 @@ const authFunctions = {
     },
     
     // Sign Out Function
-    signOut() {
-        currentUser = null;
-        localStorage.removeItem('currentUser');
-        this.showAuthSections();
-    },
+// Sign Out Function
+signOut() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    
+    // Clear any pet-specific data
+    localStorage.removeItem('currentPet');
+    
+    this.showAuthSections();
+    
+    // Show confirmation message
+    authUtils.showSuccess('You have been logged out successfully.');
+},
     
     // Forgot Password Function
     async forgotPassword(email) {
@@ -214,33 +222,45 @@ const authFunctions = {
     },
     
     // Show Authentication Sections
-    showAuthSections() {
-        // Hide all app sections
+// Show Authentication Sections
+showAuthSections() {
+    // USE THE NEW VIEW MANAGER TO HIDE APP UI
+    if (typeof viewManager !== 'undefined') {
+        viewManager.hideAppUI(); // Hide the main app interface
+    } else {
+        // Fallback to old system
         Object.values(appSections).forEach(section => {
             if (section) section.style.display = 'none';
         });
-        
-        // Show auth sections based on which one should be visible
-        this.showSignupSection();
-    },
+    }
+    
+    // Show auth sections based on which one should be visible
+    this.showSignupSection();
+},
     
     // Show Application Sections
-    showAppSections() {
-        // Hide all auth sections
-        Object.values(authSections).forEach(section => {
-            if (section) section.style.display = 'none';
-        });
-        
-        // Show app sections starting with dashboard
+// Show Application Sections
+showAppSections() {
+    // Hide all auth sections
+    Object.values(authSections).forEach(section => {
+        if (section) section.style.display = 'none';
+    });
+    
+    // USE THE NEW VIEW MANAGER INSTEAD OF OLD SECTION SYSTEM
+    if (typeof viewManager !== 'undefined') {
+        viewManager.showAppUI(); // Show the main app interface
+    } else {
+        // Fallback to old system if viewManager not loaded yet
         if (appSections.dashboard) {
             appSections.dashboard.style.display = 'block';
         }
-        
-        // Initialize dashboard when shown
-        if (typeof initDashboard === 'function') {
-            initDashboard();
-        }
-    },
+    }
+    
+    // Initialize dashboard when shown
+    if (typeof initDashboard === 'function') {
+        initDashboard();
+    }
+},
     
     // Show Signup Section
     showSignupSection() {
@@ -354,4 +374,46 @@ window.authFunctions = authFunctions;
 window.authUtils = authUtils;
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', initAuth);
+document.addEventListener('DOMContentLoaded', function() {
+    // Run the original auth initialization
+    initAuth();
+    
+    // Add logout button listener
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to log out?')) {
+                authFunctions.signOut();
+            }
+        });
+    }
+    
+    // Check if viewManager is already available (dashboard.js loaded first)
+    if (typeof viewManager !== 'undefined') {
+        window.initializeAuthWithViewManager();
+    }
+});
+
+// Make sure viewManager is available when auth initializes
+// This will be called after dashboard.js loads
+window.initializeAuthWithViewManager = function() {
+    // Re-initialize if user was already logged in
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser && typeof viewManager !== 'undefined') {
+        try {
+            currentUser = JSON.parse(savedUser);
+            authFunctions.showAppSections(); // This will now use viewManager
+        } catch (error) {
+            console.error('Error initializing auth with view manager:', error);
+        }
+    }
+};
+
+// If dashboard.js loads after auth.js, call the initialization
+// This will be triggered from dashboard.js
+window.initializeViewManager = function() {
+    if (typeof window.initializeAuthWithViewManager === 'function') {
+        window.initializeAuthWithViewManager();
+    }
+};
