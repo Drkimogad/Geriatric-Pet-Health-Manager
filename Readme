@@ -1,0 +1,73 @@
+DASHBOARD (Initial View)
+┌─────────────────────────────────────────────────────────┐
+│ Header [Pet Selector: --Choose--] [Add New Profile Btn] │
+├─────────────────────────────────────────────────────────┤
+│              SAVED PROFILES GRID                        │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐         │
+│ │   Buster    │ │   Luna      │ │ + Add New   │         │
+│ │ [Mark Active]│ │ [Mark Active]│ │   Pet       │         │
+│ └─────────────┘ └─────────────┘ └─────────────┘         │
+├─────────────────────────────────────────────────────────┤
+│ DAILY TASKS          │ ALERTS & NOTICES                 │
+│ (when pet selected)  │ (global for all pets)            │
+└─────────────────────────────────────────────────────────┘
+
+↓ Click "Mark Active" on Buster ↓
+
+│ Pet Selector now shows: [Buster ✓] [Luna] [Charlie]     │
+│ (Buster is queued in selector but view doesn't change yet)
+
+↓ Select "Buster" from Pet Selector dropdown ↓
+
+DASHBOARD → TRANSFORMS TO BUSTER'S DETAIL VIEW
+┌─────────────────────────────────────────────────────────┐
+│ Header [Buster ✓] [Add New Profile] [← Return to List]  │
+├─────────────────────────────────────────────────────────┤
+│              BUSTER'S COMPLETE PROFILE                  │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ PET DETAILS [Edit]                                  │ │
+│ │ Name, Age, Weight, Conditions, etc.                │ │
+│ └─────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ MEDICATIONS [Update]                                │ │
+│ │ Current meds, schedules, dosages                   │ │
+│ └─────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ NUTRITION [Update]                                  │ │
+│ │ Diet plan, feeding schedule, water tracking        │ │
+│ └─────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ EXERCISE [Update]                                   │ │
+│ │ Activity log, mobility scores, recommendations     │ │
+│ └─────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ REMINDERS [Update]                                  │ │
+│ │ Upcoming appointments, tasks, alerts               │ │
+│ └─────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+
+↓ Click "← Return to List" ↓
+
+│ Returns to initial Dashboard view with all pet profiles │
+│ Pet selector remembers Buster as active choice          │
+
+
+New profiles:
+
+↓ Click "Add New Profile" ↓
+
+NEW PROFILE WIZARD (separate full-screen view)
+┌─────────────────────────────────────────────────────────┐
+│ Create New Profile [× Close]                            │
+├─────────────────────────────────────────────────────────┤
+│ [Pet Details] [Medications] [Nutrition] [Exercise] [Reminders]
+│                                                         │
+│ PET DETAILS SECTION (active first)                      │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ Name: ______ Species: ___ Breed: ___ etc.          │ │
+│ └─────────────────────────────────────────────────────┘ │
+│                                                         │
+│ [Save Profile] button (enabled when required fields complete)
+└─────────────────────────────────────────────────────────┘
+
+↓ Save → Returns to Dashboard → New profile appears in grid ↓
