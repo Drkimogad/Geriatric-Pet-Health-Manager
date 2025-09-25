@@ -42,52 +42,52 @@ const viewManager = {
         appFooter: document.getElementById('app-footer')
     },
 
-    // SIMPLIFIED VERSION - Add showAppUI and hideAppUI methods
-    showAppUI: function() {
-        console.log('showAppUI called');
-        
-        // Show header and footer
-        if (this.elements.appHeader) {
-            this.elements.appHeader.style.display = 'block';
-        }
-        if (this.elements.appFooter) {
-            this.elements.appFooter.style.display = 'block';
-        }
-        
-        // Show dashboard
-        this.showDashboard();
-    },
-     hideAppUI: function() {
-        console.log('hideAppUI called');
-        
-        if (this.elements.appHeader) this.elements.appHeader.style.display = 'none';
-        if (this.elements.appFooter) this.elements.appFooter.style.display = 'none';
-        
-        // Hide all views
+    // Add this method to show the new profile wizard
+    showNewProfileWizard: function() {
         this.hideAllViews();
-    },
-
-    // Show Dashboard View (list of all pets)
-    showDashboard: function() {
-        this.hideAllViews();
-        if (this.elements.dashboardView) {
-            this.elements.dashboardView.style.display = 'block';
-            this.elements.dashboardView.classList.add('view-active');
-            this.elements.dashboardView.classList.remove('view-hidden');
+        if (this.elements.newProfileWizard) {
+            this.elements.newProfileWizard.style.display = 'block';
+            this.elements.newProfileWizard.classList.add('view-active');
+            this.elements.newProfileWizard.classList.remove('view-hidden');
+            this.renderNewProfileWizard();
         }
-        this.elements.returnToList.style.display = 'none';
-        this.renderDashboard();
+        this.elements.returnToList.style.display = 'block';
     },
-
-    renderPetDetail: function(petId) {
-        const pet = appState.pets.find(p => p.id === petId);
-        if (!pet) return;
-        
-        this.elements.petDetailContent.innerHTML = this.generatePetDetailHTML(pet);
+    
+    // Add this method to hide all views
+    hideAllViews: function() {
+        Object.values(this.elements).forEach(element => {
+            if (element && element.classList && (element.classList.contains('view-active') || element.classList.contains('view-hidden'))) {
+                element.style.display = 'none';
+                element.classList.remove('view-active');
+                element.classList.add('view-hidden');
+            }
+        });
     },
-
-    renderNewProfileWizard: function() {
-        this.elements.wizardContent.innerHTML = this.generateWizardHTML();
+    
+    // Add this method to show pet detail view
+    showPetDetail: function(petId) {
+        this.hideAllViews();
+        if (this.elements.petDetailView) {
+            this.elements.petDetailView.style.display = 'block';
+            this.elements.petDetailView.classList.add('view-active');
+            this.elements.petDetailView.classList.remove('view-hidden');
+            this.renderPetDetail(petId);
+        }
+        this.elements.returnToList.style.display = 'block';
+    },
+    
+    // Make sure this method exists for wizard content
+    generateWizardHTML: function() {
+        return `
+            <div class="wizard-header">
+                <h2>Add New Pet Profile</h2>
+                <p>Let's set up a health profile for your geriatric pet</p>
+            </div>
+            <div class="wizard-content">
+                ${petProfilesManager.templates.petForm()}
+            </div>
+        `;
     },
 
     // Template for pet detail view
@@ -283,7 +283,7 @@ const dashboardTemplates = {
     }
 };
 
-// Utility Functions
+// Utility Functions - KEEP THIS STRUCTURE
 const utils = {
     // Format date for display
     formatDate: (dateString) => {
@@ -330,6 +330,13 @@ const utils = {
         }
     }
 };
+
+// Make utils functions available globally for HTML templates
+window.formatDate = utils.formatDate;
+window.calculateAge = utils.calculateAge;
+window.getTodayDate = utils.getTodayDate;
+
+
 
 // Alert Generation Logic
 const generateAlerts = () => {
@@ -818,21 +825,27 @@ const petProfilesManager = {
     },
 
     // CRUD Operations
-    handleSubmit: function(event) {
-        event.preventDefault();
-        
-        const formData = this.getFormData();
-        if (!this.validateForm(formData)) {
-            return;
-        }
+// Update the handleSubmit method to use viewManager
+handleSubmit: function(event) {
+    event.preventDefault();
+    
+    const formData = this.getFormData();
+    if (!this.validateForm(formData)) {
+        return;
+    }
 
-        const petId = document.getElementById('pet-id').value;
-        if (petId) {
-            this.updatePet(petId, formData);
-        } else {
-            this.addPet(formData);
-        }
-    },
+    const petId = document.getElementById('pet-id').value;
+    if (petId) {
+        this.updatePet(petId, formData);
+    } else {
+        this.addPet(formData);
+    }
+    
+    // After adding/updating, return to dashboard using viewManager
+    if (typeof viewManager !== 'undefined') {
+        viewManager.showDashboard();
+    }
+},
 
     getFormData: function() {
         const conditions = [];
@@ -925,15 +938,22 @@ const petProfilesManager = {
         this.showEditForm(petId);
     },
 
-    setCurrentPet: function(petId) {
-        const pet = appState.pets.find(p => p.id === petId);
-        if (pet) {
-            appState.currentPet = pet;
-            utils.saveData('currentPet', pet);
-            alert(`${pet.name} is now your active pet!`);
-            showDashboard(); // Return to dashboard with new active pet
+// In the petProfilesManager object, update the setCurrentPet method:
+setCurrentPet: function(petId) {
+    const pet = appState.pets.find(p => p.id === petId);
+    if (pet) {
+        appState.currentPet = pet;
+        utils.saveData('currentPet', pet);
+        alert(`${pet.name} is now your active pet!`);
+        
+        // Use viewManager instead of showDashboard
+        if (typeof viewManager !== 'undefined') {
+            viewManager.showDashboard();
+        } else {
+            showDashboard(); // Fallback to old system
         }
-    },
+    }
+},
 
     // Data Persistence
     savePets: function() {
@@ -3900,18 +3920,48 @@ window.logActivity = () => {
 // EVENT LISTENERS (At the very bottom)
 // =====================
 document.addEventListener('DOMContentLoaded', function() {
-    // View navigation
+    console.log('DOM Content Loaded - Setting up event listeners'); // DEBUG
+    
+    // View navigation - check if elements exist first
     const returnBtn = document.getElementById('return-to-list');
     const addProfileBtn = document.getElementById('add-new-profile');
     const closeWizardBtn = document.getElementById('close-wizard');
     
-    if (returnBtn) returnBtn.addEventListener('click', () => viewManager.showDashboard());
-    if (addProfileBtn) addProfileBtn.addEventListener('click', () => viewManager.showNewProfileWizard());
-    if (closeWizardBtn) closeWizardBtn.addEventListener('click', () => viewManager.showDashboard());
+    if (returnBtn) {
+        returnBtn.addEventListener('click', () => {
+            console.log('Return to list clicked'); // DEBUG
+            if (typeof viewManager !== 'undefined') {
+                viewManager.showDashboard();
+            }
+        });
+    }
+    
+    if (addProfileBtn) {
+        addProfileBtn.addEventListener('click', () => {
+            console.log('Add new profile clicked'); // DEBUG
+            if (typeof viewManager !== 'undefined') {
+                viewManager.showNewProfileWizard();
+            }
+        });
+    }
+    
+    if (closeWizardBtn) {
+        closeWizardBtn.addEventListener('click', () => {
+            console.log('Close wizard clicked'); // DEBUG
+            if (typeof viewManager !== 'undefined') {
+                viewManager.showDashboard();
+            }
+        });
+    }
     
     // Initialize the app (this will be called after successful login)
     window.initDashboard = initDashboard;
     
-    // Your auth system will call initDashboard() after login
+    // If user is already logged in, initialize the dashboard
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser && typeof initDashboard === 'function') {
+        setTimeout(() => {
+            initDashboard();
+        }, 100);
+    }
 });
-
