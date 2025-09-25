@@ -359,8 +359,21 @@ const setupEventListeners = () => {
         });
     }
 };
+// Add this function to authFunctions in auth.js
+setupLogoutListener: function() {
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to log out?')) {
+                authFunctions.signOut();
+            }
+        });
+    }
+}
 
 // Initialize Authentication
+// Update the initAuth function in auth.js
 const initAuth = () => {
     // Check if user is already logged in
     const savedUser = localStorage.getItem('currentUser');
@@ -368,6 +381,8 @@ const initAuth = () => {
         try {
             currentUser = JSON.parse(savedUser);
             authFunctions.showAppSections();
+            // Setup logout listener after showing app sections
+            setTimeout(() => authFunctions.setupLogoutListener(), 100);
             return;
         } catch (error) {
             console.error('Error parsing saved user:', error);
@@ -380,6 +395,9 @@ const initAuth = () => {
     
     // Show authentication sections
     authFunctions.showAuthSections();
+    
+    // Setup logout listener
+    authFunctions.setupLogoutListener();
 };
 
 // Export for use in other files
