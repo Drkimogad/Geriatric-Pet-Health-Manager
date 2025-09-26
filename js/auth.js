@@ -146,6 +146,7 @@ const authFunctions = {
             
             authUtils.showSuccess('Account created successfully!');
             this.showAppSections();
+          //  renderDashboard();  // ← ADD THIS LINE TO SHOW DASHBOARD CONTAINER CONTENTS SAVED PROFILES, ALERT AND NOTICES AND DAILY TASKS
             return true;
             
         } catch (error) {
