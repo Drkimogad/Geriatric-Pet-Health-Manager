@@ -42,6 +42,29 @@ const viewManager = {
         appFooter: document.getElementById('app-footer')
     },
 
+        // Add this method to viewManager object
+showAppUI: function() {
+    // Show header and footer
+    if (this.elements.appHeader) this.elements.appHeader.style.display = 'block';
+    if (this.elements.appFooter) this.elements.appFooter.style.display = 'block';
+    
+    // Show dashboard view
+    this.showDashboard();
+},
+
+// Also add this method:
+showDashboard: function() {
+    this.hideAllViews();
+    if (this.elements.dashboardView) {
+        this.elements.dashboardView.style.display = 'block';
+        this.elements.dashboardView.classList.add('view-active');
+        this.elements.dashboardView.classList.remove('view-hidden');
+        renderDashboard(); // This will populate the dashboard content
+    }
+    this.elements.returnToList.style.display = 'none';
+},
+     
+    
     // Add this method to show the new profile wizard
     showNewProfileWizard: function() {
         this.hideAllViews();
