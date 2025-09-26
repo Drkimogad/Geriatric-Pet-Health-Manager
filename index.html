@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geriatric Pet Health Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Section 1: Sign-up Form -->
+    <section id="signup-section" class="auth-section">
+        <h2>Create Your Account</h2>
+        <form id="signup-form">
+            <input type="email" id="signup-email" placeholder="Email Address" required>
+            <input type="password" id="signup-password" placeholder="Create Password" required>
+            <input type="password" id="signup-confirm-password" placeholder="Confirm Password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="#" id="show-signin-link">Sign In</a></p>
+    </section>
+
+    <!-- Section 2: Sign-in Form -->
+    <section id="signin-section" class="auth-section">
+        <h2>Welcome Back</h2>
+        <form id="signin-form">
+            <input type="email" id="signin-email" placeholder="Email Address" required>
+            <input type="password" id="signin-password" placeholder="Password" required>
+            <button type="submit">Sign In</button>
+        </form>
+        <p><a href="#" id="forgot-password-link">Forgot Password?</a></p>
+        <p>Don't have an account? <a href="#" id="show-signup-link">Sign Up</a></p>
+    </section>
+
+    <!-- Section 3: Dashboard -->
+    <section id="dashboard-section" class="app-section">
+        <h1>Dashboard</h1>
+        <div id="dashboard-content">
+            <!-- Content will be populated by JavaScript later -->
+            <p>Pet Summary, Today's Tasks, and Alerts will appear here.</p>
+        </div>
+    </section>
+
+    <!-- Section 4: Pet Profiles -->
+    <section id="profiles-section" class="app-section">
+        <h1>Manage Pet Profiles</h1>
+        <div id="profiles-content">
+            <!-- Content will be populated by JavaScript later -->
+            <p>List and forms for adding/editing pet profiles will appear here.</p>
+        </div>
+    </section>
+
+    <!-- Section 5: Medication Manager -->
+    <section id="medication-section" class="app-section">
+        <h1>Medication Manager</h1>
+        <div id="medication-content">
+            <!-- Content will be populated by JavaScript later -->
+            <p>Medication list, scheduler, and dosage calculator will appear here.</p>
+        </div>
+    </section>
+
+    <!-- Section 6: Nutrition & Diet Planner -->
+    <section id="nutrition-section" class="app-section">
+        <h1>Nutrition & Diet Planner</h1>
+        <div id="nutrition-content">
+            <!-- Content will be populated by JavaScript later -->
+            <p>Food calculator, feeding schedule, and water tracker will appear here.</p>
+        </div>
+    </section>
+
+    <!-- Section 7: Exercise & Mobility -->
+    <section id="exercise-section" class="app-section">
+        <h1>Exercise & Mobility</h1>
+        <div id="exercise-content">
+            <!-- Content will be populated by JavaScript later -->
+            <p>Activity log, mobility score tracker, and exercise suggestions will appear here.</p>
+        </div>
+    </section>
+
+    <!-- Section 8: Reminders & Appointments -->
+    <section id="reminders-section" class="app-section">
+        <h1>Reminders & Appointments</h1>
+        <div id="reminders-content">
+            <!-- Content will be populated by JavaScript later -->
+            <p>Calendar view and list of all reminders will appear here.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2023 Geriatric Pet Health Manager. All rights reserved.</p>
+    </footer>
+    <script src="./js/auth.js" defer></script>
+    <script src="./js/dashboard.js" defer></script>
+
+</body>
+</html>
