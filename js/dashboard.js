@@ -87,19 +87,47 @@ console.log('showDashboard called'); // DEBUG
     }  
     console.log('7. showNewProfileWizard completed'); // DEBUG
     },
-    
-    // Add this to viewManager object
+
+    //renderNewProfileWizard
 renderNewProfileWizard: function() {
-    if (this.elements.wizardContent) {
+    console.log('8. Starting renderNewProfileWizard'); // DEBUG
+    
+    if (!this.elements.wizardContent) {
+        console.error('9. wizardContent element not found!');
+        return;
+    }
+    
+    try {
+        console.log('10. Checking if petProfilesManager exists:', typeof petProfilesManager);
+        console.log('11. Checking if templates exists:', petProfilesManager?.templates ? 'Yes' : 'No');
+        console.log('12. Checking if petForm exists:', typeof petProfilesManager?.templates?.petForm);
+        
+        const formHTML = petProfilesManager.templates.petForm();
+        console.log('13. petForm() returned:', formHTML.substring(0, 100));
+        
         this.elements.wizardContent.innerHTML = `
             <div class="wizard-header">
                 <h2>Create New Pet Profile</h2>
                 <p>Let's set up a health profile for your geriatric pet</p>
             </div>
             <div class="wizard-content">
-                ${petProfilesManager.templates.petForm()}
+                ${formHTML}
+            </div>
+            <div class="wizard-actions">
+                <button class="btn btn-primary" onclick="petProfilesManager.handleWizardSubmit()">
+                    Save Profile
+                </button>
+                <button class="btn btn-secondary" onclick="viewManager.showDashboard()">
+                    Cancel
+                </button>
             </div>
         `;
+        
+        console.log('14. Wizard content rendered successfully');
+        
+    } catch (error) {
+        console.error('15. Error in renderNewProfileWizard:', error);
+        this.elements.wizardContent.innerHTML = '<p>Error loading pet form</p>';
     }
 },
     
