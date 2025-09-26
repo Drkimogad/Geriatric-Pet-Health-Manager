@@ -69,15 +69,25 @@ console.log('showDashboard called'); // DEBUG
     
     // Add this method to show the new profile wizard
     showNewProfileWizard: function() {
+            console.log('1. Starting showNewProfileWizard'); // DEBUG
         this.hideAllViews();
+            console.log('2. After hideAllViews'); // DEBUG
         if (this.elements.newProfileWizard) {
+                    console.log('3. newProfileWizard element found'); // DEBUG
             this.elements.newProfileWizard.style.display = 'block';
             this.elements.newProfileWizard.classList.add('view-active');
             this.elements.newProfileWizard.classList.remove('view-hidden');
+                    console.log('4. Wizard container should be visible now'); // DEBUG
             this.renderNewProfileWizard();
+                    console.log('5. After renderNewProfileWizard'); // DEBUG
         }
+        if (this.elements.returnToList) {
+        console.log('6. Showing return button'); // DEBUG
         this.elements.returnToList.style.display = 'block';
+    }  
+    console.log('7. showNewProfileWizard completed'); // DEBUG
     },
+    
     // Add this to viewManager object
 renderNewProfileWizard: function() {
     if (this.elements.wizardContent) {
