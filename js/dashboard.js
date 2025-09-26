@@ -3937,7 +3937,7 @@ window.initReminders = function() {
 // Initialize Dashboard (Update this function)
 const initDashboard = () => {
     loadAppData();
-   // renderDashboard();  // ← ADD THIS LINE to ensure DASHBOARD content displays ONCE IT LOADS
+     renderDashboard();  // ← ADD THIS LINE to ensure DASHBOARD content displays ONCE IT LOADS
     
     // Use the new view manager instead of directly showing sections
     viewManager.showAppUI(); // This shows header, footer, and dashboard view
