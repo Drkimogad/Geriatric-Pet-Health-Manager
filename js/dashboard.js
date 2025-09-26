@@ -26,6 +26,7 @@ const dashboardElements = {
 
 // =====================
 // VIEW MANAGEMENT SYSTEM
+// auth.js → initDashboard() → viewManager.showAppUI() → showDashboard() → renderDashboard()
 // =====================
 const viewManager = {
     // DOM Elements - UPDATE WITH CORRECT IDs FROM YOUR HTML
@@ -54,6 +55,7 @@ showAppUI: function() {
 
 // Also add this method:
 showDashboard: function() {
+console.log('showDashboard called'); // DEBUG
     this.hideAllViews();
     if (this.elements.dashboardView) {
         this.elements.dashboardView.style.display = 'block';
@@ -512,38 +514,54 @@ const sectionManager = {
 const renderDashboard = () => {
     // Target the new dashboard-view container instead of dashboard-content
     const dashboardView = document.getElementById('dashboard-view');
-    if (!dashboardView) return;
+    if (!dashboardView) {
+        console.error('dashboard-view element not found!');
+        return;
+    } 
+    
+        try {
+        console.log('Starting renderDashboard...');
+        
+        // Test each template function separately
+        const petsHTML = petProfilesManager.templates.petsList();
+        console.log('petsList() worked:', petsHTML.substring(0, 50));
+        
+        const tasksHTML = dashboardTemplates.todayTasks();
+        console.log('todayTasks() worked:', tasksHTML.substring(0, 50));
+        
+        const alertsHTML = dashboardTemplates.alerts();
+        console.log('alerts() worked:', alertsHTML.substring(0, 50));
     
     dashboardView.innerHTML = `
-        <!-- Saved Profiles Grid -->
-        <section class="saved-profiles-section">
-            <h2>Your Pet Profiles</h2>
-            <div id="saved-profiles-grid" class="profiles-grid">
-                ${petProfilesManager.templates.petsList()}
-            </div>
-        </section>
+    <section class="saved-profiles-section">
+        <h2>Your Pet Profiles</h2>
+        <div id="saved-profiles-grid" class="profiles-grid">
+            ${petsHTML}  <!-- Use variable, not function call -->
+        </div>
+    </section>
 
-        <!-- Dashboard Summary -->
-        <section class="dashboard-summary">
-            <div class="summary-column">
-                <div class="dashboard-card">
-                    <h3>Today's Tasks</h3>
-                    <div id="today-tasks-content">
-                        ${dashboardTemplates.todayTasks()}
-                    </div>
+    <section class="dashboard-summary">
+        <div class="summary-column">
+            <div class="dashboard-card">
+                <h3>Today's Tasks</h3>
+                <div id="today-tasks-content">
+                    ${tasksHTML}  <!-- Use variable -->
                 </div>
             </div>
-            <div class="summary-column">
-                <div class="dashboard-card">
-                    <h3>Alerts & Notices</h3>
-                    <div id="alerts-content">
-                        ${dashboardTemplates.alerts()}
-                    </div>
+        </div>
+        <div class="summary-column">
+            <div class="dashboard-card">
+                <h3>Alerts & Notices</h3>
+                <div id="alerts-content">
+                    ${alertsHTML}  <!-- Use variable -->
                 </div>
             </div>
-        </section>
-    `;
-    
+        </div>
+    </section>
+`;
+            
+    console.log('renderDashboard completed successfully!');
+
     // Keep your existing pet selector event listener setup
     const petSelect = document.getElementById('pet-select');
     if (petSelect) {
@@ -559,6 +577,10 @@ const renderDashboard = () => {
                 }
             }
         });
+     }
+    } catch (error) {
+        console.error('Error in renderDashboard:', error);
+        dashboardView.innerHTML = '<p>Error loading dashboard content</p>';
     }
 };
 
