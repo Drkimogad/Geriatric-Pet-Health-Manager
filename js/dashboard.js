@@ -38,7 +38,7 @@ const viewManager = {
         addNewProfile: document.getElementById('add-new-profile'),
         closeWizard: document.getElementById('close-wizard'),
         petDetailContent: document.getElementById('pet-detail-content'),
-        wizardContent: document.getElementById('wizard-content'),
+        wizardContent: document.getElementById('new-profile-wizard')?.querySelector('.wizard-content'),
         appHeader: document.getElementById('app-header'),
         appFooter: document.getElementById('app-footer')
     },
