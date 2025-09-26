@@ -76,6 +76,20 @@ showDashboard: function() {
         }
         this.elements.returnToList.style.display = 'block';
     },
+    // Add this to viewManager object
+renderNewProfileWizard: function() {
+    if (this.elements.wizardContent) {
+        this.elements.wizardContent.innerHTML = `
+            <div class="wizard-header">
+                <h2>Create New Pet Profile</h2>
+                <p>Let's set up a health profile for your geriatric pet</p>
+            </div>
+            <div class="wizard-content">
+                ${petProfilesManager.templates.petForm()}
+            </div>
+        `;
+    }
+},
     
     // Add this method to hide all views
     hideAllViews: function() {
