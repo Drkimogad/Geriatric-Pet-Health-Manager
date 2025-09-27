@@ -40,8 +40,193 @@ const setupEventDelegation = () => {
             const petId = target.getAttribute('onclick').match(/setCurrentPet\('([^']+)'\)/)[1];
             petProfilesManager.setCurrentPet(petId);
         }
-        
+        // pet lrofile section Already in your existing function - these handle:
+        // showAddForm, editPet, deletePet, viewPet, setCurrentPet
+            
         // Add more conditions here as we identify other listeners...
+        // Today's Tasks checkboxes
+else if (target.matches('[onchange*="toggleTaskCompletion"]')) {
+    event.preventDefault();
+    const taskId = target.getAttribute('onchange').match(/toggleTaskCompletion\('([^']+)'\)/)[1];
+    taskManager.toggleTaskCompletion(taskId);
+}
+
+// Quick Actions buttons
+else if (target.matches('[onclick*="logActivity"]')) {
+    event.preventDefault();
+    window.logActivity(); // Shows exercise section
+}
+ // Nutrition section
+        // Water tracking buttons
+else if (target.matches('[onclick*="nutritionManager.logWater(100)"]')) {
+    event.preventDefault();
+    nutritionManager.logWater(100);
+}
+else if (target.matches('[onclick*="nutritionManager.logWater(250)"]')) {
+    event.preventDefault();
+    nutritionManager.logWater(250);
+}
+else if (target.matches('[onclick*="nutritionManager.logWater(500)"]')) {
+    event.preventDefault();
+    nutritionManager.logWater(500);
+}
+
+// Nutrition view buttons
+else if (target.matches('[onclick*="nutritionManager.showWaterLog"]')) {
+    event.preventDefault();
+    nutritionManager.showWaterLog();
+}
+else if (target.matches('[onclick*="nutritionManager.showFullFoodHistory"]')) {
+    event.preventDefault();
+    nutritionManager.showFullFoodHistory();
+}
+
+// Nutrition form buttons
+else if (target.matches('[onclick*="nutritionManager.saveNutritionPlan"]')) {
+    event.preventDefault();
+    nutritionManager.saveNutritionPlan();
+}
+
+// Nutrition dropdown changes
+else if (target.matches('#activity-level, #weight-goal, #food-type')) {
+    event.preventDefault();
+    nutritionManager.updateCalculation();
+}
+else if (target.matches('#food-selection')) {
+    event.preventDefault();
+    nutritionManager.updateCalculation();
+}
+// Medication section 
+        // Medication actions
+else if (target.matches('[onclick*="medicationManager.showAddForm"]')) {
+    event.preventDefault();
+    medicationManager.showAddForm();
+}
+else if (target.matches('[onclick*="medicationManager.editMedication"]')) {
+    event.preventDefault();
+    const medId = target.getAttribute('onclick').match(/editMedication\('([^']+)'\)/)[1];
+    medicationManager.editMedication(medId);
+}
+else if (target.matches('[onclick*="medicationManager.deleteMedication"]')) {
+    event.preventDefault();
+    const medId = target.getAttribute('onclick').match(/deleteMedication\('([^']+)'\)/)[1];
+    medicationManager.deleteMedication(medId);
+}
+
+// Dose logging
+else if (target.matches('[onclick*="medicationManager.logDose"]')) {
+    event.preventDefault();
+    const match = target.getAttribute('onclick').match(/logDose\('([^']+)', '([^']+)'\)/);
+    medicationManager.logDose(match[1], match[2]);
+}
+else if (target.matches('[onclick*="medicationManager.skipDose"]')) {
+    event.preventDefault();
+    const match = target.getAttribute('onclick').match(/skipDose\('([^']+)', '([^']+)'\)/);
+    medicationManager.skipDose(match[1], match[2]);
+}
+else if (target.matches('[onclick*="medicationManager.logRefill"]')) {
+    event.preventDefault();
+    const medId = target.getAttribute('onclick').match(/logRefill\('([^']+)'\)/)[1];
+    medicationManager.logRefill(medId);
+}
+
+// Calculator dropdowns
+else if (target.matches('#calc-condition, #calc-weight')) {
+    event.preventDefault();
+    medicationManager.calculateDosage();
+}
+else if (target.matches('#calc-medication')) {
+    event.preventDefault();
+    medicationManager.calculateDosage();
+}
+        // Exercise section 
+        // Exercise actions
+else if (target.matches('[onclick*="exerciseManager.showMobilityForm"]')) {
+    event.preventDefault();
+    exerciseManager.showMobilityForm();
+}
+else if (target.matches('[onclick*="exerciseManager.showActivityForm"]')) {
+    event.preventDefault();
+    exerciseManager.showActivityForm();
+}
+else if (target.matches('[onclick*="exerciseManager.showActivityHistory"]')) {
+    event.preventDefault();
+    exerciseManager.showActivityHistory();
+}
+else if (target.matches('[onclick*="exerciseManager.logSuggestedExercise"]')) {
+    event.preventDefault();
+    const exerciseId = target.getAttribute('onclick').match(/logSuggestedExercise\('([^']+)'\)/)[1];
+    exerciseManager.logSuggestedExercise(exerciseId);
+}
+        // Reminders section
+        // Calendar navigation
+else if (target.matches('[onclick*="remindersManager.previousMonth"]')) {
+    event.preventDefault();
+    remindersManager.previousMonth();
+}
+else if (target.matches('[onclick*="remindersManager.nextMonth"]')) {
+    event.preventDefault();
+    remindersManager.nextMonth();
+}
+
+// Reminder actions
+else if (target.matches('[onclick*="remindersManager.showAddForm"]')) {
+    event.preventDefault();
+    remindersManager.showAddForm();
+}
+else if (target.matches('[onclick*="remindersManager.toggleView"]')) {
+    event.preventDefault();
+    const viewType = target.getAttribute('onclick').match(/toggleView\('(\w+)'\)/)[1];
+    remindersManager.toggleView(viewType);
+}
+else if (target.matches('[onclick*="remindersManager.completeReminder"]')) {
+    event.preventDefault();
+    const reminderId = target.getAttribute('onclick').match(/completeReminder\('([^']+)'\)/)[1];
+    remindersManager.completeReminder(reminderId);
+}
+else if (target.matches('[onclick*="remindersManager.editReminder"]')) {
+    event.preventDefault();
+    const reminderId = target.getAttribute('onclick').match(/editReminder\('([^']+)'\)/)[1];
+    remindersManager.editReminder(reminderId);
+}
+else if (target.matches('[onclick*="remindersManager.deleteReminder"]')) {
+    event.preventDefault();
+    const reminderId = target.getAttribute('onclick').match(/deleteReminder\('([^']+)'\)/)[1];
+    remindersManager.deleteReminder(reminderId);
+}
+else if (target.matches('[onclick*="remindersManager.rescheduleReminder"]')) {
+    event.preventDefault();
+    const reminderId = target.getAttribute('onclick').match(/rescheduleReminder\('([^']+)'\)/)[1];
+    remindersManager.rescheduleReminder(reminderId);
+}
+
+// Calendar day clicks
+else if (target.matches('[onclick*="remindersManager.showDayReminders"]')) {
+    event.preventDefault();
+    const date = target.getAttribute('onclick').match(/showDayReminders\('([^']+)'\)/)[1];
+    remindersManager.showDayReminders(date);
+}
+else if (target.matches('[onclick*="remindersManager.showAddFormWithDate"]')) {
+    event.preventDefault();
+    const date = target.getAttribute('onclick').match(/showAddFormWithDate\('([^']+)'\)/)[1];
+    remindersManager.showAddFormWithDate(date);
+}
+else if (target.matches('[onclick*="remindersManager.hideDayReminders"]')) {
+    event.preventDefault();
+    remindersManager.hideDayReminders();
+}
+        // Form submission 
+        // Form submissions (these need special handling)
+else if (target.matches('button[type="submit"], input[type="submit"]')) {
+    const form = target.closest('form');
+    if (form) {
+        event.preventDefault();
+        // We'll handle form submissions separately
+        handleFormSubmission(form.id);
+    }
+}
+        
+        
     });
 };
 
