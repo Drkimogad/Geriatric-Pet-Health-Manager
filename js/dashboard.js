@@ -1,233 +1,224 @@
-// dashboard.js - Main application functionality for Geriatric Pet Health Manager
 // CENTRAL EVENT DELEGATION - Put this at the top of your file
 const setupEventDelegation = () => {
     document.addEventListener('click', (event) => {
         const target = event.target;
         
-        // Dashboard & Navigation
-        if (target.matches('[onclick*="showSection"]')) {
+        // 1. QUICK ACTIONS & NAVIGATION (using data attributes)
+        if (target.matches('[data-section]')) {
             event.preventDefault();
-            const section = target.getAttribute('onclick').match(/showSection\('(\w+)'\)/)[1];
+            const section = target.getAttribute('data-section');
             sectionManager.showSection(section);
         }
-        else if (target.matches('[onclick*="showDashboard"]')) {
+        else if (target.matches('[data-action="logActivity"]')) {
             event.preventDefault();
-            sectionManager.showDashboard();
+            window.logActivity();
         }
         
-        // Pet Profiles
-        else if (target.matches('[onclick*="petProfilesManager.showAddForm"]')) {
+        // 2. PET PROFILES (using data attributes)
+        else if (target.matches('[data-action="showAddForm"]')) {
             event.preventDefault();
             petProfilesManager.showAddForm();
         }
-        else if (target.matches('[onclick*="petProfilesManager.editPet"]')) {
+        else if (target.matches('[data-action="editPet"]')) {
             event.preventDefault();
-            const petId = target.getAttribute('onclick').match(/editPet\('([^']+)'\)/)[1];
+            const petId = target.getAttribute('data-pet-id');
             petProfilesManager.editPet(petId);
         }
-        else if (target.matches('[onclick*="petProfilesManager.deletePet"]')) {
+        else if (target.matches('[data-action="deletePet"]')) {
             event.preventDefault();
-            const petId = target.getAttribute('onclick').match(/deletePet\('([^']+)'\)/)[1];
-            petProfilesManager.deletePet(petId);
+            const petId = target.getAttribute('data-pet-id');
+            if (confirm('Are you sure you want to delete this pet profile?')) {
+                petProfilesManager.deletePet(petId);
+            }
         }
-        else if (target.matches('[onclick*="petProfilesManager.viewPet"]')) {
+        else if (target.matches('[data-action="viewPet"]')) {
             event.preventDefault();
-            const petId = target.getAttribute('onclick').match(/viewPet\('([^']+)'\)/)[1];
+            const petId = target.getAttribute('data-pet-id');
             petProfilesManager.viewPet(petId);
         }
-        else if (target.matches('[onclick*="petProfilesManager.setCurrentPet"]')) {
+        else if (target.matches('[data-action="setCurrentPet"]')) {
             event.preventDefault();
-            const petId = target.getAttribute('onclick').match(/setCurrentPet\('([^']+)'\)/)[1];
+            const petId = target.getAttribute('data-pet-id');
             petProfilesManager.setCurrentPet(petId);
         }
-        // pet lrofile section Already in your existing function - these handle:
-        // showAddForm, editPet, deletePet, viewPet, setCurrentPet
-            
-        // Add more conditions here as we identify other listeners...
-        // Today's Tasks checkboxes
-else if (target.matches('[onchange*="toggleTaskCompletion"]')) {
-    event.preventDefault();
-    const taskId = target.getAttribute('onchange').match(/toggleTaskCompletion\('([^']+)'\)/)[1];
-    taskManager.toggleTaskCompletion(taskId);
-}
-
-// Quick Actions buttons
-else if (target.matches('[onclick*="logActivity"]')) {
-    event.preventDefault();
-    window.logActivity(); // Shows exercise section
-}
- // Nutrition section
-        // Water tracking buttons
-else if (target.matches('[onclick*="nutritionManager.logWater(100)"]')) {
-    event.preventDefault();
-    nutritionManager.logWater(100);
-}
-else if (target.matches('[onclick*="nutritionManager.logWater(250)"]')) {
-    event.preventDefault();
-    nutritionManager.logWater(250);
-}
-else if (target.matches('[onclick*="nutritionManager.logWater(500)"]')) {
-    event.preventDefault();
-    nutritionManager.logWater(500);
-}
-
-// Nutrition view buttons
-else if (target.matches('[onclick*="nutritionManager.showWaterLog"]')) {
-    event.preventDefault();
-    nutritionManager.showWaterLog();
-}
-else if (target.matches('[onclick*="nutritionManager.showFullFoodHistory"]')) {
-    event.preventDefault();
-    nutritionManager.showFullFoodHistory();
-}
-
-// Nutrition form buttons
-else if (target.matches('[onclick*="nutritionManager.saveNutritionPlan"]')) {
-    event.preventDefault();
-    nutritionManager.saveNutritionPlan();
-}
-
-// Nutrition dropdown changes
-else if (target.matches('#activity-level, #weight-goal, #food-type')) {
-    event.preventDefault();
-    nutritionManager.updateCalculation();
-}
-else if (target.matches('#food-selection')) {
-    event.preventDefault();
-    nutritionManager.updateCalculation();
-}
-// Medication section 
-        // Medication actions
-else if (target.matches('[onclick*="medicationManager.showAddForm"]')) {
-    event.preventDefault();
-    medicationManager.showAddForm();
-}
-else if (target.matches('[onclick*="medicationManager.editMedication"]')) {
-    event.preventDefault();
-    const medId = target.getAttribute('onclick').match(/editMedication\('([^']+)'\)/)[1];
-    medicationManager.editMedication(medId);
-}
-else if (target.matches('[onclick*="medicationManager.deleteMedication"]')) {
-    event.preventDefault();
-    const medId = target.getAttribute('onclick').match(/deleteMedication\('([^']+)'\)/)[1];
-    medicationManager.deleteMedication(medId);
-}
-
-// Dose logging
-else if (target.matches('[onclick*="medicationManager.logDose"]')) {
-    event.preventDefault();
-    const match = target.getAttribute('onclick').match(/logDose\('([^']+)', '([^']+)'\)/);
-    medicationManager.logDose(match[1], match[2]);
-}
-else if (target.matches('[onclick*="medicationManager.skipDose"]')) {
-    event.preventDefault();
-    const match = target.getAttribute('onclick').match(/skipDose\('([^']+)', '([^']+)'\)/);
-    medicationManager.skipDose(match[1], match[2]);
-}
-else if (target.matches('[onclick*="medicationManager.logRefill"]')) {
-    event.preventDefault();
-    const medId = target.getAttribute('onclick').match(/logRefill\('([^']+)'\)/)[1];
-    medicationManager.logRefill(medId);
-}
-
-// Calculator dropdowns
-else if (target.matches('#calc-condition, #calc-weight')) {
-    event.preventDefault();
-    medicationManager.calculateDosage();
-}
-else if (target.matches('#calc-medication')) {
-    event.preventDefault();
-    medicationManager.calculateDosage();
-}
-        // Exercise section 
-        // Exercise actions
-else if (target.matches('[onclick*="exerciseManager.showMobilityForm"]')) {
-    event.preventDefault();
-    exerciseManager.showMobilityForm();
-}
-else if (target.matches('[onclick*="exerciseManager.showActivityForm"]')) {
-    event.preventDefault();
-    exerciseManager.showActivityForm();
-}
-else if (target.matches('[onclick*="exerciseManager.showActivityHistory"]')) {
-    event.preventDefault();
-    exerciseManager.showActivityHistory();
-}
-else if (target.matches('[onclick*="exerciseManager.logSuggestedExercise"]')) {
-    event.preventDefault();
-    const exerciseId = target.getAttribute('onclick').match(/logSuggestedExercise\('([^']+)'\)/)[1];
-    exerciseManager.logSuggestedExercise(exerciseId);
-}
-        // Reminders section
-        // Calendar navigation
-else if (target.matches('[onclick*="remindersManager.previousMonth"]')) {
-    event.preventDefault();
-    remindersManager.previousMonth();
-}
-else if (target.matches('[onclick*="remindersManager.nextMonth"]')) {
-    event.preventDefault();
-    remindersManager.nextMonth();
-}
-
-// Reminder actions
-else if (target.matches('[onclick*="remindersManager.showAddForm"]')) {
-    event.preventDefault();
-    remindersManager.showAddForm();
-}
-else if (target.matches('[onclick*="remindersManager.toggleView"]')) {
-    event.preventDefault();
-    const viewType = target.getAttribute('onclick').match(/toggleView\('(\w+)'\)/)[1];
-    remindersManager.toggleView(viewType);
-}
-else if (target.matches('[onclick*="remindersManager.completeReminder"]')) {
-    event.preventDefault();
-    const reminderId = target.getAttribute('onclick').match(/completeReminder\('([^']+)'\)/)[1];
-    remindersManager.completeReminder(reminderId);
-}
-else if (target.matches('[onclick*="remindersManager.editReminder"]')) {
-    event.preventDefault();
-    const reminderId = target.getAttribute('onclick').match(/editReminder\('([^']+)'\)/)[1];
-    remindersManager.editReminder(reminderId);
-}
-else if (target.matches('[onclick*="remindersManager.deleteReminder"]')) {
-    event.preventDefault();
-    const reminderId = target.getAttribute('onclick').match(/deleteReminder\('([^']+)'\)/)[1];
-    remindersManager.deleteReminder(reminderId);
-}
-else if (target.matches('[onclick*="remindersManager.rescheduleReminder"]')) {
-    event.preventDefault();
-    const reminderId = target.getAttribute('onclick').match(/rescheduleReminder\('([^']+)'\)/)[1];
-    remindersManager.rescheduleReminder(reminderId);
-}
-
-// Calendar day clicks
-else if (target.matches('[onclick*="remindersManager.showDayReminders"]')) {
-    event.preventDefault();
-    const date = target.getAttribute('onclick').match(/showDayReminders\('([^']+)'\)/)[1];
-    remindersManager.showDayReminders(date);
-}
-else if (target.matches('[onclick*="remindersManager.showAddFormWithDate"]')) {
-    event.preventDefault();
-    const date = target.getAttribute('onclick').match(/showAddFormWithDate\('([^']+)'\)/)[1];
-    remindersManager.showAddFormWithDate(date);
-}
-else if (target.matches('[onclick*="remindersManager.hideDayReminders"]')) {
-    event.preventDefault();
-    remindersManager.hideDayReminders();
-}
-        // Form submission 
-        // Form submissions (these need special handling)
-else if (target.matches('button[type="submit"], input[type="submit"]')) {
-    const form = target.closest('form');
-    if (form) {
-        event.preventDefault();
-        // We'll handle form submissions separately
-        handleFormSubmission(form.id);
-    }
-}
         
+        // 3. TASK MANAGEMENT
+        else if (target.matches('input[type="checkbox"][data-task-id]')) {
+            event.preventDefault();
+            const taskId = target.getAttribute('data-task-id');
+            taskManager.toggleTaskCompletion(taskId);
+        }
         
+        // 4. NUTRITION SECTION
+        else if (target.matches('[data-action="logWater"]')) {
+            event.preventDefault();
+            const amount = parseInt(target.getAttribute('data-amount'));
+            nutritionManager.logWater(amount);
+        }
+        else if (target.matches('[data-action="showWaterLog"]')) {
+            event.preventDefault();
+            nutritionManager.showWaterLog();
+        }
+        else if (target.matches('[data-action="showFullFoodHistory"]')) {
+            event.preventDefault();
+            nutritionManager.showFullFoodHistory();
+        }
+        else if (target.matches('[data-action="saveNutritionPlan"]')) {
+            event.preventDefault();
+            nutritionManager.saveNutritionPlan();
+        }
+        
+        // 5. MEDICATION SECTION
+        else if (target.matches('[data-action="showAddMedication"]')) {
+            event.preventDefault();
+            medicationManager.showAddForm();
+        }
+        else if (target.matches('[data-action="editMedication"]')) {
+            event.preventDefault();
+            const medId = target.getAttribute('data-med-id');
+            medicationManager.editMedication(medId);
+        }
+        else if (target.matches('[data-action="deleteMedication"]')) {
+            event.preventDefault();
+            const medId = target.getAttribute('data-med-id');
+            medicationManager.deleteMedication(medId);
+        }
+        else if (target.matches('[data-action="logDose"]')) {
+            event.preventDefault();
+            const medId = target.getAttribute('data-med-id');
+            const time = target.getAttribute('data-time');
+            medicationManager.logDose(medId, time);
+        }
+        else if (target.matches('[data-action="skipDose"]')) {
+            event.preventDefault();
+            const medId = target.getAttribute('data-med-id');
+            const time = target.getAttribute('data-time');
+            medicationManager.skipDose(medId, time);
+        }
+        else if (target.matches('[data-action="logRefill"]')) {
+            event.preventDefault();
+            const medId = target.getAttribute('data-med-id');
+            medicationManager.logRefill(medId);
+        }
+        
+        // 6. EXERCISE SECTION
+        else if (target.matches('[data-action="showMobilityForm"]')) {
+            event.preventDefault();
+            exerciseManager.showMobilityForm();
+        }
+        else if (target.matches('[data-action="showActivityForm"]')) {
+            event.preventDefault();
+            exerciseManager.showActivityForm();
+        }
+        else if (target.matches('[data-action="showActivityHistory"]')) {
+            event.preventDefault();
+            exerciseManager.showActivityHistory();
+        }
+        else if (target.matches('[data-action="logSuggestedExercise"]')) {
+            event.preventDefault();
+            const exerciseId = target.getAttribute('data-exercise-id');
+            exerciseManager.logSuggestedExercise(exerciseId);
+        }
+        
+        // 7. REMINDERS SECTION
+        else if (target.matches('[data-action="previousMonth"]')) {
+            event.preventDefault();
+            remindersManager.previousMonth();
+        }
+        else if (target.matches('[data-action="nextMonth"]')) {
+            event.preventDefault();
+            remindersManager.nextMonth();
+        }
+        else if (target.matches('[data-action="showAddReminder"]')) {
+            event.preventDefault();
+            remindersManager.showAddForm();
+        }
+        else if (target.matches('[data-action="toggleView"]')) {
+            event.preventDefault();
+            const viewType = target.getAttribute('data-view-type');
+            remindersManager.toggleView(viewType);
+        }
+        else if (target.matches('[data-action="completeReminder"]')) {
+            event.preventDefault();
+            const reminderId = target.getAttribute('data-reminder-id');
+            remindersManager.completeReminder(reminderId);
+        }
+        else if (target.matches('[data-action="editReminder"]')) {
+            event.preventDefault();
+            const reminderId = target.getAttribute('data-reminder-id');
+            remindersManager.editReminder(reminderId);
+        }
+        else if (target.matches('[data-action="deleteReminder"]')) {
+            event.preventDefault();
+            const reminderId = target.getAttribute('data-reminder-id');
+            remindersManager.deleteReminder(reminderId);
+        }
+        else if (target.matches('[data-action="rescheduleReminder"]')) {
+            event.preventDefault();
+            const reminderId = target.getAttribute('data-reminder-id');
+            remindersManager.rescheduleReminder(reminderId);
+        }
+        else if (target.matches('[data-action="showDayReminders"]')) {
+            event.preventDefault();
+            const date = target.getAttribute('data-date');
+            remindersManager.showDayReminders(date);
+        }
+        else if (target.matches('[data-action="hideDayReminders"]')) {
+            event.preventDefault();
+            remindersManager.hideDayReminders();
+        }
+        
+        // 8. FORM SUBMISSIONS
+        else if (target.matches('button[type="submit"], input[type="submit"]')) {
+            const form = target.closest('form');
+            if (form) {
+                event.preventDefault();
+                handleFormSubmission(form.id);
+            }
+        }
+        
+        // 9. DROPDOWN CHANGES (nutrition & medication calculators)
+        else if (target.matches('#activity-level, #weight-goal, #food-type, #food-selection')) {
+            // Let these handle their own onchange events naturally
+            // Don't prevent default so the dropdown works normally
+        }
+        else if (target.matches('#calc-condition, #calc-weight, #calc-medication')) {
+            // Let these handle their own onchange events naturally
+        }
     });
+
+    // Handle dropdown changes separately
+    document.addEventListener('change', (event) => {
+        const target = event.target;
+        
+        if (target.matches('#activity-level, #weight-goal, #food-type')) {
+            nutritionManager.updateCalculation();
+        }
+        else if (target.matches('#food-selection')) {
+            nutritionManager.updateCalculation();
+        }
+        else if (target.matches('#calc-condition')) {
+            medicationManager.updateMedicationOptions();
+            medicationManager.calculateDosage();
+        }
+        else if (target.matches('#calc-weight, #calc-medication')) {
+            medicationManager.calculateDosage();
+        }
+    });
+};
+
+// Form submission handler (you'll need to implement this)
+const handleFormSubmission = (formId) => {
+    // This will handle all form submissions based on form ID
+    switch (formId) {
+        case 'pet-form':
+            // Handle pet form submission
+            break;
+        case 'medication-form':
+            // Handle medication form submission  
+            break;
+        // Add more cases as needed
+    }
 };
 
 
@@ -298,9 +289,15 @@ const dashboardTemplates = {
             
             <div class="dashboard-card quick-actions">
                 <h3>Quick Actions</h3>
-                <div class="action-buttons">
+                // NEW (add data-section attributes):
+<div class="action-buttons">
+    <button class="btn btn-primary" data-section="profiles">Add New Pet</button>
+    <button class="btn btn-secondary" data-section="medication">Add Medication</button>
+    <button class="btn btn-accent" data-section="reminders">Set Reminder</button>
+    <button class="btn btn-primary" data-action="logActivity">Log Activity</button>
+</div>
 
-                </div>
+        
             </div>
         </div>
     `,
