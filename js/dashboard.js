@@ -338,7 +338,7 @@ const dashboardTemplates = {
             <ul class="tasks-list">
                 ${tasks.map(task => `
                     <li class="task-item ${task.completed ? 'completed' : ''}">
-                        <input type="checkbox" ${task.completed ? 'checked' : ''}>
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} data-task-id="${task.id}">
                         <span class="task-time">${task.time}</span>
                         <span class="task-description">${task.description}</span>
                         <span class="task-type ${task.type}">${task.type}</span>
@@ -640,6 +640,11 @@ const petProfilesManager = {
                             <div class="pet-card-header">
                                 <h3>${pet.name}</h3>
                                 <div class="pet-actions">
+                                
+                                <button class="btn-icon" data-action="editPet" data-pet-id="${pet.id}" title="Edit">✏️</button>
+    <button class="btn-icon" data-action="viewPet" data-pet-id="${pet.id}" title="View Details">👁️</button>
+<button class="btn-icon delete" data-action="deletePet" data-pet-id="${pet.id}" title="Delete">🗑️</button>
+<button class="btn btn-secondary btn-sm" data-action="setCurrentPet" data-pet-id="${pet.id}">Set as Active</button>
 
                                 </div>
                             </div>
@@ -1258,6 +1263,10 @@ const nutritionManager = {
                     </div>
                     
                     <div class="water-buttons">
+                    <button class="btn btn-secondary btn-sm" data-action="logWater" data-amount="100">+100 ml</button>
+<button class="btn btn-secondary btn-sm" data-action="logWater" data-amount="250">+250 ml</button>
+<button class="btn btn-secondary btn-sm" data-action="logWater" data-amount="500">+500 ml</button>
+<button class="btn btn-accent btn-sm" data-action="showWaterLog">View Log</button>
 
                     </div>
                     
