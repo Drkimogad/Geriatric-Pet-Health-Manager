@@ -1039,7 +1039,9 @@ window.initProfiles = function() {
     petProfilesManager.init();
 };
 
+//================================================
 // Nutrition & Diet Planner Section Functionality
+//=================================================
 const nutritionManager = {
     // DOM Elements
     elements: {
@@ -1152,7 +1154,7 @@ const nutritionManager = {
 
                             <div class="form-group">
                                 <label for="weight-goal">Weight Goal</label>
-                                <select id="weight-goal" onchange="nutritionManager.updateCalculation()">
+                                <select id="weight-goal">
                                     <option value="maintain">Maintain Current Weight</option>
                                     <option value="loss">Weight Loss</option>
                                     <option value="gain">Weight Gain</option>
@@ -1161,7 +1163,7 @@ const nutritionManager = {
 
                             <div class="form-group">
                                 <label for="food-type">Select Food Type</label>
-                                <select id="food-type" onchange="nutritionManager.updateFoodSelection()">
+                                <select id="food-type">
                                     <option value="">Choose a food type</option>
                                     <option value="diabetic">Diabetic Formula</option>
                                     <option value="kidney">Kidney Support</option>
@@ -1187,7 +1189,7 @@ const nutritionManager = {
                             </div>
 
                             <div class="form-actions">
-                                <button type="button" class="btn btn-primary" onclick="nutritionManager.saveNutritionPlan()">
+                                <button type="button" class="btn btn-primary">
                                     Save Nutrition Plan
                                 </button>
                             </div>
@@ -1259,18 +1261,7 @@ const nutritionManager = {
                     </div>
                     
                     <div class="water-buttons">
-                        <button class="btn btn-secondary btn-sm" onclick="nutritionManager.logWater(100)">
-                            +100 ml
-                        </button>
-                        <button class="btn btn-secondary btn-sm" onclick="nutritionManager.logWater(250)">
-                            +250 ml
-                        </button>
-                        <button class="btn btn-secondary btn-sm" onclick="nutritionManager.logWater(500)">
-                            +500 ml
-                        </button>
-                        <button class="btn btn-accent btn-sm" onclick="nutritionManager.showWaterLog()">
-                            View Log
-                        </button>
+
                     </div>
                     
                     <div class="water-history">
@@ -1321,7 +1312,7 @@ const nutritionManager = {
                         </div>
                     `).join('')}
                 </div>
-                <button class="btn btn-secondary btn-sm" onclick="nutritionManager.showFullFoodHistory()">
+                <button class="btn btn-secondary btn-sm">
                     View Full History
                 </button>
             `;
@@ -1413,7 +1404,7 @@ const nutritionManager = {
         container.innerHTML = `
             <div class="form-group">
                 <label for="food-selection">Select Food</label>
-                <select id="food-selection" onchange="nutritionManager.updateCalculation()">
+                <select id="food-selection">
                     <option value="">Choose a food</option>
                     ${foods.map(food => `
                         <option value="${food.id}" data-kcal="${food.kcalPerCup}">
@@ -1581,8 +1572,9 @@ window.initNutrition = function() {
     nutritionManager.init();
 };
 
-
+//===========================================
 // Medication Manager Section Functionality
+//============================================
 const medicationManager = {
     // DOM Elements
     elements: {
@@ -1724,7 +1716,7 @@ const medicationManager = {
                 <div class="empty-state">
                     <h3>No Active Pet Selected</h3>
                     <p>Please select or add a pet to manage medications.</p>
-                    <button class="btn btn-primary" onclick="showSection('profiles')">
+                    <button class="btn btn-primary">
                         Manage Pet Profiles
                     </button>
                 </div>
@@ -1752,7 +1744,7 @@ const medicationManager = {
                     <div class="medication-card medication-list">
                         <div class="card-header">
                             <h3>Current Medications</h3>
-                            <button class="btn btn-primary btn-sm" onclick="medicationManager.showAddForm()">
+                            <button class="btn btn-primary btn-sm">
                                 + Add Medication
                             </button>
                         </div>
@@ -1815,10 +1807,10 @@ const medicationManager = {
                                             <span>${med.dosage}</span>
                                         </div>
                                         <div class="med-actions">
-                                            <button class="btn btn-success btn-xs" onclick="medicationManager.logDose('${med.id}', '${time}')">
+                                            <button class="btn btn-success btn-xs">
                                                 ✅ Given
                                             </button>
-                                            <button class="btn btn-warning btn-xs" onclick="medicationManager.skipDose('${med.id}', '${time}')">
+                                            <button class="btn btn-warning btn-xs">
                                                 ⏭️ Skip
                                             </button>
                                         </div>
@@ -1838,7 +1830,7 @@ const medicationManager = {
                 return `
                     <div class="empty-state">
                         <p>No medications added yet.</p>
-                        <button class="btn btn-primary" onclick="medicationManager.showAddForm()">
+                        <button class="btn btn-primary">
                             Add First Medication
                         </button>
                     </div>
@@ -1852,10 +1844,10 @@ const medicationManager = {
                             <div class="med-header">
                                 <h4>${med.name}</h4>
                                 <div class="med-actions">
-                                    <button class="btn-icon" onclick="medicationManager.editMedication('${med.id}')" title="Edit">
+                                    <button class="btn-icon">
                                         ✏️
                                     </button>
-                                    <button class="btn-icon delete" onclick="medicationManager.deleteMedication('${med.id}')" title="Delete">
+                                    <button class="btn-icon delete">
                                         🗑️
                                     </button>
                                 </div>
@@ -1903,7 +1895,7 @@ const medicationManager = {
                                 Due: ${formatDate(med.refillDate)}
                                 ${med.daysUntilRefill <= 0 ? ' (OVERDUE)' : med.daysUntilRefill <= 7 ? ` (in ${med.daysUntilRefill} days)` : ''}
                             </div>
-                            <button class="btn btn-primary btn-xs" onclick="medicationManager.logRefill('${med.id}')">
+                            <button class="btn btn-primary btn-xs">
                                 Mark Refilled
                             </button>
                         </div>
@@ -1918,7 +1910,7 @@ const medicationManager = {
                 <div class="calculator-form">
                     <div class="form-group">
                         <label for="calc-condition">Condition</label>
-                        <select id="calc-condition" onchange="medicationManager.updateMedicationOptions()">
+                        <select id="calc-condition">
                             <option value="">Select Condition</option>
                             <option value="diabetes">Diabetes</option>
                             <option value="epilepsy">Epilepsy</option>
@@ -1930,7 +1922,7 @@ const medicationManager = {
 
                     <div class="form-group">
                         <label for="calc-medication">Medication</label>
-                        <select id="calc-medication" onchange="medicationManager.calculateDosage()">
+                        <select id="calc-medication">
                             <option value="">Select Medication</option>
                         </select>
                     </div>
@@ -1938,7 +1930,7 @@ const medicationManager = {
                     <div class="form-group">
                         <label for="calc-weight">Pet Weight (kg)</label>
                         <input type="number" id="calc-weight" value="${appState.currentPet?.weight || ''}" 
-                               step="0.1" min="0" onchange="medicationManager.calculateDosage()">
+                               step="0.1" min="0">
                     </div>
 
                     <div id="dosage-result" class="dosage-result" style="display: none;">
@@ -1960,12 +1952,12 @@ const medicationManager = {
                 <div class="medication-form-container">
                     <div class="form-header">
                         <h2>${isEdit ? 'Edit' : 'Add'} Medication</h2>
-                        <button class="btn btn-secondary" onclick="medicationManager.showMainView()">
+                        <button class="btn btn-secondary">
                             ← Back to Medications
                         </button>
                     </div>
 
-                    <form id="medication-form" onsubmit="medicationManager.handleSubmit(event)">
+                    <form id="medication-form">
                         <input type="hidden" id="medication-id" value="${medication?.id || ''}">
 
                         <div class="form-grid">
@@ -2035,7 +2027,7 @@ const medicationManager = {
                             <button type="submit" class="btn btn-primary">
                                 ${isEdit ? 'Update' : 'Add'} Medication
                             </button>
-                            <button type="button" class="btn btn-secondary" onclick="medicationManager.showMainView()">
+                            <button type="button" class="btn btn-secondary">
                                 Cancel
                             </button>
                         </div>
@@ -2366,7 +2358,9 @@ window.initMedication = function() {
     medicationManager.init();
 };
 
+//============================================
 // Exercise & Mobility Section Functionality
+//=============================================
 const exerciseManager = {
     // DOM Elements
     elements: {
