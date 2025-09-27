@@ -1,4 +1,51 @@
 // dashboard.js - Main application functionality for Geriatric Pet Health Manager
+// CENTRAL EVENT DELEGATION - Put this at the top of your file
+const setupEventDelegation = () => {
+    document.addEventListener('click', (event) => {
+        const target = event.target;
+        
+        // Dashboard & Navigation
+        if (target.matches('[onclick*="showSection"]')) {
+            event.preventDefault();
+            const section = target.getAttribute('onclick').match(/showSection\('(\w+)'\)/)[1];
+            sectionManager.showSection(section);
+        }
+        else if (target.matches('[onclick*="showDashboard"]')) {
+            event.preventDefault();
+            sectionManager.showDashboard();
+        }
+        
+        // Pet Profiles
+        else if (target.matches('[onclick*="petProfilesManager.showAddForm"]')) {
+            event.preventDefault();
+            petProfilesManager.showAddForm();
+        }
+        else if (target.matches('[onclick*="petProfilesManager.editPet"]')) {
+            event.preventDefault();
+            const petId = target.getAttribute('onclick').match(/editPet\('([^']+)'\)/)[1];
+            petProfilesManager.editPet(petId);
+        }
+        else if (target.matches('[onclick*="petProfilesManager.deletePet"]')) {
+            event.preventDefault();
+            const petId = target.getAttribute('onclick').match(/deletePet\('([^']+)'\)/)[1];
+            petProfilesManager.deletePet(petId);
+        }
+        else if (target.matches('[onclick*="petProfilesManager.viewPet"]')) {
+            event.preventDefault();
+            const petId = target.getAttribute('onclick').match(/viewPet\('([^']+)'\)/)[1];
+            petProfilesManager.viewPet(petId);
+        }
+        else if (target.matches('[onclick*="petProfilesManager.setCurrentPet"]')) {
+            event.preventDefault();
+            const petId = target.getAttribute('onclick').match(/setCurrentPet\('([^']+)'\)/)[1];
+            petProfilesManager.setCurrentPet(petId);
+        }
+        
+        // Add more conditions here as we identify other listeners...
+    });
+};
+
+
 
 // Application State
 let appState = {
@@ -1360,6 +1407,8 @@ window.nutritionManager = nutritionManager;
 window.initNutrition = function() {
     nutritionManager.init();
 };
+
+
 // Medication Manager Section Functionality
 const medicationManager = {
     // DOM Elements
@@ -3715,19 +3764,7 @@ window.initReminders = function() {
     remindersManager.init();
 };
 
-
-
-// Initialize Dashboard
-const initDashboard = () => {
-    loadAppData();
-    renderDashboard();
-    
-    // Show dashboard section
-    if (dashboardElements.dashboardSection) {
-        dashboardElements.dashboardSection.style.display = 'block';
-    }
-};
-
+// keep it after Section manager but before Initialization.
 // Global functions for HTML event handlers
 window.showSection = sectionManager.showSection;
 window.showDashboard = sectionManager.showDashboard;
@@ -3740,4 +3777,18 @@ window.logActivity = () => {
     alert('Activity logging will be implemented in the Exercise section');
     sectionManager.showSection('exercise');
 };
+
+// Initialize Dashboard
+const initDashboard = () => {
+    setupEventDelegation();  // Add this line
+    loadAppData();
+    renderDashboard();
+    
+    // Show dashboard section
+    if (dashboardElements.dashboardSection) {
+        dashboardElements.dashboardSection.style.display = 'block';
+    }
+};
+
+
 
