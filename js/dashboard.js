@@ -643,15 +643,7 @@ const petProfilesManager = {
                             <div class="pet-card-header">
                                 <h3>${pet.name}</h3>
                                 <div class="pet-actions">
-                                    <button class="btn-icon" onclick="petProfilesManager.editPet('${pet.id}')" title="Edit">
-                                        ✏️
-                                    </button>
-                                    <button class="btn-icon" onclick="petProfilesManager.viewPet('${pet.id}')" title="View Details">
-                                        👁️
-                                    </button>
-                                    <button class="btn-icon delete" onclick="petProfilesManager.deletePet('${pet.id}')" title="Delete">
-                                        🗑️
-                                    </button>
+
                                 </div>
                             </div>
                             <div class="pet-card-body">
@@ -699,7 +691,7 @@ const petProfilesManager = {
                         </button>
                     </div>
                     
-                    <form id="pet-form" onsubmit="petProfilesManager.handleSubmit(event)">
+                    <form id="pet-form">
                         <input type="hidden" id="pet-id" value="${pet?.id || ''}">
                         
                         <div class="form-grid">
@@ -873,10 +865,10 @@ const petProfilesManager = {
                 </div>
                 
                 <div class="detail-actions">
-                    <button class="btn btn-primary" onclick="petProfilesManager.editPet('${pet.id}')">
+                    <button class="btn btn-primary">
                         Edit Profile
                     </button>
-                    <button class="btn btn-secondary" onclick="petProfilesManager.setCurrentPet('${pet.id}')">
+                    <button class="btn btn-secondary">
                         Set as Active Pet
                     </button>
                 </div>
