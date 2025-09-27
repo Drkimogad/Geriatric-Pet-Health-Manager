@@ -2358,6 +2358,7 @@ window.initMedication = function() {
     medicationManager.init();
 };
 
+
 //============================================
 // Exercise & Mobility Section Functionality
 //=============================================
@@ -2527,7 +2528,7 @@ const exerciseManager = {
                 <div class="empty-state">
                     <h3>No Active Pet Selected</h3>
                     <p>Please select or add a pet to track exercise and mobility.</p>
-                    <button class="btn btn-primary" onclick="showSection('profiles')">
+                    <button class="btn btn-primary">
                         Manage Pet Profiles
                     </button>
                 </div>
@@ -2545,7 +2546,7 @@ const exerciseManager = {
                     <div class="exercise-card mobility-tracker">
                         <div class="card-header">
                             <h3>Mobility Assessment</h3>
-                            <button class="btn btn-primary btn-sm" onclick="exerciseManager.showMobilityForm()">
+                            <button class="btn btn-primary btn-sm">
                                 Update Score
                             </button>
                         </div>
@@ -2557,7 +2558,7 @@ const exerciseManager = {
                     <div class="exercise-card activity-log">
                         <div class="card-header">
                             <h3>Today's Activity</h3>
-                            <button class="btn btn-primary btn-sm" onclick="exerciseManager.showActivityForm()">
+                            <button class="btn btn-primary btn-sm">
                                 + Log Activity
                             </button>
                         </div>
@@ -2578,7 +2579,7 @@ const exerciseManager = {
                     <div class="exercise-card activity-history">
                         <div class="card-header">
                             <h3>Activity History</h3>
-                            <button class="btn btn-secondary btn-sm" onclick="exerciseManager.showActivityHistory()">
+                            <button class="btn btn-secondary btn-sm">
                                 View All
                             </button>
                         </div>
@@ -2648,7 +2649,7 @@ const exerciseManager = {
                 return `
                     <div class="no-activities">
                         <p>No activities logged today</p>
-                        <button class="btn btn-primary btn-sm" onclick="exerciseManager.showActivityForm()">
+                        <button class="btn btn-primary btn-sm">
                             Log Your First Activity
                         </button>
                     </div>
@@ -2714,7 +2715,7 @@ const exerciseManager = {
                             <div class="exercise-precautions">
                                 <strong>Precautions:</strong> ${exercise.precautions}
                             </div>
-                            <button class="btn btn-secondary btn-xs" onclick="exerciseManager.logSuggestedExercise('${exercise.id}')">
+                            <button class="btn btn-secondary btn-xs">
                                 Log This Exercise
                             </button>
                         </div>
@@ -2816,7 +2817,7 @@ const exerciseManager = {
                 <div class="mobility-form-container">
                     <div class="form-header">
                         <h2>Mobility Assessment</h2>
-                        <button class="btn btn-secondary" onclick="exerciseManager.showMainView()">
+                        <button class="btn btn-secondary">
                             ← Back to Exercise
                         </button>
                     </div>
@@ -2847,7 +2848,7 @@ const exerciseManager = {
                             <button type="submit" class="btn btn-primary">
                                 Save Assessment
                             </button>
-                            <button type="button" class="btn btn-secondary" onclick="exerciseManager.showMainView()">
+                            <button type="button" class="btn btn-secondary">
                                 Cancel
                             </button>
                         </div>
@@ -2862,12 +2863,12 @@ const exerciseManager = {
                 <div class="activity-form-container">
                     <div class="form-header">
                         <h2>Log Activity</h2>
-                        <button class="btn btn-secondary" onclick="exerciseManager.showMainView()">
+                        <button class="btn btn-secondary">
                             ← Back to Exercise
                         </button>
                     </div>
 
-                    <form id="activity-form" onsubmit="exerciseManager.handleActivitySubmit(event)">
+                    <form id="activity-form">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="activity-type">Activity Type *</label>
@@ -2916,7 +2917,7 @@ const exerciseManager = {
                             <button type="submit" class="btn btn-primary">
                                 Log Activity
                             </button>
-                            <button type="button" class="btn btn-secondary" onclick="exerciseManager.showMainView()">
+                            <button type="button" class="btn btn-secondary">
                                 Cancel
                             </button>
                         </div>
@@ -3149,7 +3150,10 @@ window.initExercise = function() {
     exerciseManager.init();
 };
 
+
+//=================================================
 // Reminders & Appointments Section Functionality
+//=≈===============================================
 const remindersManager = {
     // DOM Elements
     elements: {
@@ -3248,7 +3252,7 @@ const remindersManager = {
                 <div class="empty-state">
                     <h3>No Active Pet Selected</h3>
                     <p>Please select or add a pet to manage reminders.</p>
-                    <button class="btn btn-primary" onclick="showSection('profiles')">
+                    <button class="btn btn-primary">
                         Manage Pet Profiles
                     </button>
                 </div>
@@ -3266,9 +3270,9 @@ const remindersManager = {
                         <div class="card-header">
                             <h3>Calendar</h3>
                             <div class="calendar-nav">
-                                <button class="btn-icon" onclick="remindersManager.previousMonth()">←</button>
+                                <button class="btn-icon">←</button>
                                 <span id="current-month">${remindersManager.getCurrentMonthYear()}</span>
-                                <button class="btn-icon" onclick="remindersManager.nextMonth()">→</button>
+                                <button class="btn-icon">→</button>
                             </div>
                         </div>
                         <div class="calendar-content">
@@ -3279,7 +3283,7 @@ const remindersManager = {
                     <div class="reminders-card upcoming-reminders">
                         <div class="card-header">
                             <h3>Upcoming This Week</h3>
-                            <button class="btn btn-primary btn-sm" onclick="remindersManager.showAddForm()">
+                            <button class="btn btn-primary btn-sm">
                                 + Add Reminder
                             </button>
                         </div>
@@ -3292,10 +3296,10 @@ const remindersManager = {
                         <div class="card-header">
                             <h3>All Reminders</h3>
                             <div class="view-toggle">
-                                <button class="btn btn-secondary btn-sm active" onclick="remindersManager.toggleView('list')">
+                                <button class="btn btn-secondary btn-sm active">
                                     List
                                 </button>
-                                <button class="btn btn-secondary btn-sm" onclick="remindersManager.toggleView('grid')">
+                                <button class="btn btn-secondary btn-sm">
                                     Grid
                                 </button>
                             </div>
@@ -3362,7 +3366,7 @@ const remindersManager = {
                                 ${reminder.location ? `<div class="reminder-location">${reminder.location}</div>` : ''}
                             </div>
                             <div class="reminder-actions">
-                                <button class="btn-icon" onclick="remindersManager.completeReminder('${reminder.id}')" title="Mark Complete">
+                                <button class="btn-icon" title="Mark Complete">
                                     ✅
                                 </button>
                             </div>
@@ -3380,7 +3384,7 @@ const remindersManager = {
                 return `
                     <div class="empty-state">
                         <p>No reminders set up yet.</p>
-                        <button class="btn btn-primary" onclick="remindersManager.showAddForm()">
+                        <button class="btn btn-primary">
                             Add Your First Reminder
                         </button>
                     </div>
@@ -3410,16 +3414,16 @@ const remindersManager = {
                             </div>
                             <div class="reminder-actions">
                                 ${!reminder.completed ? `
-                                    <button class="btn btn-success btn-xs" onclick="remindersManager.completeReminder('${reminder.id}')">
+                                    <button class="btn btn-success btn-xs">
                                         Complete
                                     </button>
                                 ` : `
                                     <span class="completed-badge">Completed</span>
                                 `}
-                                <button class="btn-icon" onclick="remindersManager.editReminder('${reminder.id}')" title="Edit">
+                                <button class="btn-icon" title="Edit">
                                     ✏️
                                 </button>
-                                <button class="btn-icon delete" onclick="remindersManager.deleteReminder('${reminder.id}')" title="Delete">
+                                <button class="btn-icon delete" title="Delete">
                                     🗑️
                                 </button>
                             </div>
