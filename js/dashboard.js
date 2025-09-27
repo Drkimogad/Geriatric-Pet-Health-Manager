@@ -1726,9 +1726,7 @@ const medicationManager = {
                 <div class="empty-state">
                     <h3>No Active Pet Selected</h3>
                     <p>Please select or add a pet to manage medications.</p>
-                    <button class="btn btn-primary" onclick="showSection('profiles')">
-                        Manage Pet Profiles
-                    </button>
+                    <button class="btn btn-primary" data-section="profiles"> Manage Pet Profiles</button>
                 </div>
             </div>
         `,
@@ -1754,9 +1752,7 @@ const medicationManager = {
                     <div class="medication-card medication-list">
                         <div class="card-header">
                             <h3>Current Medications</h3>
-                            <button class="btn btn-primary btn-sm" onclick="medicationManager.showAddForm()">
-                                + Add Medication
-                            </button>
+                            <button class="btn btn-primary btn-sm" data-action="showAddMedication">+ Add Medication</button>
                         </div>
                         <div class="medications-content">
                             ${medicationManager.templates.medicationList()}
@@ -1837,9 +1833,7 @@ const medicationManager = {
                 return `
                     <div class="empty-state">
                         <p>No medications added yet.</p>
-                        <button class="btn btn-primary" onclick="medicationManager.showAddForm()">
-                            Add First Medication
-                        </button>
+                       <button class="btn btn-primary" data-action="showAddMedication">Add First Medication</button>
                     </div>
                 `;
             }
@@ -1954,9 +1948,9 @@ const medicationManager = {
                 <div class="medication-form-container">
                     <div class="form-header">
                         <h2>${isEdit ? 'Edit' : 'Add'} Medication</h2>
-                        <button class="btn btn-secondary" onclick="medicationManager.showMainView()">
-                            ← Back to Medications
-                        </button>
+                        <button class="btn btn-secondary" data-action="showMainView" data-manager="medication">
+    ← Back to Medications
+</button>
                     </div>
 
                     <form id="medication-form" onsubmit="medicationManager.handleSubmit(event)">
@@ -2027,11 +2021,11 @@ const medicationManager = {
 
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">
-                                ${isEdit ? 'Update' : 'Add'} Medication
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="medicationManager.showMainView()">
-                                Cancel
-                            </button>
+    ${isEdit ? 'Update' : 'Add'} Medication
+</button>
+<button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="medication">
+    Cancel
+</button>
                         </div>
                     </form>
                 </div>
@@ -2529,9 +2523,9 @@ const exerciseManager = {
                 <div class="empty-state">
                     <h3>No Active Pet Selected</h3>
                     <p>Please select or add a pet to track exercise and mobility.</p>
-                    <button class="btn btn-primary" onclick="showSection('profiles')">
-                        Manage Pet Profiles
-                    </button>
+                    <button class="btn btn-primary" data-section="profiles">
+    Manage Pet Profiles
+</button>
                 </div>
             </div>
         `,
@@ -2647,9 +2641,9 @@ const exerciseManager = {
                 return `
                     <div class="no-activities">
                         <p>No activities logged today</p>
-                        <button class="btn btn-primary btn-sm" onclick="exerciseManager.showActivityForm()">
-                            Log Your First Activity
-                        </button>
+                        <button class="btn btn-primary btn-sm" data-action="showActivityForm">
+    Log Your First Activity
+</button>
                     </div>
                 `;
             }
@@ -2813,9 +2807,9 @@ const exerciseManager = {
                 <div class="mobility-form-container">
                     <div class="form-header">
                         <h2>Mobility Assessment</h2>
-                        <button class="btn btn-secondary" onclick="exerciseManager.showMainView()">
-                            ← Back to Exercise
-                        </button>
+                        <button class="btn btn-secondary" data-action="showMainView" data-manager="exercise">
+    ← Back to Exercise
+</button>
                     </div>
 
                     <form id="mobility-form" onsubmit="exerciseManager.handleMobilitySubmit(event)">
@@ -2842,11 +2836,11 @@ const exerciseManager = {
 
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">
-                                Save Assessment
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="exerciseManager.showMainView()">
-                                Cancel
-                            </button>
+    Save Assessment
+</button>
+<button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="exercise">
+    Cancel
+</button>
                         </div>
                     </form>
                 </div>
@@ -2859,9 +2853,9 @@ const exerciseManager = {
                 <div class="activity-form-container">
                     <div class="form-header">
                         <h2>Log Activity</h2>
-                        <button class="btn btn-secondary" onclick="exerciseManager.showMainView()">
-                            ← Back to Exercise
-                        </button>
+                        <button class="btn btn-secondary" data-action="showMainView" data-manager="exercise">
+    ← Back to Exercise
+</button>
                     </div>
 
                     <form id="activity-form" onsubmit="exerciseManager.handleActivitySubmit(event)">
@@ -2910,12 +2904,12 @@ const exerciseManager = {
                         </div>
 
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                                Log Activity
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="exerciseManager.showMainView()">
-                                Cancel
-                            </button>
+    <button type="submit" class="btn btn-primary">
+        Log Activity
+    </button>
+    <button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="exercise">
+        Cancel
+    </button>
                         </div>
                     </form>
                 </div>
@@ -3248,9 +3242,9 @@ const remindersManager = {
                 <div class="empty-state">
                     <h3>No Active Pet Selected</h3>
                     <p>Please select or add a pet to manage reminders.</p>
-                    <button class="btn btn-primary" onclick="showSection('profiles')">
-                        Manage Pet Profiles
-                    </button>
+                    <button class="btn btn-primary" data-section="profiles">
+    Manage Pet Profiles
+</button>
                 </div>
             </div>
         `,
@@ -3266,10 +3260,10 @@ const remindersManager = {
                         <div class="card-header">
                             <h3>Calendar</h3>
                             <div class="calendar-nav">
-                                <button class="btn-icon" onclick="remindersManager.previousMonth()">←</button>
-                                <span id="current-month">${remindersManager.getCurrentMonthYear()}</span>
-                                <button class="btn-icon" onclick="remindersManager.nextMonth()">→</button>
-                            </div>
+    <button class="btn-icon" data-action="previousMonth">←</button>
+    <span id="current-month">${remindersManager.getCurrentMonthYear()}</span>
+    <button class="btn-icon" data-action="nextMonth">→</button>
+</div>
                         </div>
                         <div class="calendar-content">
                             ${remindersManager.templates.calendarView()}
@@ -3358,9 +3352,9 @@ const remindersManager = {
                                 ${reminder.location ? `<div class="reminder-location">${reminder.location}</div>` : ''}
                             </div>
                             <div class="reminder-actions">
-                                <button class="btn-icon" onclick="remindersManager.completeReminder('${reminder.id}')" title="Mark Complete">
-                                    ✅
-                                </button>
+                                <button class="btn-icon" data-action="completeReminder" data-reminder-id="${reminder.id}" title="Mark Complete">
+    ✅
+</button>
                             </div>
                         </div>
                     `).join('')}
@@ -3376,9 +3370,9 @@ const remindersManager = {
                 return `
                     <div class="empty-state">
                         <p>No reminders set up yet.</p>
-                        <button class="btn btn-primary" onclick="remindersManager.showAddForm()">
-                            Add Your First Reminder
-                        </button>
+<button class="btn btn-primary" data-action="showAddReminder">
+    Add Your First Reminder
+</button>
                     </div>
                 `;
             }
@@ -3455,9 +3449,9 @@ const remindersManager = {
                 <div class="reminder-form-container">
                     <div class="form-header">
                         <h2>${isEdit ? 'Edit' : 'Add'} Reminder</h2>
-                        <button class="btn btn-secondary" onclick="remindersManager.showMainView()">
-                            ← Back to Reminders
-                        </button>
+                        <button class="btn btn-secondary" data-action="showMainView" data-manager="reminders">
+    ← Back to Reminders
+</button>
                     </div>
 
                     <form id="reminder-form" onsubmit="remindersManager.handleSubmit(event)">
@@ -3538,11 +3532,11 @@ const remindersManager = {
 
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">
-                                ${isEdit ? 'Update' : 'Add'} Reminder
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="remindersManager.showMainView()">
-                                Cancel
-                            </button>
+    ${isEdit ? 'Update' : 'Add'} Reminder
+</button>
+<button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="reminders">
+    Cancel
+</button>
                         </div>
                     </form>
                 </div>
@@ -3556,8 +3550,8 @@ const remindersManager = {
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <div class="modal-header">
                             <h3>Reminders for ${formatDate(date)}</h3>
-                            <button class="btn-icon" onclick="remindersManager.hideDayReminders()">×</button>
-                        </div>
+<button class="btn-icon" data-action="hideDayReminders">×</button>
+</div>
                         <div class="modal-body">
                             ${reminders.length === 0 ? `
                                 <p class="no-reminders">No reminders for this day</p>
@@ -3569,12 +3563,12 @@ const remindersManager = {
                                             <div class="reminder-title">${reminder.title}</div>
                                             ${reminder.time ? `<div class="reminder-time">${reminder.time}</div>` : ''}
                                             <div class="reminder-actions">
-                                                <button class="btn btn-primary btn-xs" onclick="remindersManager.editReminder('${reminder.id}')">
-                                                    Edit
-                                                </button>
-                                                <button class="btn btn-success btn-xs" onclick="remindersManager.completeReminder('${reminder.id}')">
-                                                    Complete
-                                                </button>
+                                                <button class="btn btn-primary btn-xs" data-action="editReminder" data-reminder-id="${reminder.id}">
+    Edit
+</button>
+<button class="btn btn-success btn-xs" data-action="completeReminder" data-reminder-id="${reminder.id}">
+    Complete
+</button>
                                             </div>
                                         </div>
                                     `).join('')}
@@ -3582,9 +3576,9 @@ const remindersManager = {
                             `}
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-primary" onclick="remindersManager.showAddFormWithDate('${date}')">
-                                Add Reminder for This Day
-                            </button>
+                            <button class="btn btn-primary" data-action="showAddFormWithDate" data-date="${date}">
+    Add Reminder for This Day
+</button>
                         </div>
                     </div>
                 </div>
@@ -3943,7 +3937,7 @@ window.logActivity = () => {
 
 // Initialize Dashboard
 const initDashboard = () => {
-    setupEventDelegation();  // Add this line
+    setupEventDelegation(); // Add this line setting EVENTLISTENERS FOR ALL BUTTONS ON TOP OF DASHBOARD.JS
     loadAppData();
     renderDashboard();
     
