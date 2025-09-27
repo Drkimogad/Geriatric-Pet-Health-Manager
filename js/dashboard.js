@@ -209,15 +209,22 @@ const setupEventDelegation = () => {
 
 // Form submission handler (you'll need to implement this)
 const handleFormSubmission = (formId) => {
-    // This will handle all form submissions based on form ID
     switch (formId) {
         case 'pet-form':
-            // Handle pet form submission
+            petProfilesManager.handleSubmit(event);
             break;
         case 'medication-form':
-            // Handle medication form submission  
+            medicationManager.handleSubmit(event);
             break;
-        // Add more cases as needed
+        case 'mobility-form':
+            exerciseManager.handleMobilitySubmit(event);
+            break;
+        case 'activity-form':
+            exerciseManager.handleActivitySubmit(event);
+            break;
+        case 'reminder-form':
+            remindersManager.handleSubmit(event);
+            break;
     }
 };
 
