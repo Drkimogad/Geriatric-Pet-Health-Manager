@@ -246,7 +246,12 @@ const dashboardElements = {
     remindersSection: document.getElementById('reminders-section')
 };
 
+
+//==============================================
+         // DASHBOARD SECTION
+//=============================================
 // Dashboard Templates
+//===========================
 const dashboardTemplates = {
     // Main Dashboard Layout
     mainDashboard: () => `
@@ -372,7 +377,7 @@ const dashboardTemplates = {
     }
 };
 
-// Utility Functions
+// Utility Functions FOR ENTIRE DASHBOARD 
 const utils = {
     // Format date for display
     formatDate: (dateString) => {
@@ -523,7 +528,9 @@ const taskManager = {
     }
 };
 
-// Section Navigation
+//=================================
+// Navigation Section
+//===========================
 const sectionManager = {
     // Show specific section
     showSection: (sectionName) => {
@@ -552,7 +559,10 @@ const sectionManager = {
     }
 };
 
+
+//=================================
 // Dashboard Rendering
+//===============================
 const renderDashboard = () => {
     if (!dashboardElements.dashboardContent) return;
     
@@ -613,9 +623,9 @@ const petProfilesManager = {
         mainView: () => `
             <div class="profiles-header">
                 <h2>Manage Your Pet Profiles</h2>
-                <button class="btn btn-primary" onclick="petProfilesManager.showAddForm()">
-                    + Add New Pet
-                </button>
+<button class="btn btn-primary" data-action="showAddForm" data-manager="petProfiles">
+    + Add New Pet
+</button>
             </div>
             
             <div class="pets-list" id="pets-list">
@@ -671,9 +681,9 @@ const petProfilesManager = {
                                 </div>
                             </div>
                             <div class="pet-card-footer">
-                                <button class="btn btn-secondary btn-sm" onclick="petProfilesManager.setCurrentPet('${pet.id}')">
-                                    Set as Active
-                                </button>
+                                <button class="btn btn-secondary btn-sm" data-action="setCurrentPet" data-pet-id="${pet.id}">
+                                 Set as Active
+                                 </button>
                             </div>
                         </div>
                     `).join('')}
@@ -688,9 +698,9 @@ const petProfilesManager = {
                 <div class="pet-form-container">
                     <div class="form-header">
                         <h2>${isEdit ? 'Edit' : 'Add'} Pet Profile</h2>
-                        <button class="btn btn-secondary" onclick="petProfilesManager.showMainView()">
-                            ← Back to List
-                        </button>
+                        <button class="btn btn-secondary" data-action="showMainView" data-manager="petProfiles">
+                        ← Back to List
+                      </button>
                     </div>
                     
                     <form id="pet-form">
@@ -780,11 +790,11 @@ const petProfilesManager = {
                         
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">
-                                ${isEdit ? 'Update' : 'Add'} Pet Profile
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="petProfilesManager.showMainView()">
-                                Cancel
-                            </button>
+                               ${isEdit ? 'Update' : 'Add'} Pet Profile
+                           </button>
+                          <button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="petProfiles">
+                              Cancel
+                          </button>
                         </div>
                     </form>
                 </div>
@@ -796,8 +806,8 @@ const petProfilesManager = {
             <div class="pet-detail-container">
                 <div class="detail-header">
                     <h2>${pet.name}'s Profile</h2>
-                    <button class="btn btn-secondary" onclick="petProfilesManager.showMainView()">
-                        ← Back to List
+                    <button class="btn btn-secondary" data-action="showMainView" data-manager="petProfiles">
+                     ← Back to List
                     </button>
                 </div>
                 
@@ -867,12 +877,12 @@ const petProfilesManager = {
                 </div>
                 
                 <div class="detail-actions">
-                    <button class="btn btn-primary">
-                        Edit Profile
+                    <button class="btn btn-primary" data-action="editPet" data-pet-id="${pet.id}">
+                      Edit Profile
                     </button>
-                    <button class="btn btn-secondary">
-                        Set as Active Pet
-                    </button>
+                   <button class="btn btn-secondary" data-action="setCurrentPet" data-pet-id="${pet.id}">
+                      Set as Active Pet
+                   </button>
                 </div>
             </div>
         `
@@ -1104,8 +1114,8 @@ const nutritionManager = {
                 <div class="empty-state">
                     <h3>No Active Pet Selected</h3>
                     <p>Please select or add a pet to start nutrition planning.</p>
-                    <button class="btn btn-primary" onclick="showSection('profiles')">
-                        Manage Pet Profiles
+                    <button class="btn btn-primary" data-section="profiles">
+                       Manage Pet Profiles
                     </button>
                 </div>
             </div>
@@ -1191,8 +1201,8 @@ const nutritionManager = {
                             </div>
 
                             <div class="form-actions">
-                                <button type="button" class="btn btn-primary">
-                                    Save Nutrition Plan
+                                <button type="button" class="btn btn-primary" data-action="saveNutritionPlan">
+                                 Save Nutrition Plan
                                 </button>
                             </div>
                         </form>
@@ -1318,8 +1328,8 @@ const nutritionManager = {
                         </div>
                     `).join('')}
                 </div>
-                <button class="btn btn-secondary btn-sm">
-                    View Full History
+                <button class="btn btn-secondary btn-sm" data-action="showFullFoodHistory">
+                      View Full History
                 </button>
             `;
         }
