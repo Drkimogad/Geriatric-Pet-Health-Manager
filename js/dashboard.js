@@ -1033,7 +1033,8 @@ const petProfilesManager = {
             appState.currentPet = pet;
             utils.saveData('currentPet', pet);
             alert(`${pet.name} is now your active pet!`);
-            showDashboard(); // Return to dashboard with new active pet
+      //   showDashboard(); // Return to dashboard with new active pet
+            renderDashboard(); // This actually re-renders the content with new data
         }
     },
 
