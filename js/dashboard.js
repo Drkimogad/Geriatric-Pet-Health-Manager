@@ -299,10 +299,7 @@ const dashboardTemplates = {
             <div class="dashboard-card quick-actions">
                 <h3>Quick Actions</h3>
                 <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="showSection('profiles')">Add New Pet</button>
-                    <button class="btn btn-secondary" onclick="showSection('medication')">Add Medication</button>
-                    <button class="btn btn-accent" onclick="showSection('reminders')">Set Reminder</button>
-                    <button class="btn btn-primary" onclick="logActivity()">Log Activity</button>
+
                 </div>
             </div>
         </div>
@@ -344,8 +341,7 @@ const dashboardTemplates = {
             <ul class="tasks-list">
                 ${tasks.map(task => `
                     <li class="task-item ${task.completed ? 'completed' : ''}">
-                        <input type="checkbox" ${task.completed ? 'checked' : ''} 
-                               onchange="toggleTaskCompletion('${task.id}')">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''}>
                         <span class="task-time">${task.time}</span>
                         <span class="task-description">${task.description}</span>
                         <span class="task-type ${task.type}">${task.type}</span>
