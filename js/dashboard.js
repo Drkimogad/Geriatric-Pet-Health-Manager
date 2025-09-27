@@ -1817,12 +1817,9 @@ const medicationManager = {
                                             <span>${med.dosage}</span>
                                         </div>
                                         <div class="med-actions">
-                                            <button class="btn btn-success btn-xs" onclick="medicationManager.logDose('${med.id}', '${time}')">
-                                                ✅ Given
-                                            </button>
-                                            <button class="btn btn-warning btn-xs" onclick="medicationManager.skipDose('${med.id}', '${time}')">
-                                                ⏭️ Skip
-                                            </button>
+                                            <button class="btn btn-success btn-xs" data-action="logDose" data-med-id="${med.id}" data-time="${time}">✅ Given</button>
+                                            <button class="btn btn-warning btn-xs" data-action="skipDose" data-med-id="${med.id}" data-time="${time}">⏭️ Skip</button>
+
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1854,12 +1851,9 @@ const medicationManager = {
                             <div class="med-header">
                                 <h4>${med.name}</h4>
                                 <div class="med-actions">
-                                    <button class="btn-icon" onclick="medicationManager.editMedication('${med.id}')" title="Edit">
-                                        ✏️
-                                    </button>
-                                    <button class="btn-icon delete" onclick="medicationManager.deleteMedication('${med.id}')" title="Delete">
-                                        🗑️
-                                    </button>
+                               <button class="btn-icon" data-action="editMedication" data-med-id="${med.id}" title="Edit">✏️</button>             
+                               <button class="btn-icon delete" data-action="deleteMedication" data-med-id="${med.id}" title="Delete">🗑️</button>
+                                
                                 </div>
                             </div>
                             <div class="med-details">
@@ -1905,9 +1899,7 @@ const medicationManager = {
                                 Due: ${formatDate(med.refillDate)}
                                 ${med.daysUntilRefill <= 0 ? ' (OVERDUE)' : med.daysUntilRefill <= 7 ? ` (in ${med.daysUntilRefill} days)` : ''}
                             </div>
-                            <button class="btn btn-primary btn-xs" onclick="medicationManager.logRefill('${med.id}')">
-                                Mark Refilled
-                            </button>
+                            <button class="btn btn-primary btn-xs" data-action="logRefill" data-med-id="${med.id}">Mark Refilled</button>
                         </div>
                     `).join('')}
                 </div>
@@ -2368,7 +2360,9 @@ window.initMedication = function() {
     medicationManager.init();
 };
 
+//===================================================================
 // Exercise & Mobility Section Functionality
+//======================================================
 const exerciseManager = {
     // DOM Elements
     elements: {
@@ -2553,9 +2547,8 @@ const exerciseManager = {
                     <div class="exercise-card mobility-tracker">
                         <div class="card-header">
                             <h3>Mobility Assessment</h3>
-                            <button class="btn btn-primary btn-sm" onclick="exerciseManager.showMobilityForm()">
-                                Update Score
-                            </button>
+                            <button class="btn btn-primary btn-sm" data-action="showMobilityForm">Update Score</button>
+
                         </div>
                         <div class="mobility-content">
                             ${exerciseManager.templates.mobilityDisplay(pet)}
@@ -2565,9 +2558,8 @@ const exerciseManager = {
                     <div class="exercise-card activity-log">
                         <div class="card-header">
                             <h3>Today's Activity</h3>
-                            <button class="btn btn-primary btn-sm" onclick="exerciseManager.showActivityForm()">
-                                + Log Activity
-                            </button>
+                            <button class="btn btn-primary btn-sm" data-action="showActivityForm">+ Log Activity</button>
+
                         </div>
                         <div class="activity-content">
                             ${exerciseManager.templates.todayActivity()}
@@ -2586,9 +2578,8 @@ const exerciseManager = {
                     <div class="exercise-card activity-history">
                         <div class="card-header">
                             <h3>Activity History</h3>
-                            <button class="btn btn-secondary btn-sm" onclick="exerciseManager.showActivityHistory()">
-                                View All
-                            </button>
+                            <button class="btn btn-secondary btn-sm" data-action="showActivityHistory">View All</button>
+
                         </div>
                         <div class="history-content">
                             ${exerciseManager.templates.activityHistory(recentActivities)}
@@ -2722,9 +2713,7 @@ const exerciseManager = {
                             <div class="exercise-precautions">
                                 <strong>Precautions:</strong> ${exercise.precautions}
                             </div>
-                            <button class="btn btn-secondary btn-xs" onclick="exerciseManager.logSuggestedExercise('${exercise.id}')">
-                                Log This Exercise
-                            </button>
+                            <button class="btn btn-secondary btn-xs" data-action="logSuggestedExercise" data-exercise-id="${exercise.id}">Log This Exercise</button>
                         </div>
                     `).join('')}
                 </div>
@@ -3157,7 +3146,10 @@ window.initExercise = function() {
     exerciseManager.init();
 };
 
+
+//==========================================================
 // Reminders & Appointments Section Functionality
+//===============================================================
 const remindersManager = {
     // DOM Elements
     elements: {
@@ -3287,9 +3279,7 @@ const remindersManager = {
                     <div class="reminders-card upcoming-reminders">
                         <div class="card-header">
                             <h3>Upcoming This Week</h3>
-                            <button class="btn btn-primary btn-sm" onclick="remindersManager.showAddForm()">
-                                + Add Reminder
-                            </button>
+                           <button class="btn btn-primary btn-sm" data-action="showAddReminder">+ Add Reminder</button>
                         </div>
                         <div class="upcoming-content">
                             ${remindersManager.templates.upcomingReminders(upcomingReminders)}
@@ -3300,12 +3290,10 @@ const remindersManager = {
                         <div class="card-header">
                             <h3>All Reminders</h3>
                             <div class="view-toggle">
-                                <button class="btn btn-secondary btn-sm active" onclick="remindersManager.toggleView('list')">
-                                    List
-                                </button>
-                                <button class="btn btn-secondary btn-sm" onclick="remindersManager.toggleView('grid')">
-                                    Grid
-                                </button>
+                                <button class="btn btn-secondary btn-sm" data-action="toggleView" data-view-type="list">List</button>
+
+                                <button class="btn btn-secondary btn-sm" data-action="toggleView" data-view-type="grid">Grid</button>
+
                             </div>
                         </div>
                         <div class="reminders-content">
@@ -3418,18 +3406,15 @@ const remindersManager = {
                             </div>
                             <div class="reminder-actions">
                                 ${!reminder.completed ? `
-                                    <button class="btn btn-success btn-xs" onclick="remindersManager.completeReminder('${reminder.id}')">
-                                        Complete
-                                    </button>
+                                    <button class="btn btn-success btn-xs" data-action="completeReminder" data-reminder-id="${reminder.id}">Complete</button>
+
                                 ` : `
                                     <span class="completed-badge">Completed</span>
                                 `}
-                                <button class="btn-icon" onclick="remindersManager.editReminder('${reminder.id}')" title="Edit">
-                                    ✏️
-                                </button>
-                                <button class="btn-icon delete" onclick="remindersManager.deleteReminder('${reminder.id}')" title="Delete">
-                                    🗑️
-                                </button>
+                                <button class="btn-icon" data-action="editReminder" data-reminder-id="${reminder.id}" title="Edit">✏️</button>
+
+                                <button class="btn-icon delete" data-action="deleteReminder" data-reminder-id="${reminder.id}" title="Delete">🗑️</button>
+
                             </div>
                         </div>
                     `).join('')}
@@ -3453,9 +3438,8 @@ const remindersManager = {
                                 <p>Was due: ${formatDate(reminder.date)}</p>
                                 <small>${remindersManager.reminderTypes[reminder.type].label}</small>
                             </div>
-                            <button class="btn btn-primary btn-xs" onclick="remindersManager.rescheduleReminder('${reminder.id}')">
-                                Reschedule
-                            </button>
+                            <button class="btn btn-primary btn-xs" data-action="rescheduleReminder" data-reminder-id="${reminder.id}">Reschedule</button>
+
                         </div>
                     `).join('')}
                 </div>
