@@ -887,7 +887,7 @@ const petProfilesManager = {
             </div>
         `
     },
-
+// after creating a profile and saving
     // View Management
     showMainView: function() {
         this.elements.profilesContent.innerHTML = this.templates.mainView();
@@ -989,9 +989,10 @@ const petProfilesManager = {
                 ...petData,
                 updatedAt: new Date().toISOString()
             };
-            
+    //update UI then        
             this.savePets();
             this.showMainView();
+            sectionManager.showSection('dashboard'); // Add this line
             alert('Pet profile updated successfully!');
         }
     },
