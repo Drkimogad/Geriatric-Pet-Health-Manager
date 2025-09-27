@@ -3449,7 +3449,7 @@ const remindersManager = {
                                 <p>Was due: ${formatDate(reminder.date)}</p>
                                 <small>${remindersManager.reminderTypes[reminder.type].label}</small>
                             </div>
-                            <button class="btn btn-primary btn-xs" onclick="remindersManager.rescheduleReminder('${reminder.id}')">
+                            <button class="btn btn-primary btn-xs">
                                 Reschedule
                             </button>
                         </div>
@@ -3467,7 +3467,7 @@ const remindersManager = {
                 <div class="reminder-form-container">
                     <div class="form-header">
                         <h2>${isEdit ? 'Edit' : 'Add'} Reminder</h2>
-                        <button class="btn btn-secondary" onclick="remindersManager.showMainView()">
+                        <button class="btn btn-secondary">
                             ← Back to Reminders
                         </button>
                     </div>
@@ -3552,7 +3552,7 @@ const remindersManager = {
                             <button type="submit" class="btn btn-primary">
                                 ${isEdit ? 'Update' : 'Add'} Reminder
                             </button>
-                            <button type="button" class="btn btn-secondary" onclick="remindersManager.showMainView()">
+                            <button type="button" class="btn btn-secondary">
                                 Cancel
                             </button>
                         </div>
@@ -3568,7 +3568,7 @@ const remindersManager = {
                     <div class="modal-content" onclick="event.stopPropagation()">
                         <div class="modal-header">
                             <h3>Reminders for ${formatDate(date)}</h3>
-                            <button class="btn-icon" onclick="remindersManager.hideDayReminders()">×</button>
+                            <button class="btn-icon">×</button>
                         </div>
                         <div class="modal-body">
                             ${reminders.length === 0 ? `
@@ -3581,10 +3581,10 @@ const remindersManager = {
                                             <div class="reminder-title">${reminder.title}</div>
                                             ${reminder.time ? `<div class="reminder-time">${reminder.time}</div>` : ''}
                                             <div class="reminder-actions">
-                                                <button class="btn btn-primary btn-xs" onclick="remindersManager.editReminder('${reminder.id}')">
+                                                <button class="btn btn-primary btn-xs">
                                                     Edit
                                                 </button>
-                                                <button class="btn btn-success btn-xs" onclick="remindersManager.completeReminder('${reminder.id}')">
+                                                <button class="btn btn-success btn-xs">
                                                     Complete
                                                 </button>
                                             </div>
@@ -3594,7 +3594,7 @@ const remindersManager = {
                             `}
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-primary" onclick="remindersManager.showAddFormWithDate('${date}')">
+                            <button class="btn btn-primary">
                                 Add Reminder for This Day
                             </button>
                         </div>
