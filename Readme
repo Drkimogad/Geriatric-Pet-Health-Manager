@@ -52,22 +52,25 @@ DASHBOARD → TRANSFORMS TO BUSTER'S DETAIL VIEW
 │ Pet selector remembers Buster as active choice          │
 
 
-New profiles:
 
-↓ Click "Add New Profile" ↓
+DASHBOARD NAVIGATION FLOW:
 
-NEW PROFILE WIZARD (separate full-screen view)
-┌─────────────────────────────────────────────────────────┐
-│ Create New Profile [× Close]                            │
-├─────────────────────────────────────────────────────────┤
-│ [Pet Details] [Medications] [Nutrition] [Exercise] [Reminders]
-│                                                         │
-│ PET DETAILS SECTION (active first)                      │
-│ ┌─────────────────────────────────────────────────────┐ │
-│ │ Name: ______ Species: ___ Breed: ___ etc.          │ │
-│ └─────────────────────────────────────────────────────┘ │
-│                                                         │
-│ [Save Profile] button (enabled when required fields complete)
-└─────────────────────────────────────────────────────────┘
+Dashboard Quick Actions
+        ↓
+[Add New Pet] → data-section="profiles"
+        ↓
+Profiles Section (Pet List)
+        ↓
+[+ Add New Pet] → data-action="showAddForm"
+        ↓  
+Pet Creation Form
+        ↓
+[Submit] → Saves pet → Returns to Profiles Section
+        ↓
+[Set as Active] → data-action="setCurrentPet" 
+        ↓
+Returns to Dashboard (with pet summary)
 
-↓ Save → Returns to Dashboard → New profile appears in grid ↓
+Navigation Buttons:
+- [Back to Dashboard] (Profiles Section) → Returns to main dashboard
+- [Cancel] (Pet Form) → Returns to profiles section
