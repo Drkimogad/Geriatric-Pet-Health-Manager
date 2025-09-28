@@ -41,15 +41,13 @@ const setupEventDelegation = () => {
             const petId = target.getAttribute('data-pet-id');
             petProfilesManager.setCurrentPet(petId);
         }
-         else if (action === "showMainView") {
-    const manager = target.getAttribute("data-manager");
-    if (manager === "profiles") {
-        petProfiles.showMainView();
-    } else if (manager === "medication") {
-        medicationManager.showMainView();
-    }
-}
-
+            else if (target.matches('[data-action="showMainView"]')) {
+        event.preventDefault();
+       const manager = target.getAttribute('data-manager');
+       if (manager === 'petProfiles') {
+        petProfilesManager.showMainView();
+         }
+        }
         
         // 3. TASK MANAGEMENT
         else if (target.matches('input[type="checkbox"][data-task-id]')) {
@@ -109,7 +107,16 @@ const setupEventDelegation = () => {
             const medId = target.getAttribute('data-med-id');
             medicationManager.logRefill(medId);
         }
-
+            else if (target.matches('[data-action="showMainView"]')) {
+    event.preventDefault();
+    const manager = target.getAttribute('data-manager');
+    if (manager === 'petProfiles') {
+        petProfilesManager.showMainView();
+    }
+    if (manager === 'medication') {
+        medicationManager.showMainView();
+    }
+            }
                 else if (target.matches('[data-action="addMedication"]')) {
     event.preventDefault();
     medicationManager.handleSubmit(event);
@@ -190,7 +197,6 @@ const setupEventDelegation = () => {
                 handleFormSubmission(form.id);
             }
         }
-
         
         // 9. DROPDOWN CHANGES (nutrition & medication calculators)
         else if (target.matches('#activity-level, #weight-goal, #food-type, #food-selection')) {
@@ -223,7 +229,6 @@ const setupEventDelegation = () => {
 };
 
 // Form submission handler (you'll need to implement this)
-// very crucial for submit handling
 const handleFormSubmission = (formId) => {
     switch (formId) {
         case 'pet-form':
@@ -243,6 +248,9 @@ const handleFormSubmission = (formId) => {
             break;
     }
 };
+    
+
+
 
 
 
