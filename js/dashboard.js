@@ -1571,7 +1571,7 @@ const nutritionManager = {
             petProfilesManager.savePets();
         }
 
-        this.renderNutritionView();
+      //  this.renderNutritionView();
     },
 
     // Rendering Functions
