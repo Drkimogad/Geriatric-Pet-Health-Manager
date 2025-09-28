@@ -183,13 +183,13 @@ const setupEventDelegation = () => {
         }
         
         // 8. FORM SUBMISSIONS
-       else if (target.matches('button[type="submit"], input[type="submit"]')) {
-    const form = target.closest('form');
-    if (form) {
-        event.preventDefault();
-        handleFormSubmission(form.id, event);  // pass event too
-    }
-}
+        else if (target.matches('button[type="submit"], input[type="submit"]')) {
+            const form = target.closest('form');
+            if (form) {
+                event.preventDefault();
+                handleFormSubmission(form.id);
+            }
+        }
 
         
         // 9. DROPDOWN CHANGES (nutrition & medication calculators)
