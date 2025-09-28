@@ -1124,7 +1124,7 @@ const nutritionManager = {
         // Main Nutrition View
         mainView: () => `
             <div class="nutrition-header">
-                <h2>Nutrition & Diet Planning</h2>
+                <h2>Nutrition & Diet Planner</h2>
                 <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
                 ${appState.currentPet ? `
                     <div class="current-pet-banner">
