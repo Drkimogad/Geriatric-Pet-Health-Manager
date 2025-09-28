@@ -1125,6 +1125,7 @@ const nutritionManager = {
         mainView: () => `
             <div class="nutrition-header">
                 <h2>Nutrition & Diet Planning</h2>
+                <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
                 ${appState.currentPet ? `
                     <div class="current-pet-banner">
                         Planning for: <strong>${appState.currentPet.name}</strong>
@@ -1282,6 +1283,7 @@ const nutritionManager = {
                 </div>
             `;
         },
+
 
         // Water Tracker Template
         waterTracker: () => {
@@ -1602,9 +1604,18 @@ const nutritionManager = {
         alert('Full food history view will be implemented in next version');
     },
 
+    // Add this method inside nutrition manager object.
+       handleFoodDropdown: function(event) {
+    if (event.target.matches('#food-type')) {
+        this.updateFoodSelection();
+    }
+    },
+    
     // Initialize Nutrition Section
     init: function() {
         this.renderNutritionView();
+        // Add this line:
+    document.addEventListener('change', this.handleFoodDropdown.bind(this));
     }
 };
 
