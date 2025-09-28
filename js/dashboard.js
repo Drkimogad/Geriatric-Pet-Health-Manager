@@ -894,7 +894,7 @@ const petProfilesManager = {
             </div>
         `
     },
-// after creating a profile and saving
+// after creating a profile and saving THIS IS A VERY CRUCIAL AREA 
     // View Management
     showMainView: function() {
         this.elements.profilesContent.innerHTML = this.templates.mainView();
@@ -1026,14 +1026,15 @@ const petProfilesManager = {
     editPet: function(petId) {
         this.showEditForm(petId);
     },
-
+    
+// setting current ACTIVE PET TO DISPLAY ITS SUMMARY 
     setCurrentPet: function(petId) {
         const pet = appState.pets.find(p => p.id === petId);
         if (pet) {
             appState.currentPet = pet;
             utils.saveData('currentPet', pet);
             alert(`${pet.name} is now your active pet!`);
-      //   showDashboard(); // Return to dashboard with new active pet
+            showDashboard(); // Return to dashboard with new active pet
             renderDashboard(); // This actually re-renders the content with new data
         }
     },
