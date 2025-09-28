@@ -1079,6 +1079,11 @@ window.initProfiles = function() {
     petProfilesManager.init();
 };
 
+
+
+
+
+
 //================================================
 // Nutrition & Diet Planner Section Functionality
 //=================================================
@@ -1407,6 +1412,7 @@ const nutritionManager = {
 
     calculateFeedingSchedule: function(dailyCalories) {
         const selectedFood = this.getSelectedFood();
+            console.log('calculateFeedingSchedule - selectedFood:', selectedFood); // ADD THIS
         if (!selectedFood || !selectedFood.kcalPerCup) {
             return { morning: 0, evening: 0, total: 0 };
         }
@@ -1443,17 +1449,6 @@ const nutritionManager = {
         this.updateCalculation();
     },
 
-            // ADD THIS METHOD HERE:
-handleFoodDropdown: function(event) {
-    if (event.target.matches('#food-type')) {
-        this.updateFoodSelection();
-    }
-    // ADD THIS:
-    if (event.target.matches('#food-selection')) {
-        this.updateCalculation();
-    }
-},
-
     renderFoodOptions: function(foodType) {
         const foods = this.foodDatabase[foodType] || [];
         const container = document.getElementById('food-selection-container');
@@ -1475,8 +1470,10 @@ handleFoodDropdown: function(event) {
 
     getSelectedFood: function() {
         const foodSelection = document.getElementById('food-selection');
+            console.log('getSelectedFood - foodSelection:', foodSelection?.value); // ADD THIS
         if (foodSelection && foodSelection.value) {
             const selectedOption = foodSelection.options[foodSelection.selectedIndex];
+            console.log('Selected food:', selectedOption.text); // ADD THIS
             return {
                 id: foodSelection.value,
                 name: selectedOption.text,
@@ -1620,6 +1617,10 @@ handleFoodDropdown: function(event) {
        handleFoodDropdown: function(event) {
     if (event.target.matches('#food-type')) {
         this.updateFoodSelection();
+    }
+     // ADD THIS:
+    if (event.target.matches('#food-selection')) {
+        this.updateCalculation();
     }
     },
     
