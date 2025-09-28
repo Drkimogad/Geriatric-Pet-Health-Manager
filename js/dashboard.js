@@ -41,6 +41,13 @@ const setupEventDelegation = () => {
             const petId = target.getAttribute('data-pet-id');
             petProfilesManager.setCurrentPet(petId);
         }
+            else if (target.matches('[data-action="showMainView"]')) {
+        event.preventDefault();
+       const manager = target.getAttribute('data-manager');
+       if (manager === 'petProfiles') {
+        petProfilesManager.showMainView();
+         }
+        }
         
         // 3. TASK MANAGEMENT
         else if (target.matches('input[type="checkbox"][data-task-id]')) {
