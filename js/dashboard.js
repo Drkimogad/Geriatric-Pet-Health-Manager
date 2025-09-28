@@ -1262,7 +1262,8 @@ const nutritionManager = {
 
         // Feeding Schedule Template
         feedingSchedule: (nutritionData) => {
-            const schedule = nutritionData.feedingSchedule || {};
+       // Calculate feeding schedule ONLY when we have selected food
+       const schedule = nutritionManager.calculateFeedingSchedule(nutritionData.recommended) || {};
             return `
                 <div class="feeding-plan">
                     <div class="feeding-time">
@@ -1406,7 +1407,8 @@ const nutritionManager = {
             rer,
             der,
             recommended: der,
-            feedingSchedule: this.calculateFeedingSchedule(der)
+       //   feedingSchedule: this.calculateFeedingSchedule(der)
+           feedingSchedule: null // CHANGE THIS - don't calculate feeding schedule here
         };
     },
 
