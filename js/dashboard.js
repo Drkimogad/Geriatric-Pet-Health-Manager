@@ -224,7 +224,7 @@ const setupEventDelegation = () => {
 
 // Form submission handler (you'll need to implement this)
 // very crucial for submit handling
-const handleFormSubmission = (formId, event) => {
+const handleFormSubmission = (formId) => {
     switch (formId) {
         case 'pet-form':
             petProfilesManager.handleSubmit(event);
