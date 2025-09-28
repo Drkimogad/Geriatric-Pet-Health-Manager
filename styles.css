@@ -266,80 +266,68 @@ footer p {
 
 
 /* Dashboard Styles */
+/* Header Styles */
 .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    text-align: center;
     margin-bottom: 2rem;
     padding: 1.5rem;
     background: var(--surface);
     border-radius: 12px;
     border: 1px solid var(--border);
+    max-width: 80vw;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .dashboard-header h2 {
     color: var(--primary-dark);
-    margin: 0;
+    margin: 0 0 1rem 0;
     font-size: 1.8rem;
+}
+
+.header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.nav-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.nav-actions .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
 }
 
 .pet-selector {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .pet-selector label {
     font-weight: 600;
     color: var(--neutral-dark);
+    white-space: nowrap;
 }
 
 .pet-dropdown {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--background);
     color: var(--neutral-text);
-    font-size: 1rem;
-    min-width: 200px;
+    font-size: 0.9rem;
+    min-width: 150px;
 }
 
-.pet-dropdown:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-light);
-}
-
-/* Dashboard Grid Layout */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.dashboard-card {
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-}
-
-.dashboard-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-}
-
-.dashboard-card h3 {
-    color: var(--primary-dark);
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--neutral-medium);
-    font-size: 1.3rem;
-}
 
 /* Pet Summary Styles */
 .pet-summary {
@@ -535,35 +523,6 @@ footer p {
     border: 2px dashed var(--border);
 }
 
-/* Quick Actions Styles */
-.action-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.action-buttons .btn {
-    padding: 1rem 1.5rem;
-    font-size: 0.9rem;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-}
-
-.btn-accent {
-    background: var(--accent);
-    color: white;
-    border: none;
-}
-
-.btn-accent:hover {
-    background: var(--accent-dark);
-    transform: translateY(-2px);
-}
-
 /* Button Styles */
 .btn {
     padding: 0.75rem 1.5rem;
@@ -574,6 +533,8 @@ footer p {
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
+    display: inline-block;
+    text-align: center;
 }
 
 .btn-primary {
@@ -594,6 +555,17 @@ footer p {
 .btn-secondary:hover {
     background: var(--neutral-dark);
     color: white;
+}
+
+.btn-accent {
+    background: var(--accent);
+    color: white;
+    border: none;
+}
+
+.btn-accent:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
 }
 
 /* Responsive Design */
@@ -617,9 +589,25 @@ footer p {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
+        max-width: 95vw;
+    }
+    
+    .header-nav {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .nav-actions {
+        order: 2;
+    }
+    
+    .nav-actions .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
     }
     
     .pet-selector {
+        order: 1;
         flex-direction: column;
         width: 100%;
     }
