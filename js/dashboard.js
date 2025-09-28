@@ -616,6 +616,16 @@ const loadPetData = (petId) => {
 
 //====================================
 // Pet Profiles Section Functionality
+// SECTION MANAGER FUNCTIONS:
+// showDashboard() - Switches visible section to dashboard (changes display: none/block)
+// showSection(sectionName) - Shows specific section, hides others
+
+// PET PROFILES MANAGER FUNCTIONS:  
+// showMainView() - Updates profiles section content to show pets list (replaces innerHTML)
+// renderDashboard() - Re-renders entire dashboard content with current data (replaces innerHTML)
+//showDashboard() - Just changes which section is visible
+//showMainView() - Updates profiles section content only
+//renderDashboard() - Refreshes ALL dashboard data and display
 //=======================================
 const petProfilesManager = {
     // DOM Elements for Pet Profiles
@@ -630,9 +640,8 @@ const petProfilesManager = {
         mainView: () => `
             <div class="profiles-header">
                 <h2>Manage Your Pet Profiles</h2>
-<button class="btn btn-primary" data-action="showAddForm" data-manager="petProfiles">
-    + Add New Pet
-</button>
+                <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
+                <button class="btn btn-primary" data-action="showAddForm" data-manager="petProfiles">+ Add New Pet</button>
             </div>
             
             <div class="pets-list" id="pets-list">
@@ -699,15 +708,13 @@ const petProfilesManager = {
         },
 
         // Add/Edit Pet Form
+        // PROFILE CREATION FORM 
         petForm: (pet = null) => {
             const isEdit = !!pet;
             return `
                 <div class="pet-form-container">
                     <div class="form-header">
                         <h2>${isEdit ? 'Edit' : 'Add'} Pet Profile</h2>
-                        <button class="btn btn-secondary" data-action="showMainView" data-manager="petProfiles">
-                        ← Back to List
-                      </button>
                     </div>
                     
                     <form id="pet-form">
@@ -799,9 +806,7 @@ const petProfilesManager = {
                             <button type="submit" class="btn btn-primary">
                                ${isEdit ? 'Update' : 'Add'} Pet Profile
                            </button>
-                          <button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="petProfiles">
-                              Cancel
-                          </button>
+                          <button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="petProfiles">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -809,6 +814,7 @@ const petProfilesManager = {
         },
 
         // Pet Detail View
+        //DISPLAYED PET PROFILES IN PROFILE SECTION TO BE SET AS ACTIVE AS NEEDED
         petDetail: (pet) => `
             <div class="pet-detail-container">
                 <div class="detail-header">
@@ -894,7 +900,10 @@ const petProfilesManager = {
             </div>
         `
     },
-// after creating a profile and saving THIS IS A VERY CRUCIAL AREA 
+
+//==========================================================
+// THIS IS A VERY CRUCIAL AREA  THAT UPDATES EVERYTHING 
+//=============================================================
     // View Management
     showMainView: function() {
         this.elements.profilesContent.innerHTML = this.templates.mainView();
@@ -976,6 +985,7 @@ const petProfilesManager = {
         return true;
     },
 
+    // IT ADDS PET PROFILE TO PROFILE SECTION PAGE 
     addPet: function(petData) {
         const newPet = {
             id: 'pet_' + Date.now(),
@@ -988,6 +998,8 @@ const petProfilesManager = {
         alert(`${newPet.name} has been added successfully!`);
     },
 
+    //===UPDATES UI WHEN A PROFILE IS SET TO ACTIVE IT REDIRECTS TO DASHBOARD AND 
+    // QUEUE IT IN PROFILE SELECTOR  
     updatePet: function(petId, petData) {
         const petIndex = appState.pets.findIndex(p => p.id === petId);
         if (petIndex !== -1) {
