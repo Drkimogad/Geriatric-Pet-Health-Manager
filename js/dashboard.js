@@ -283,11 +283,14 @@ const dashboardTemplates = {
                     `).join('')}
                 </select>
             </div>
+            
             <div class="nav-actions">
                 <button class="btn btn-primary" data-section="profiles">Pet Profiles</button>
                 <button class="btn btn-secondary" data-section="medication">Medication</button>
-                <button class="btn btn-accent" data-section="reminders">Reminders</button>
+                <button class="btn btn-secondary" data-section="nutrition">Nutrition</button> 
                 <button class="btn btn-primary" data-action="logActivity">Log Activity</button>
+                <button class="btn btn-accent" data-section="reminders">Reminders</button>
+
             </div>   
         </div>
     </div>
