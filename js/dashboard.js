@@ -1286,7 +1286,7 @@ const nutritionManager = {
                 <div class="feeding-notes">
                     <p><strong>Total Daily:</strong> ${schedule.total || '0'} cups</p>
                     <p><strong>Food:</strong> ${nutritionData.selectedFood?.name || 'Not selected'}</p>
-                </div>
+               </div>
             `;
         },
 
