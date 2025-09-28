@@ -268,9 +268,10 @@ const dashboardElements = {
 //===========================
 const dashboardTemplates = {
     // Main Dashboard Layout
-    mainDashboard: () => `
-        <div class="dashboard-header">
-            <h2>Welcome to Your Pet's Health Hub</h2>
+ mainDashboard: () => `
+    <div class="dashboard-header">
+        <h2>Welcome to Your Pet's Health Hub</h2>
+        <div class="header-nav">
             <div class="pet-selector">
                 <label for="pet-select">Select Pet: </label>
                 <select id="pet-select" class="pet-dropdown">
@@ -282,7 +283,14 @@ const dashboardTemplates = {
                     `).join('')}
                 </select>
             </div>
+            <div class="nav-actions">
+                <button class="btn btn-primary" data-section="profiles">Pet Profiles</button>
+                <button class="btn btn-secondary" data-section="medication">Medication</button>
+                <button class="btn btn-accent" data-section="reminders">Reminders</button>
+                <button class="btn btn-primary" data-action="logActivity">Log Activity</button>
+            </div>   
         </div>
+    </div>
         
         <div class="dashboard-grid">
             <div class="dashboard-card pet-summary">
@@ -305,19 +313,7 @@ const dashboardTemplates = {
                     ${dashboardTemplates.alerts()}
                 </div>
             </div>
-            
-            <div class="dashboard-card quick-actions">
-                <h3>Quick Actions</h3>
-                // NEW (add data-section attributes):
-<div class="action-buttons">
-    <button class="btn btn-primary" data-section="profiles">Add New Pet</button>
-    <button class="btn btn-secondary" data-section="medication">Add Medication</button>
-    <button class="btn btn-accent" data-section="reminders">Set Reminder</button>
-    <button class="btn btn-primary" data-action="logActivity">Log Activity</button>
-</div>
-
-        
-            </div>
+              
         </div>
     `,
 
