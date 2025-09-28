@@ -1443,6 +1443,17 @@ const nutritionManager = {
         this.updateCalculation();
     },
 
+            // ADD THIS METHOD HERE:
+handleFoodDropdown: function(event) {
+    if (event.target.matches('#food-type')) {
+        this.updateFoodSelection();
+    }
+    // ADD THIS:
+    if (event.target.matches('#food-selection')) {
+        this.updateCalculation();
+    }
+},
+
     renderFoodOptions: function(foodType) {
         const foods = this.foodDatabase[foodType] || [];
         const container = document.getElementById('food-selection-container');
@@ -1580,19 +1591,20 @@ const nutritionManager = {
 
     // Save Nutrition Plan
     saveNutritionPlan: function() {
-        if (!appState.currentPet) return;
+    if (!appState.currentPet) return;
 
-        const nutritionPlan = {
-            calculatedOn: new Date().toISOString(),
-            needs: this.calculateNutritionNeeds(appState.currentPet),
-            selectedFood: this.getSelectedFood(),
-            activityLevel: document.getElementById('activity-level').value,
-            weightGoal: document.getElementById('weight-goal').value
-        };
+    const nutritionPlan = {
+        calculatedOn: new Date().toISOString(),
+        needs: this.calculateNutritionNeeds(appState.currentPet),
+        selectedFood: this.getSelectedFood(),
+        activityLevel: document.getElementById('activity-level').value,
+        weightGoal: document.getElementById('weight-goal').value
+    };
 
-        utils.saveData(`nutritionPlan_${appState.currentPet.id}`, nutritionPlan);
-        alert('Nutrition plan saved successfully!');
-    },
+    utils.saveData(`nutritionPlan_${appState.currentPet.id}`, nutritionPlan);
+    this.renderNutritionView(); // ADD THIS LINE
+    alert('Nutrition plan saved successfully!');
+},
 
     // View Management
     showWaterLog: function() {
