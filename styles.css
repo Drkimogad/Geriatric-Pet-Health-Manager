@@ -1803,7 +1803,7 @@ footer p {
 .medication-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto auto;
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
@@ -1817,23 +1817,33 @@ footer p {
 }
 
 .today-schedule {
-    grid-column: 1;
+    grid-column: 1 / -1;  /* Full width */
     grid-row: 1;
 }
 
 .medication-list {
-    grid-column: 2;
-    grid-row: 1;
-}
-
-.refill-alerts {
     grid-column: 1;
     grid-row: 2;
 }
 
-.dosage-calculator {
+.medication-log {
     grid-column: 2;
     grid-row: 2;
+}
+
+.refill-alerts {
+    grid-column: 1;
+    grid-row: 3;
+}
+
+.refill-history {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.dosage-calculator {
+    grid-column: 1 / -1;  /* Full width on last row */
+    grid-row: 4;
 }
 
 /* Card Headers */
