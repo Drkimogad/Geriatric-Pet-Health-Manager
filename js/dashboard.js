@@ -117,10 +117,7 @@ const setupEventDelegation = () => {
         medicationManager.showMainView();
     }
             }
-                else if (target.matches('[data-action="addMedication"]')) {
-    event.preventDefault();
-    medicationManager.handleSubmit(event);
-                }
+
         
         // 6. EXERCISE SECTION
         else if (target.matches('[data-action="showMobilityForm"]')) {
@@ -2029,12 +2026,10 @@ const medicationManager = {
                 <div class="medication-form-container">
                     <div class="form-header">
                         <h2>${isEdit ? 'Edit' : 'Add'} Medication</h2>
-<button class="btn btn-secondary" data-section="medication">
-    ← Back to Medications
-</button>
+                        <button class="btn btn-secondary" data-action="showMainView" data-manager="medication">← Back to Medications</button>
                     </div>
 
-                    <form id="medication-form" onsubmit="medicationManager.handleSubmit(event)">
+                    <form id="medication-form">
                         <input type="hidden" id="medication-id" value="${medication?.id || ''}">
 
                         <div class="form-grid">
@@ -2101,10 +2096,8 @@ const medicationManager = {
                         ` : ''}
 
                         <div class="form-actions">
-                            <<button type="submit" class="btn btn-primary">Add Medication</button>
-<button type="button" class="btn btn-secondary" data-section="medication">
-    Cancel
-</button>
+                           <button type="submit" class="btn btn-primary">${isEdit ? 'Update' : 'Add'} Medication</button>
+                           <button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="medication">Cancel</button>
                         </div>
                     </form>
                 </div>
