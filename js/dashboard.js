@@ -2068,8 +2068,8 @@ const medicationManager = {
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="med-name">Medication Name *</label>
-                                <input type="text" id="med-name" value="${medication?.name || ''}" required>
-                            </div>
+                              <input type="text" id="med-name" value="${medication?.name || ''}" required onchange="medicationManager.updateDosageSafetyCheck()">
+                             </div>
 
                             <div class="form-group">
                                 <label for="med-condition">Condition *</label>
@@ -2086,8 +2086,7 @@ const medicationManager = {
 
                             <div class="form-group">
                                 <label for="med-dosage">Dosage *</label>
-                                <input type="text" id="med-dosage" value="${medication?.dosage || ''}" 
-                                       placeholder="e.g., 10 mg" required>
+                                <input type="text" id="med-dosage" value="${medication?.dosage || ''}" placeholder="e.g., 10 mg" required onchange="medicationManager.updateDosageSafetyCheck()">
                             </div>
 
                             <div class="form-group">
@@ -2324,7 +2323,77 @@ refillHistory: () => {
             </div>
         `;
     },
+    
+// Create updateDosageSafetyCheck Function and its helper functions
+    updateDosageSafetyCheck: function() {
+    const medicationName = document.getElementById('med-name')?.value;
+    const enteredDosage = document.getElementById('med-dosage')?.value;
+    const petWeight = appState.currentPet?.weight;
+    const resultDiv = document.getElementById('dosage-safety-result');
+    
+    if (!resultDiv || !medicationName || !petWeight) return;
+    
+    // Find medication in database
+    const med = this.findMedicationInDatabase(medicationName);
+    if (!med) {
+        resultDiv.innerHTML = '<p class="warning">Medication not in database</p>';
+        return;
+    }
+    
+    // Calculate safe range
+    const safeRange = this.calculateSafeDosageRange(med, petWeight);
+    const isSafe = this.checkDosageSafety(enteredDosage, safeRange);
+    
+    // Update display
+    resultDiv.innerHTML = this.getSafetyCheckHTML(safeRange, isSafe, enteredDosage);
+},
+    // add these helper functions for it
+    findMedicationInDatabase: function(medName) {
+    // Search all medication categories for matching name
+    for (const category in this.medicationDatabase) {
+        const found = this.medicationDatabase[category].find(med => 
+            med.name.toLowerCase().includes(medName.toLowerCase())
+        );
+        if (found) return found;
+    }
+    return null;
+},
 
+calculateSafeDosageRange: function(med, weight) {
+    const dosageMatch = med.standardDosage.match(/(\d+\.?\d*)\s*mg\/kg/);
+    if (!dosageMatch) return null;
+    
+    const baseDose = parseFloat(dosageMatch[1]);
+    return {
+        min: (baseDose * weight * 0.8).toFixed(1), // 20% lower bound
+        max: (baseDose * weight * 1.2).toFixed(1), // 20% upper bound
+        unit: 'mg'
+    };
+},
+
+checkDosageSafety: function(enteredDosage, safeRange) {
+    if (!enteredDosage || !safeRange) return true;
+    const entered = parseFloat(enteredDosage);
+    return entered >= safeRange.min && entered <= safeRange.max;
+},
+
+getSafetyCheckHTML: function(safeRange, isSafe, enteredDosage) {
+    if (!safeRange) return '<p>Cannot calculate safety range</p>';
+    
+    return `
+        <div class="safety-check ${isSafe ? 'safe' : 'unsafe'}">
+            <p><strong>Safe range:</strong> ${safeRange.min}-${safeRange.max} ${safeRange.unit}</p>
+            ${enteredDosage ? `
+                <p><strong>Entered dosage:</strong> ${enteredDosage}</p>
+                <p class="safety-status">${isSafe ? '✅ Within safe range' : '⚠️ Outside safe range'}</p>
+            ` : '<p>Enter dosage to check safety</p>'}
+        </div>
+    `;
+},
+
+
+    
+    //==========================================
     // Medication Logging Functions
     logDose: function(medicationId, time) {
         const logEntry = {
