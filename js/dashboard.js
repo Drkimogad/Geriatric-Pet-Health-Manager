@@ -2068,7 +2068,7 @@ const medicationManager = {
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="med-name">Medication Name *</label>
-                              <input type="text" id="med-name" value="${medication?.name || ''}" required onchange="medicationManager.updateDosageSafetyCheck()">
+                                <input type="text" id="med-name" value="${medication?.name || ''}" required oninput="medicationManager.updateDosageSafetyCheck()">
                              </div>
 
                             <div class="form-group">
@@ -2086,7 +2086,7 @@ const medicationManager = {
 
                             <div class="form-group">
                                 <label for="med-dosage">Dosage *</label>
-                                <input type="text" id="med-dosage" value="${medication?.dosage || ''}" placeholder="e.g., 10 mg" required onchange="medicationManager.updateDosageSafetyCheck()">
+                                <input type="text" id="med-dosage" value="${medication?.dosage || ''}" placeholder="e.g., 10 mg" required oninput="medicationManager.updateDosageSafetyCheck()">
                             </div>
 
                             <div class="form-group">
