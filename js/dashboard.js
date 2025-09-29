@@ -42,12 +42,18 @@ const setupEventDelegation = () => {
             const petId = target.getAttribute('data-pet-id');
             petProfilesManager.setCurrentPet(petId);
         }
-            else if (target.matches('[data-action="showMainView"]')) {
+            
+     else if (target.matches('[data-action="showMainView"]')) {
+                    console.log('showMainView delegation caught');
         event.preventDefault();
        const manager = target.getAttribute('data-manager');
+                    console.log('Manager:', manager);
        if (manager === 'petProfiles') {
         petProfilesManager.showMainView();
          }
+        if (manager === 'medication') {
+        medicationManager.showMainView();
+          }
         }
         
         // 3. TASK MANAGEMENT
@@ -108,16 +114,17 @@ const setupEventDelegation = () => {
             const medId = target.getAttribute('data-med-id');
             medicationManager.logRefill(medId);
         }
-            else if (target.matches('[data-action="showMainView"]')) {
-    event.preventDefault();
-    const manager = target.getAttribute('data-manager');
-    if (manager === 'petProfiles') {
-        petProfilesManager.showMainView();
-    }
-    if (manager === 'medication') {
-        medicationManager.showMainView();
-    }
-            }
+        
+        //    else if (target.matches('[data-action="showMainView"]')) {
+ //   event.preventDefault();
+//    const manager = target.getAttribute('data-manager');
+//    if (manager === 'petProfiles') {
+//        petProfilesManager.showMainView();
+//    }
+//    if (manager === 'medication') {
+ //       medicationManager.showMainView();
+//    }
+//            }
 
         
         // 6. EXERCISE SECTION
