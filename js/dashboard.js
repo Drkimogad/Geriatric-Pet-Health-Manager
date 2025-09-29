@@ -1,9 +1,9 @@
 // CENTRAL EVENT DELEGATION - Put this at the top of your file
 const setupEventDelegation = () => {
     document.addEventListener('click', (event) => {
-        console.log('Click event on:', target.tagName, target.className, target.attributes);
         const target = event.target;
-        
+        console.log('Click event on:', target.tagName, target.className, target.attributes);
+
         // 1. QUICK ACTIONS & NAVIGATION (using data attributes)
         if (target.matches('[data-section]')) {
             event.preventDefault();
