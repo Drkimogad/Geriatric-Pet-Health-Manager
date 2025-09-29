@@ -2091,6 +2091,12 @@ footer p {
     font-weight: 600;
 }
 
+/* SAFETY CHECK IN MEDICATION FORM*/
+.safety-check.safe { color: var(--success); }
+.safety-check.unsafe { color: var(--error); }
+.safety-status { font-weight: bold; margin-top: 0.5rem; }
+
+
 /* Dosage Calculator Styles */
 .calculator-form {
     display: flex;
