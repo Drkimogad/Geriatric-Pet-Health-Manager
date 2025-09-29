@@ -60,11 +60,24 @@ const setupEventDelegation = () => {
         }
         
         // 3. TASK MANAGEMENT
-        else if (target.matches('input[type="checkbox"][data-task-id]')) {
-            event.preventDefault();
-            const taskId = target.getAttribute('data-task-id');
-            taskManager.toggleTaskCompletion(taskId);
-        }
+      //  else if (target.matches('input[type="checkbox"][data-task-id]')) {
+      //      event.preventDefault();
+     //       const taskId = target.getAttribute('data-task-id');
+     //       taskManager.toggleTaskCompletion(taskId);
+    //    }
+        // In task toggle section, add:
+else if (target.matches('input[type="checkbox"][data-task-id]')) {
+    event.preventDefault();
+    const taskId = target.getAttribute('data-task-id');
+    
+    if (taskId.startsWith('exercise_')) {
+        const activityId = taskId.replace('exercise_', '');
+        exerciseManager.completeExercise(activityId);
+    } else {
+        taskManager.toggleTaskCompletion(taskId);
+    }
+}
+            
         
         // 4. NUTRITION SECTION
         else if (target.matches('[data-action="logWater"]')) {
@@ -148,6 +161,12 @@ const setupEventDelegation = () => {
             const exerciseId = target.getAttribute('data-exercise-id');
             exerciseManager.logSuggestedExercise(exerciseId);
         }
+            // for complete activity 
+        else if (target.matches('[data-action="completeActivity"]')) {
+    event.preventDefault();
+    const activityId = target.getAttribute('data-activity-id');
+    exerciseManager.completeActivity(activityId);
+            }
         
         // 7. REMINDERS SECTION
         else if (target.matches('[data-action="previousMonth"]')) {
@@ -552,6 +571,9 @@ const taskManager = {
                 });
             }
         });
+        // In taskManager.generateTodayTasks(), add:
+        const exerciseTasks = exerciseManager.generateScheduledExercises();
+         tasks.push(...exerciseTasks);
 
         return tasks;
     },
@@ -2933,55 +2955,77 @@ const exerciseManager = {
         },
 
         // Today's Activity Template
-        todayActivity: () => {
-            const todayActivities = exerciseManager.getTodayActivities();
-            
-            if (todayActivities.length === 0) {
-                return `
-                    <div class="no-activities">
-                        <p>No activities logged today</p>
-                        <button class="btn btn-primary btn-sm" data-action="showActivityForm">
-    Log Your First Activity
-</button>
-                    </div>
-                `;
-            }
+        // Today's Activity Template updated
+todayActivity: () => {
+    const todayActivities = exerciseManager.getTodayActivities();
+    
+    if (todayActivities.length === 0) {
+        return `
+            <div class="no-activities">
+                <p>No activities scheduled for today</p>
+                <button class="btn btn-primary btn-sm" data-action="showActivityForm">
+                    Schedule Activity
+                </button>
+            </div>
+        `;
+    }
 
-            const totalDuration = todayActivities.reduce((sum, activity) => sum + activity.duration, 0);
-            
-            return `
-                <div class="today-activities">
-                    <div class="activity-summary">
-                        <div class="summary-item">
-                            <span class="label">Activities:</span>
-                            <span class="value">${todayActivities.length}</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="label">Total Time:</span>
-                            <span class="value">${totalDuration} min</span>
-                        </div>
-                    </div>
-                    
-                    <div class="activities-list">
-                        ${todayActivities.map(activity => `
-                            <div class="activity-item">
-                                <div class="activity-main">
-                                    <strong>${activity.type}</strong>
-                                    <span class="activity-duration">${activity.duration} min</span>
-                                </div>
-                                <div class="activity-details">
-                                    <span class="activity-time">${new Date(activity.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                    ${activity.notes ? `<span class="activity-notes">"${activity.notes}"</span>` : ''}
-                                </div>
-                                <div class="activity-mobility">
-                                    <span class="mobility-after">After: ${activity.mobilityAfter}/5</span>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
+    const completedActivities = todayActivities.filter(a => a.completed);
+    const pendingActivities = todayActivities.filter(a => !a.completed);
+    
+    return `
+        <div class="today-activities">
+            <div class="activity-summary">
+                <div class="summary-item">
+                    <span class="label">Scheduled:</span>
+                    <span class="value">${todayActivities.length}</span>
                 </div>
-            `;
-        },
+                <div class="summary-item">
+                    <span class="label">Completed:</span>
+                    <span class="value">${completedActivities.length}</span>
+                </div>
+            </div>
+            
+            ${pendingActivities.length > 0 ? `
+                <div class="pending-activities">
+                    <h4>To Do Today</h4>
+                    ${pendingActivities.map(activity => `
+                        <div class="activity-item pending">
+                            <div class="activity-main">
+                                <strong>${activity.type}</strong>
+                                <span class="activity-duration">${activity.duration} min</span>
+                            </div>
+                            <div class="activity-details">
+                                ${activity.scheduledTime ? `<span class="activity-time">Scheduled: ${activity.scheduledTime}</span>` : ''}
+                                <button class="btn btn-success btn-xs" data-action="completeActivity" data-activity-id="${activity.id}">
+                                    Mark Complete
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+            
+            ${completedActivities.length > 0 ? `
+                <div class="completed-activities">
+                    <h4>Completed Today</h4>
+                    ${completedActivities.map(activity => `
+                        <div class="activity-item completed">
+                            <div class="activity-main">
+                                <strong>${activity.type}</strong>
+                                <span class="activity-duration">${activity.duration} min</span>
+                            </div>
+                            <div class="activity-details">
+                                <span class="activity-time">Completed: ${new Date(activity.completedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                ${activity.notes ? `<span class="activity-notes">"${activity.notes}"</span>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `;
+},
 
         // Exercise Suggestions Template
         exerciseSuggestions: (pet) => {
@@ -3173,6 +3217,16 @@ const exerciseManager = {
                                 </select>
                             </div>
 
+<div class="form-group">
+    <label for="activity-date">Date *</label>
+    <input type="date" id="activity-date" value="${utils.getTodayDate()}" required>
+</div>
+
+<div class="form-group">
+    <label for="activity-scheduled-time">Scheduled Time (Optional)</label>
+    <input type="time" id="activity-scheduled-time">
+</div>
+
                             <div class="form-group">
                                 <label for="activity-duration">Duration (minutes) *</label>
                                 <input type="number" id="activity-duration" min="1" max="120" required>
@@ -3224,18 +3278,33 @@ const exerciseManager = {
         return utils.loadData(`activities_${appState.currentPet.id}`) || [];
     },
 
-    saveActivities: function(activities) {
-        if (appState.currentPet) {
-            utils.saveData(`activities_${appState.currentPet.id}`, activities);
-        }
-    },
+   // Update saveActivity to handle scheduling
+saveActivity: function(activityData) {
+    const activity = {
+        id: 'activity_' + Date.now(),
+        petId: appState.currentPet.id,
+        ...activityData,
+        completed: false,
+        // Add scheduledTime if provided, otherwise use current time
+        scheduledTime: activityData.scheduledTime || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        timestamp: new Date().toISOString()
+    };
 
-    getTodayActivities: function() {
-        const activities = this.getActivities();
-        const today = utils.getTodayDate();
-        return activities.filter(activity => activity.date === today)
-                         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    },
+    const activities = this.getActivities();
+    activities.unshift(activity);
+    this.saveActivities(activities);
+
+    alert('Activity logged successfully!');
+    this.showMainView();
+},
+
+   // Update getTodayActivities to filter by date
+getTodayActivities: function() {
+    const activities = this.getActivities();
+    const today = utils.getTodayDate();
+    return activities.filter(activity => activity.date === today)
+                     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+},
 
     getRecentActivities: function(days = 7) {
         const activities = this.getActivities();
@@ -3299,6 +3368,55 @@ const exerciseManager = {
         };
     },
 
+    // Generate scheduled exercises for task system
+generateScheduledExercises: function() {
+    const exercises = [];
+    const today = utils.getTodayDate();
+    
+    // Get activities scheduled for today
+    const activities = this.getActivities().filter(activity => 
+        activity.date === today && !activity.completed
+    );
+    
+    activities.forEach(activity => {
+        exercises.push({
+            id: `exercise_${activity.id}`,
+            type: 'exercise',
+            description: `${activity.type} - ${activity.duration}min`,
+            time: activity.scheduledTime || 'Anytime',
+            completed: false,
+            activityId: activity.id
+        });
+    });
+    
+    return exercises;
+},
+    
+// added recently
+// Mark exercise as completed
+completeExercise: function(activityId) {
+    const activities = this.getActivities();
+    const activity = activities.find(a => a.id === activityId);
+    
+    if (activity) {
+        activity.completed = true;
+        activity.completedAt = new Date().toISOString();
+        this.saveActivities(activities);
+    }
+},
+
+// Get activities by date for calendar view
+getActivitiesByDate: function(date) {
+    const activities = this.getActivities();
+    return activities.filter(activity => activity.date === date);
+},
+
+// Schedule recurring exercises
+scheduleRecurringExercise: function(exerciseData) {
+    // Implementation for recurring exercises (daily, weekly, etc.)
+    // This would create multiple activity entries for future dates
+},
+//==============
     // Form Handling Functions
     handleMobilitySubmit: function(event) {
         event.preventDefault();
@@ -3322,19 +3440,20 @@ const exerciseManager = {
             this.saveActivity(formData);
         }
     },
-
-    getActivityFormData: function() {
-        return {
-            type: document.getElementById('activity-type').value,
-            duration: parseInt(document.getElementById('activity-duration').value),
-            intensity: document.getElementById('activity-intensity').value,
-            mobilityAfter: document.getElementById('activity-mobility-after').value ? 
-                          parseInt(document.getElementById('activity-mobility-after').value) : null,
-            notes: document.getElementById('activity-notes').value,
-            date: utils.getTodayDate(),
-            timestamp: new Date().toISOString()
-        };
-    },
+// Update to include new fields:
+   getActivityFormData: function() {
+    return {
+        type: document.getElementById('activity-type').value,
+        duration: parseInt(document.getElementById('activity-duration').value),
+        intensity: document.getElementById('activity-intensity').value,
+        mobilityAfter: document.getElementById('activity-mobility-after').value ? 
+                      parseInt(document.getElementById('activity-mobility-after').value) : null,
+        notes: document.getElementById('activity-notes').value,
+        date: document.getElementById('activity-date').value, // NEW
+        scheduledTime: document.getElementById('activity-scheduled-time').value || null, // NEW
+        timestamp: new Date().toISOString()
+    };
+},
 
     validateActivityForm: function(formData) {
         if (!formData.type) {
@@ -3426,6 +3545,11 @@ const exerciseManager = {
             }
         }
     },
+    // added
+    completeActivity: function(activityId) {
+    this.completeExercise(activityId);
+    this.showMainView(); // Refresh the view
+    }
 
     // Initialize Exercise Section
     init: function() {
