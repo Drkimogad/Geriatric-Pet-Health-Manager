@@ -42,7 +42,7 @@ const setupEventDelegation = () => {
             const petId = target.getAttribute('data-pet-id');
             petProfilesManager.setCurrentPet(petId);
         }
-            
+      // for entire mainview buttons across all managers      
      else if (target.matches('[data-action="showMainView"]')) {
                     console.log('showMainView delegation caught');
         event.preventDefault();
@@ -54,6 +54,9 @@ const setupEventDelegation = () => {
         if (manager === 'medication') {
         medicationManager.showMainView();
           }
+         if (manager === 'exercise') {
+         exerciseManager.showMainView();
+         }
         }
         
         // 3. TASK MANAGEMENT
