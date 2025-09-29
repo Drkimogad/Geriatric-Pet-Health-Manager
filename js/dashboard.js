@@ -1789,11 +1789,13 @@ const medicationManager = {
         // Main Medication View
         mainView: () => `
             <div class="medication-header">
-                <h2>Medication Management</h2>
+                <h2>Medication Manager</h2>
                 ${appState.currentPet ? `
                     <div class="current-pet-banner">
-                        Managing medications for: <strong>${appState.currentPet.name}</strong>
+                        Manage medications for: <strong>${appState.currentPet.name}</strong>
                     </div>
+                    <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
+                    
                 ` : '<p class="warning">Please select a pet first</p>'}
             </div>
 
