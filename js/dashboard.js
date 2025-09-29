@@ -1283,35 +1283,41 @@ const nutritionManager = {
             `;
         },
 
-        // Feeding Schedule Template
-        feedingSchedule: (nutritionData) => {
-       // Calculate feeding schedule ONLY when we have selected food
-       const schedule = nutritionManager.calculateFeedingSchedule(nutritionData.recommended) || {};
-            return `
-                <div class="feeding-plan">
-                    <div class="feeding-time">
-                        <h4>Morning</h4>
-                        <div class="feeding-amount">
-                            <span class="amount">${schedule.morning || '0'}</span>
-                            <span class="unit">cups</span>
-                        </div>
-                        <span class="feeding-time">8:00 AM</span>
-                    </div>
-                    <div class="feeding-time">
-                        <h4>Evening</h4>
-                        <div class="feeding-amount">
-                            <span class="amount">${schedule.evening || '0'}</span>
-                            <span class="unit">cups</span>
-                        </div>
-                        <span class="feeding-time">6:00 PM</span>
-                    </div>
+// Feeding Schedule Template
+//This checks both the current nutrition data AND the saved nutrition plan for the selected food name, ensuring it displays correctly after saving.
+feedingSchedule: (nutritionData) => {
+    // Get the saved nutrition plan to access selectedFood
+    const savedPlan = utils.loadData(`nutritionPlan_${appState.currentPet.id}`) || {};
+    const selectedFood = savedPlan.selectedFood || nutritionData.selectedFood;
+    
+    // Calculate feeding schedule ONLY when we have selected food
+    const schedule = nutritionManager.calculateFeedingSchedule(nutritionData.recommended) || {};
+    
+    return `
+        <div class="feeding-plan">
+            <div class="feeding-time">
+                <h4>Morning</h4>
+                <div class="feeding-amount">
+                    <span class="amount">${schedule.morning || '0'}</span>
+                    <span class="unit">cups</span>
                 </div>
-                <div class="feeding-notes">
-                    <p><strong>Total Daily:</strong> ${schedule.total || '0'} cups</p>
-                    <p><strong>Food:</strong> ${nutritionData.selectedFood?.name || 'Not selected'}</p>
-               </div>
-            `;
-        },
+                <span class="feeding-time">8:00 AM</span>
+            </div>
+            <div class="feeding-time">
+                <h4>Evening</h4>
+                <div class="feeding-amount">
+                    <span class="amount">${schedule.evening || '0'}</span>
+                    <span class="unit">cups</span>
+                </div>
+                <span class="feeding-time">6:00 PM</span>
+            </div>
+        </div>
+        <div class="feeding-notes">
+            <p><strong>Total Daily:</strong> ${schedule.total || '0'} cups</p>
+            <p><strong>Food:</strong> ${selectedFood?.name || 'Not selected'}</p>
+        </div>
+    `;
+},
 
 
         // Water Tracker Template
@@ -1615,16 +1621,20 @@ const nutritionManager = {
     saveNutritionPlan: function() {
     if (!appState.currentPet) return;
 
+    const selectedFood = this.getSelectedFood(); // Get current food selection
+    
     const nutritionPlan = {
         calculatedOn: new Date().toISOString(),
         needs: this.calculateNutritionNeeds(appState.currentPet),
-        selectedFood: this.getSelectedFood(),
+        selectedFood: selectedFood, // Include the selected food
         activityLevel: document.getElementById('activity-level').value,
         weightGoal: document.getElementById('weight-goal').value
     };
 
     utils.saveData(`nutritionPlan_${appState.currentPet.id}`, nutritionPlan);
-    this.renderNutritionView(); // ADD THIS LINE
+    
+    // Update the display with current food data
+    this.renderNutritionView(); 
     alert('Nutrition plan saved successfully!');
 },
 
