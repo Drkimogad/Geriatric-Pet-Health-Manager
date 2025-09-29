@@ -74,3 +74,56 @@ Returns to Dashboard (with pet summary)
 Navigation Buttons:
 - [Back to Dashboard] (Profiles Section) → Returns to main dashboard
 - [Cancel] (Pet Form) → Returns to profiles section
+
+- Nutrition section.
+
+User Opens Nutrition Section
+         ↓
+[Check if Active Pet Selected]
+         ↓
+     [No Pet] → Show "Select Pet First" Message
+         ↓
+     [Has Pet] → Display Nutrition Dashboard
+         ↓
+         ├─ Calorie Calculator
+         │     ↓
+         │  [User Adjusts Activity Level/Weight Goal]
+         │     ↓
+         │  Auto-update Calorie Calculations
+         │
+         ├─ Food Selection
+         │     ↓
+         │  [User Selects Food Type] → Populate Food Options
+         │     ↓
+         │  [User Selects Food] → Calculate Feeding Amounts
+         │     ↓
+         │  [User Enters Custom Food] → Enable Custom Fields
+         │
+         ├─ Feeding Schedule
+         │     ↓
+         │  Auto-calculates Morning/Evening Amounts
+         │     ↓
+         │  Displays Selected Food Name
+         │     ↓
+         │  Updates on Save
+         │
+         ├─ Water Tracker
+         │     ↓
+         │  [User Logs Water] → Update Progress Bar
+         │     ↓
+         │  Shows Recent Water Intake
+         │
+         └─ Food History
+               ↓
+           Shows Recent Food Logs
+               ↓
+           [View Full History] → Future Expansion
+
+         ↓
+[User Clicks "Save Nutrition Plan"]
+         ↓
+Save: Calories + Food + Schedule + Settings
+         ↓
+Update UI: Refresh Feeding Schedule with Saved Data
+
+
