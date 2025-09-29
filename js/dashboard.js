@@ -2196,9 +2196,14 @@ const medicationManager = {
     },
 
     calculateDosage: function() {
+    console.log('calculateDosage called');
+
         const medicationSelect = document.getElementById('calc-medication');
         const weightInput = document.getElementById('calc-weight');
         const resultDiv = document.getElementById('dosage-result');
+    console.log('medicationSelect value:', medicationSelect?.value);
+    console.log('weightInput value:', weightInput?.value);
+    console.log('resultDiv found:', !!resultDiv);
         
         if (!medicationSelect.value || !weightInput.value) {
             resultDiv.style.display = 'none';
@@ -2206,6 +2211,11 @@ const medicationManager = {
         }
 
         const selectedOption = medicationSelect.options[medicationSelect.selectedIndex];
+        
+       console.log('selectedOption:', selectedOption);
+       console.log('dosage data:', selectedOption?.dataset.dosage);
+       console.log('maxDosage data:', selectedOption?.dataset.maxdosage);
+        
         const weight = parseFloat(weightInput.value);
         const dosageRange = selectedOption.dataset.dosage;
         const maxDosage = selectedOption.dataset.maxDosage;
