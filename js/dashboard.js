@@ -1,6 +1,7 @@
 // CENTRAL EVENT DELEGATION - Put this at the top of your file
 const setupEventDelegation = () => {
     document.addEventListener('click', (event) => {
+        console.log('Click event on:', target.tagName, target.className, target.attributes);
         const target = event.target;
         
         // 1. QUICK ACTIONS & NAVIGATION (using data attributes)
@@ -227,6 +228,7 @@ const setupEventDelegation = () => {
 
 // Form submission handler (you'll need to implement this)
 const handleFormSubmission = (formId) => {
+    console.log('Form submission detected - Form ID:', formId, 'Event:', event);
     switch (formId) {
         case 'pet-form':
             petProfilesManager.handleSubmit(event);
@@ -2280,6 +2282,7 @@ const medicationManager = {
 
     // View Management
     showMainView: function() {
+        console.log('medicationManager.showMainView called');
         this.elements.medicationContent.innerHTML = this.templates.mainView();
     },
 
@@ -2297,6 +2300,7 @@ const medicationManager = {
 
     // CRUD Operations
     handleSubmit: function(event) {
+        console.log('medicationManager.handleSubmit called');
         event.preventDefault();
         const formData = this.getFormData();
         
