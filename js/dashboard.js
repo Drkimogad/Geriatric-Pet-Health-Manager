@@ -1869,7 +1869,8 @@ const medicationManager = {
             // Group by time
             const scheduleByTime = {};
             medications.forEach(med => {
-                med.schedule.forEach(time => {
+                 const times = medicationManager.frequencyOptions[med.frequency]?.times || [];
+                times.forEach(time => {
                     if (!scheduleByTime[time]) {
                         scheduleByTime[time] = [];
                     }
