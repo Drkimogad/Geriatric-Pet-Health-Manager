@@ -2282,9 +2282,19 @@ const medicationManager = {
 
     // View Management
     showMainView: function() {
-        console.log('medicationManager.showMainView called');
+    console.log('medicationManager.showMainView called');
+    console.log('this:', this);
+    console.log('this.elements:', this.elements);
+    console.log('medicationContent:', this.elements.medicationContent);
+    console.log('medicationContent exists:', !!this.elements.medicationContent);
+    if (this.elements.medicationContent) {
+        console.log('Updating UI...');
         this.elements.medicationContent.innerHTML = this.templates.mainView();
-    },
+        console.log('UI updated');
+    } else {
+        console.log('ERROR: medicationContent is null/undefined');
+    }
+   },
 
     showAddForm: function() {
         this.elements.medicationContent.innerHTML = this.templates.medicationForm();
