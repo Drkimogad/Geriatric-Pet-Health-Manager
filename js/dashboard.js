@@ -2214,14 +2214,14 @@ const medicationManager = {
         
        console.log('selectedOption:', selectedOption);
        console.log('dosage data:', selectedOption?.dataset.dosage);
-       console.log('maxDosage data:', selectedOption?.dataset.maxdosage);
+       console.log('maxDosage data:', selectedOption?.dataset.maxDosage);
         
         const weight = parseFloat(weightInput.value);
         const dosageRange = selectedOption.dataset.dosage;
         const maxDosage = selectedOption.dataset.maxDosage;
 
         // Extract numeric values from dosage range (e.g., "2-3 mg/kg" -> [2, 3])
-        const dosageMatch = dosageRange.match(/(\d+\.?\d*)-(\d+\.?\d*)/);
+       const dosageMatch = dosageRange.match(/(\d+\.?\d*)\s*mg\/kg/);
         if (!dosageMatch) return;
 
         const minDosePerKg = parseFloat(dosageMatch[1]);
