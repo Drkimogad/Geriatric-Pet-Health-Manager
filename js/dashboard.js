@@ -1828,6 +1828,7 @@ const medicationManager = {
             
             return `
                 <div class="medication-grid">
+                    <!-- Row 1: Full width cards -->
                     <div class="medication-card today-schedule">
                         <div class="card-header">
                             <h3>Today's Medication Schedule</h3>
@@ -1837,7 +1838,7 @@ const medicationManager = {
                             ${medicationManager.templates.todaySchedule(todayMeds)}
                         </div>
                     </div>
-
+                        <!-- Row 2: Two equal cards -->
                     <div class="medication-card medication-list">
                         <div class="card-header">
                             <h3>Current Medications</h3>
@@ -1847,7 +1848,17 @@ const medicationManager = {
                             ${medicationManager.templates.medicationList()}
                         </div>
                     </div>
-
+                    
+                    <div class="medication-card medication-log">
+                      <div class="card-header">
+                          <h3>Medication Log</h3>
+                           </div>
+                              <div class="log-content">
+                             ${medicationManager.templates.medicationLogHistory()}
+                             </div>
+                      </div>
+                    
+                    <!-- Row 3: Three smaller cards -->
                     <div class="medication-card refill-alerts">
                         <div class="card-header">
                             <h3>Refill Reminders</h3>
@@ -1855,7 +1866,17 @@ const medicationManager = {
                         <div class="refills-content">
                             ${medicationManager.templates.refillAlerts(upcomingRefills)}
                         </div>
+                    </div> 
+                    
+                    <div class="medication-card refill-history">
+                          <div class="card-header">
+                            <h3>Refill History</h3>
+                         </div>
+                         <div class="refill-history-content">
+                            ${medicationManager.templates.refillHistory()}
+                        </div>
                     </div>
+
 
                     <div class="medication-card dosage-calculator">
                         <div class="card-header">
@@ -2114,8 +2135,56 @@ const medicationManager = {
                     </form>
                 </div>
             `;
-        }
-    },
+        },
+        // Medication Log History Template
+medicationLogHistory: () => {
+    const logEntries = medicationManager.getMedicationLog().slice(0, 10); // Last 10 entries
+    if (logEntries.length === 0) {
+        return '<p class="no-data">No medication log entries</p>';
+    }
+    
+    return `
+        <div class="log-entries">
+            ${logEntries.map(entry => `
+                <div class="log-entry ${entry.status}">
+                    <div class="log-header">
+                        <strong>${medicationManager.getMedicationName(entry.medicationId)}</strong>
+                        <span class="log-status ${entry.status}">${entry.status}</span>
+                    </div>
+                    <div class="log-details">
+                        <span class="log-time">${new Date(entry.timestamp).toLocaleString()}</span>
+                        ${entry.reason ? `<span class="log-reason">Reason: ${entry.reason}</span>` : ''}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="medicationManager.showFullMedicationLog()">View Full Log</button>
+    `;
+},
+
+// Refill History Template  
+refillHistory: () => {
+    const refillEntries = medicationManager.getRefillHistory().slice(0, 10);
+    if (refillEntries.length === 0) {
+        return '<p class="no-data">No refill history</p>';
+    }
+    
+    return `
+        <div class="refill-entries">
+            ${refillEntries.map(entry => `
+                <div class="refill-entry">
+                    <div class="refill-header">
+                        <strong>${entry.medicationName}</strong>
+                        <span class="refill-date">${formatDate(entry.date)}</span>
+                    </div>
+                    <div class="refill-notes">${entry.notes || ''}</div>
+                </div>
+            `).join('')}
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="medicationManager.showFullRefillHistory()">View Full History</button>
+    `;
+     }
+},
 
     // Data Management Functions
     getMedications: function() {
@@ -2128,6 +2197,12 @@ const medicationManager = {
             utils.saveData(`medications_${appState.currentPet.id}`, medications);
         }
     },
+    
+    getMedicationName: function(medicationId) {
+    const medications = this.getMedications();
+    const medication = medications.find(med => med.id === medicationId);
+    return medication ? medication.name : 'Unknown Medication';
+},
 
     getTodayMedications: function() {
         const medications = this.getMedications();
@@ -2289,17 +2364,45 @@ const medicationManager = {
     },
 
     logRefill: function(medicationId) {
-        const medications = this.getMedications();
-        const medication = medications.find(med => med.id === medicationId);
+    const medications = this.getMedications();
+    const medication = medications.find(med => med.id === medicationId);
+    
+    if (medication) {
+        // Save to refill history
+        const refillEntry = {
+            medicationId: medicationId,
+            medicationName: medication.name,
+            date: new Date().toISOString().split('T')[0],
+            timestamp: new Date().toISOString(),
+            notes: 'Refill marked as completed'
+        };
         
-        if (medication) {
-            medication.refillDate = null; // Clear refill date
-            this.saveMedications(medications);
-            alert('Refill logged successfully');
-            this.renderMedicationView();
-        }
+        let refillHistory = this.getRefillHistory();
+        refillHistory.unshift(refillEntry);
+        utils.saveData(`refillHistory_${appState.currentPet.id}`, refillHistory);
+        
+        // Clear refill date from medication
+        medication.refillDate = null;
+        this.saveMedications(medications);
+        
+        alert('Refill logged successfully');
+        this.showMainView();
+    }
+},
+    
+    // Add Data Retrieval Functions
+   getMedicationLog: function() {
+    if (!appState.currentPet) return [];
+    return utils.loadData(`medicationLog_${appState.currentPet.id}`) || [];
     },
 
+    getRefillHistory: function() {
+    if (!appState.currentPet) return [];
+    return utils.loadData(`refillHistory_${appState.currentPet.id}`) || [];
+    },
+     
+
+    
     // View Management
        showMainView: function() {
     console.log('medicationManager.showMainView called');
