@@ -2645,6 +2645,10 @@ window.initMedication = function() {
     medicationManager.init();
 };
 
+
+
+
+
 //===================================================================
 // Exercise & Mobility Section Functionality
 //======================================================
@@ -2800,6 +2804,7 @@ const exerciseManager = {
                 ${appState.currentPet ? `
                     <div class="current-pet-banner">
                         Tracking for: <strong>${appState.currentPet.name}</strong>
+                        <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
                         ${appState.currentPet.mobilityScore ? `(Mobility: ${appState.currentPet.mobilityScore}/5)` : ''}
                     </div>
                 ` : '<p class="warning">Please select a pet first</p>'}
@@ -3144,9 +3149,10 @@ const exerciseManager = {
                 <div class="activity-form-container">
                     <div class="form-header">
                         <h2>Log Activity</h2>
-                        <button class="btn btn-secondary" data-action="showMainView" data-manager="exercise">
+                        <button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="exercise">
     ← Back to Exercise
 </button>
+
                     </div>
 
                     <form id="activity-form" onsubmit="exerciseManager.handleActivitySubmit(event)">
@@ -3199,8 +3205,9 @@ const exerciseManager = {
         Log Activity
     </button>
     <button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="exercise">
-        Cancel
-    </button>
+    Cancel
+</button>
+
                         </div>
                     </form>
                 </div>
