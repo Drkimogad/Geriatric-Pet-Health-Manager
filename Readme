@@ -127,3 +127,52 @@ Save: Calories + Food + Schedule + Settings
 Update UI: Refresh Feeding Schedule with Saved Data
 
 
+to be implemented in nutrition section 
+What Needs Implementation:
+
+1. Food Logging System:
+
+Log Food Form (similar to medication logging)
+
+Daily Food Entries (multiple meals per day)
+
+Food Database Integration (auto-calculate calories)
+
+2. Water Logging Enhancement:
+
+Manual Water Entry (beyond quick-add buttons)
+
+Daily Water Goals (based on weight)
+
+Time-stamped Entries
+
+3. History Views:
+
+30-Day Food History with filtering
+
+30-Day Water History with trends
+
+Monthly Summary (total calories, avg water)
+
+4. Export Features:
+
+CSV Export for both food and water logs
+
+PDF Reports with charts
+
+Date Range Selection for exports
+
+Core Missing Pieces:
+
+Food entry form UI
+
+Persistent food log storage
+
+History display templates
+
+Export functionality
+
+The water logging works but needs manual entry option. Food logging doesn't exist yet beyond the placeholder.
+
+
+
