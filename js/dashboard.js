@@ -2281,17 +2281,23 @@ const medicationManager = {
     },
 
     // View Management
-    showMainView: function() {
+       showMainView: function() {
     console.log('medicationManager.showMainView called');
-    const templateHTML = this.templates.mainView();
-    console.log('Template HTML length:', templateHTML.length);
-    console.log('Template HTML:', templateHTML);
-    
-    if (this.elements.medicationContent) {
-        this.elements.medicationContent.innerHTML = templateHTML;
-        console.log('UI updated with template');
+    try {
+        const templateHTML = this.templates.mainView();
+        console.log('Template HTML length:', templateHTML.length);
+        console.log('Template HTML:', templateHTML);
+        
+        if (this.elements.medicationContent) {
+            this.elements.medicationContent.innerHTML = templateHTML;
+            console.log('UI updated with template');
+        }
+    } catch (error) {
+        console.error('Error in showMainView:', error);
+        console.error('Error stack:', error.stack);
     }
 },
+    
 
     showAddForm: function() {
         this.elements.medicationContent.innerHTML = this.templates.medicationForm();
