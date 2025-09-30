@@ -167,6 +167,12 @@ else if (target.matches('input[type="checkbox"][data-task-id]')) {
     const activityId = target.getAttribute('data-activity-id');
     exerciseManager.completeActivity(activityId);
             }
+            // PRINT BUTTON LISTENER
+else if (target.matches('[data-action="printActivityHistory"]')) {
+    console.log('🖨️ CENTRAL_DELEGATION: Print activity history clicked');
+    event.preventDefault();
+    exerciseManager.printActivityHistory();
+}
         
         // 7. REMINDERS SECTION
         else if (target.matches('[data-action="previousMonth"]')) {
@@ -3109,6 +3115,10 @@ fullActivityHistory: () => {
                     <span>Total Activities: ${allActivities.length}</span>
                 </div>
             </div>
+                  <!-- ADD PRINT BUTTON HERE -->
+                <button class="btn btn-primary btn-sm" data-action="printActivityHistory">
+                    🖨️ Print History
+                </button>
             
             <div class="full-history-list">
                 ${allActivities.length === 0 ? `
@@ -3648,6 +3658,65 @@ scheduleRecurringExercise: function(exerciseData) {
             }
         }
     },
+
+
+    // Add this PRINT function to exerciseManager
+printActivityHistory: function() {
+    console.log('🖨️ EXERCISE_MANAGER: printActivityHistory called');
+    
+    const printContent = document.querySelector('.full-history-container');
+    if (!printContent) {
+        console.error('❌ EXERCISE_MANAGER: Could not find history content to print');
+        alert('Cannot print - history content not found');
+        return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    const petName = appState.currentPet?.name || 'Your Pet';
+    
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Activity History - ${petName}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .print-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+                    .history-item { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+                    .completed { background-color: #f8fff8; }
+                    .pending { background-color: #fff8f8; }
+                    .activity-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+                    .activity-meta { color: #666; font-size: 14px; margin-bottom: 8px; }
+                    .activity-notes { font-style: italic; margin-top: 8px; }
+                    .print-date { text-align: right; font-size: 12px; color: #999; margin-top: 20px; }
+                    @media print {
+                        .no-print { display: none; }
+                        body { margin: 0; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-header">
+                    <h1>Activity History Report</h1>
+                    <h2>${petName}</h2>
+                    <p>Generated on ${new Date().toLocaleDateString()}</p>
+                </div>
+                ${printContent.querySelector('.full-history-list').innerHTML}
+                <div class="print-date">
+                    Printed from Pet Health Dashboard on ${new Date().toLocaleString()}
+                </div>
+            </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    
+    setTimeout(() => {
+        printWindow.print();
+        console.log('✅ EXERCISE_MANAGER: Print dialog opened');
+    }, 250);
+},
+    
     // added
     completeActivity: function(activityId) {
     this.completeExercise(activityId);
