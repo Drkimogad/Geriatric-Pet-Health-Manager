@@ -233,6 +233,18 @@ else if (target.matches('[data-action="printActivityHistory"]')) {
             event.preventDefault();
             remindersManager.hideDayReminders();
         }
+               // In REMINDERS SECTION of setupEventDelegation, ADD THESE:
+else if (target.matches('[data-action="hideDayReminders"]')) {
+    console.log('❌ REMINDERS_DELEGATION: Hide day reminders clicked');
+    event.preventDefault();
+    remindersManager.hideDayReminders();
+}
+else if (target.matches('[data-action="showAddFormWithDate"]')) {
+    console.log('📅 REMINDERS_DELEGATION: Show add form with date clicked');
+    event.preventDefault();
+    const date = target.getAttribute('data-date');
+    remindersManager.showAddFormWithDate(date);
+}
         
         // 8. FORM SUBMISSIONS
         else if (target.matches('button[type="submit"], input[type="submit"]')) {
@@ -4727,47 +4739,42 @@ const remindersManager = {
             `;
         },
 
-        // Day Reminders Modal Template
-        dayRemindersModal: (date, reminders) => {
-            return `
-                <div class="modal-overlay" onclick="remindersManager.hideDayReminders()">
-                    <div class="modal-content" onclick="event.stopPropagation()">
-                        <div class="modal-header">
-                            <h3>Reminders for ${formatDate(date)}</h3>
-<button class="btn-icon" data-action="hideDayReminders">×</button>
-</div>
-                        <div class="modal-body">
-                            ${reminders.length === 0 ? `
-                                <p class="no-reminders">No reminders for this day</p>
-                            ` : `
-                                <div class="day-reminders-list">
-                                    ${reminders.map(reminder => `
-                                        <div class="day-reminder-item ${reminder.priority}">
-                                            <div class="reminder-type">${remindersManager.reminderTypes[reminder.type].icon} ${remindersManager.reminderTypes[reminder.type].label}</div>
-                                            <div class="reminder-title">${reminder.title}</div>
-                                            ${reminder.time ? `<div class="reminder-time">${reminder.time}</div>` : ''}
-                                            <div class="reminder-actions">
-                                                <button class="btn btn-primary btn-xs" data-action="editReminder" data-reminder-id="${reminder.id}">
-    Edit
-</button>
-<button class="btn btn-success btn-xs" data-action="completeReminder" data-reminder-id="${reminder.id}">
-    Complete
-</button>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            `}
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-primary" data-action="showAddFormWithDate" data-date="${date}">
-    Add Reminder for This Day
-</button>
-                        </div>
-                    </div>
+   
+      // Day Reminders Modal Template - FIXED VERSION
+dayRemindersModal: (date, reminders) => {
+    return `
+        <div class="modal-overlay" data-action="hideDayReminders">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>Reminders for ${formatDate(date)}</h3>
+                    <button class="btn-icon" data-action="hideDayReminders" title="Close">×</button>
                 </div>
-            `;
-        }
+                <div class="modal-body">
+                    ${reminders.length === 0 ? `
+                        <p class="no-reminders">No reminders for this day</p>
+                    ` : `
+                        <div class="day-reminders-list">
+                            ${reminders.map(reminder => `
+                                <div class="day-reminder-item ${reminder.priority}">
+                                    <div class="reminder-type">${remindersManager.reminderTypes[reminder.type].icon} ${remindersManager.reminderTypes[reminder.type].label}</div>
+                                    <div class="reminder-title">${reminder.title}</div>
+                                    ${reminder.time ? `<div class="reminder-time">${reminder.time}</div>` : ''}
+                                    <div class="reminder-actions">
+                                        <button class="btn btn-primary btn-xs" data-action="editReminder" data-reminder-id="${reminder.id}">Edit</button>
+                                        <button class="btn btn-success btn-xs" data-action="completeReminder" data-reminder-id="${reminder.id}">Complete</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `}
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-action="showAddFormWithDate" data-date="${date}">Add Reminder for This Day</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
     },
 
     // Calendar Management
@@ -4852,6 +4859,21 @@ const remindersManager = {
         }
         this.renderRemindersView();
     },
+
+    // Add this function for day reminder MODAL
+showAddFormWithDate: function(date) {
+    console.log('📅 REMINDERS_MANAGER: Showing add form with pre-filled date:', date);
+    this.showAddForm();
+    
+    // Set the date in the form after a short delay to ensure form is rendered
+    setTimeout(() => {
+        const dateInput = document.getElementById('reminder-date');
+        if (dateInput) {
+            dateInput.value = date;
+            console.log('✅ REMINDERS_MANAGER: Date pre-filled in form:', date);
+        }
+    }, 100);
+},
 
     // Data Management Functions
     getReminders: function() {
