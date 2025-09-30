@@ -2273,13 +2273,20 @@ footer p {
 }
 
 /* Medication Manager Section Styles */
+/* Medication Header Layout */
 .medication-header {
-    margin-bottom: 2rem;
+    margin-bottom: 20px;
 }
 
-.medication-header h2 {
-    color: var(--primary);
-    margin-bottom: 0.5rem;
+.medication-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.medication-header-top h2 {
+    margin: 0;
 }
 
 /* Medication Grid Layout */
