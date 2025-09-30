@@ -3638,26 +3638,40 @@ scheduleRecurringExercise: function(exerciseData) {
 
     // Quick Log Functions
     logSuggestedExercise: function(exerciseId) {
-        // Find the exercise in the database
-        let exercise = null;
-        Object.values(this.exerciseDatabase).forEach(category => {
-            Object.values(category).forEach(level => {
-                const found = level.find(ex => ex.id === exerciseId);
-                if (found) exercise = found;
-            });
+    console.log('📝 EXERCISE_MANAGER: logSuggestedExercise called for:', exerciseId);
+    
+    // Find the exercise in the database
+    let exercise = null;
+    Object.values(this.exerciseDatabase).forEach(category => {
+        Object.values(category).forEach(level => {
+            const found = level.find(ex => ex.id === exerciseId);
+            if (found) exercise = found;
         });
+    });
 
-        if (exercise) {
-            if (confirm(`Log "${exercise.name}" as completed?`)) {
-                this.saveActivity({
-                    type: exercise.name.toLowerCase().replace(' ', '_'),
-                    duration: parseInt(exercise.duration),
-                    intensity: 'gentle',
-                    notes: `Completed suggested exercise: ${exercise.name}`
-                });
-            }
+    if (exercise) {
+        console.log('✅ EXERCISE_MANAGER: Found exercise:', exercise.name);
+        if (confirm(`Log "${exercise.name}" as completed?`)) {
+            console.log('👤 EXERCISE_MANAGER: User confirmed completion');
+            
+            // EXACT FIX: Mark as completed immediately with completion timestamp
+            this.saveActivity({
+                type: exercise.name.toLowerCase().replace(/ /g, '_'),
+                duration: parseInt(exercise.duration),
+                intensity: 'gentle',
+                notes: `Completed suggested exercise: ${exercise.name}`,
+                completed: true,  // ← THIS IS THE KEY FIX
+                completedAt: new Date().toISOString()  // ← ADD COMPLETION TIMESTAMP
+            });
+            
+            console.log('✅ EXERCISE_MANAGER: Suggested exercise logged as COMPLETED');
+        } else {
+            console.log('❌ EXERCISE_MANAGER: User cancelled exercise logging');
         }
-    },
+    } else {
+        console.error('❌ EXERCISE_MANAGER: Exercise not found for ID:', exerciseId);
+    }
+},
 
 
     // Add this PRINT function to exerciseManager
