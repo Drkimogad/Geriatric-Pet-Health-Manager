@@ -335,7 +335,16 @@ const dashboardTemplates = {
     <div class="dashboard-header">
         <h2>Welcome to Your Pet's Health Hub</h2>
         <div class="header-nav">
-            <div class="pet-selector">
+            
+            <div class="nav-actions">
+                <button class="btn btn-primary" data-section="profiles">Pet Profiles</button>
+                <button class="btn btn-secondary" data-section="medication">Medication</button>
+                <button class="btn btn-secondary" data-section="nutrition">Nutrition</button> 
+                <button class="btn btn-primary" data-action="logActivity">Log Activity</button>
+                <button class="btn btn-accent" data-section="reminders">Reminders</button>
+
+            </div>   
+                        <div class="pet-selector">
                 <label for="pet-select">Select Pet: </label>
                 <select id="pet-select" class="pet-dropdown">
                     <option value="">-- Choose a Pet --</option>
@@ -347,14 +356,6 @@ const dashboardTemplates = {
                 </select>
             </div>
             
-            <div class="nav-actions">
-                <button class="btn btn-primary" data-section="profiles">Pet Profiles</button>
-                <button class="btn btn-secondary" data-section="medication">Medication</button>
-                <button class="btn btn-secondary" data-section="nutrition">Nutrition</button> 
-                <button class="btn btn-primary" data-action="logActivity">Log Activity</button>
-                <button class="btn btn-accent" data-section="reminders">Reminders</button>
-
-            </div>   
         </div>
     </div>
         
@@ -745,11 +746,13 @@ const petProfilesManager = {
     templates: {
         // Main Profiles View
         mainView: () => `
-            <div class="profiles-header">
-                <h2>Manage Your Pet Profiles</h2>
-                <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
-                <button class="btn btn-primary" data-action="showAddForm" data-manager="petProfiles">+ Add New Pet</button>
-            </div>
+    <div class="profiles-header">
+        <h2>Manage Your Pet Profiles</h2>
+        <div class="profiles-header-buttons">
+            <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
+            <button class="btn btn-primary" data-action="showAddForm" data-manager="petProfiles">+ Add New Pet</button>
+        </div>
+    </div>
             
             <div class="pets-list" id="pets-list">
                 ${petProfilesManager.templates.petsList()}
