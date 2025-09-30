@@ -572,8 +572,7 @@ const taskManager = {
             }
         });
         // In taskManager.generateTodayTasks(), add:
-        const exerciseTasks = exerciseManager.generateScheduledExercises();
-         tasks.push(...exerciseTasks);
+        const exerciseTasks = window.exerciseManager ? exerciseManager.generateScheduledExercises() : [];
 
         return tasks;
     },
