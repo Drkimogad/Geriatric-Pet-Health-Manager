@@ -704,11 +704,10 @@ toggleTaskCompletion: (taskId) => {
 }
 };  // end of dashboard manager section
 
+
 //=================================
 // Navigation Section
 //===========================
-const sectionManager = {
-    // Show specific section
 const sectionManager = {
     // Show specific section
     showSection: (sectionName) => {
@@ -735,7 +734,6 @@ const sectionManager = {
     showDashboard: () => {
         sectionManager.showSection('dashboard');
     }
-}
 };
 
 
