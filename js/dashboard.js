@@ -1938,6 +1938,11 @@ foodLogForm: () => `
                         <h3>Food History</h3>
                         ${nutritionManager.templates.foodHistory()}
                     </div>
+                         <!-- ADD THIS NEW CARD -->
+            <div class="nutrition-card food-inventory">
+                <h3>Food Inventory</h3>
+                ${nutritionManager.templates.foodInventory()}
+            </div>
                 </div>
             `;
         },
@@ -2065,7 +2070,151 @@ foodHistory: () => {
             ` : ''}
         </div>
     `;
-}
+},
+             // Add to nutritionManager.templates - around line 1300
+foodInventory: () => {
+    const inventory = nutritionManager.foodInventory.filter(item => item.isActive);
+    const activeItem = inventory[0]; // Currently active food
+    
+    return `
+        <div class="food-inventory-section">
+            <div class="section-header">
+                <h4>Food Inventory</h4>
+                <button class="btn btn-primary btn-sm" onclick="nutritionManager.showFoodInventoryForm()">+ Add Food</button>
+            </div>
+            
+            ${activeItem ? nutritionManager.templates.activeFoodInventory(activeItem) : `
+                <div class="no-inventory">
+                    <p>No active food inventory</p>
+                    <button class="btn btn-secondary btn-sm" onclick="nutritionManager.showFoodInventoryForm()">Set Up Food Tracking</button>
+                </div>
+            `}
+            
+            ${inventory.length > 1 ? `
+                <div class="inventory-history">
+                    <h5>Previous Food Items</h5>
+                    ${inventory.slice(1).map(item => `
+                        <div class="inventory-item inactive">
+                            <span class="food-name">${item.name}</span>
+                            <span class="food-status">Finished</span>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `;
+},
+
+activeFoodInventory: (item) => {
+    const daysRemaining = nutritionManager.calculateDaysRemaining(item);
+    const usagePerDay = item.dailyUsage || 0;
+    const costPerDay = item.cost ? (item.cost / item.bagSize * usagePerDay).toFixed(2) : 0;
+    
+    return `
+        <div class="active-inventory-item">
+            <div class="inventory-header">
+                <h5>${item.name}</h5>
+                <span class="inventory-status ${daysRemaining <= 7 ? 'warning' : 'normal'}">
+                    ${daysRemaining <= 7 ? '🔄 Refill Soon' : '✅ Good'}
+                </span>
+            </div>
+            
+            <div class="inventory-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${((item.initialAmount - item.currentAmount) / item.initialAmount) * 100}%"></div>
+                </div>
+                <div class="progress-labels">
+                    <span>Used: ${(item.initialAmount - item.currentAmount).toFixed(1)}${item.bagSizeUnit}</span>
+                    <span>Left: ${item.currentAmount.toFixed(1)}${item.bagSizeUnit}</span>
+                </div>
+            </div>
+            
+            <div class="inventory-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Daily Usage:</span>
+                    <span class="stat-value">${usagePerDay.toFixed(2)} cups/day</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Days Remaining:</span>
+                    <span class="stat-value ${daysRemaining <= 7 ? 'warning' : ''}">${daysRemaining} days</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Est. Finish:</span>
+                    <span class="stat-value">${formatDate(item.estimatedFinish)}</span>
+                </div>
+                ${item.cost > 0 ? `
+                    <div class="stat-item">
+                        <span class="stat-label">Cost per Day:</span>
+                        <span class="stat-value">$${costPerDay}</span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            ${daysRemaining <= 7 ? `
+                <div class="refill-alert">
+                    ⚠️ Food will run out in ${daysRemaining} days. Consider reordering soon.
+                </div>
+            ` : ''}
+            
+            <div class="inventory-actions">
+                <button class="btn btn-secondary btn-xs" onclick="nutritionManager.editFoodInventory('${item.id}')">Edit</button>
+                <button class="btn btn-warning btn-xs" onclick="nutritionManager.markInventoryFinished('${item.id}')">Mark Finished</button>
+            </div>
+        </div>
+    `;
+},
+
+// Food Inventory Form Template
+foodInventoryForm: (item = null) => {
+    const isEdit = !!item;
+    
+    return `
+        <div class="inventory-form-container">
+            <div class="form-header">
+                <h4>${isEdit ? 'Edit' : 'Add'} Food Inventory</h4>
+            </div>
+            <form id="food-inventory-form">
+                <input type="hidden" id="inventory-id" value="${item?.id || ''}">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="inv-food-name">Food Name *</label>
+                        <input type="text" id="inv-food-name" value="${item?.name || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="inv-food-brand">Brand</label>
+                        <input type="text" id="inv-food-brand" value="${item?.brand || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="inv-bag-size">Bag Size *</label>
+                        <input type="number" id="inv-bag-size" step="0.1" min="0.1" value="${item?.bagSize || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="inv-bag-unit">Unit</label>
+                        <select id="inv-bag-unit">
+                            <option value="kg" ${item?.bagSizeUnit === 'kg' ? 'selected' : ''}>kg</option>
+                            <option value="lbs" ${item?.bagSizeUnit === 'lbs' ? 'selected' : ''}>lbs</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="inv-cost">Cost ($)</label>
+                        <input type="number" id="inv-cost" step="0.01" min="0" value="${item?.cost || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="inv-start-date">Start Date</label>
+                        <input type="date" id="inv-start-date" value="${item?.startDate || utils.getTodayDate()}">
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">${isEdit ? 'Update' : 'Add'} Food</button>
+                    <button type="button" class="btn btn-secondary" onclick="nutritionManager.hideFoodInventoryForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    `;
+},
+        
     }, // closes templates brace
 
     // Water goal based on weight (ml per day)
@@ -2074,6 +2223,8 @@ foodHistory: () => {
         return Math.round(appState.currentPet.weight * 50); // 50ml per kg
     },
 
+    // ADD foodInventory property RIGHT HERE:
+    foodInventory: [],
 
 // Add these methods to nutritionManager - around line 1500
 // Show/hide food log form
@@ -2137,6 +2288,7 @@ validateFoodLog: function(formData) {
 },
 
 // Enhanced logFood method to handle detailed logging
+// Update the logFood method - around line 1550
 logFood: function(foodData) {
     if (!appState.currentPet) return;
 
@@ -2153,8 +2305,13 @@ logFood: function(foodData) {
     foodHistory.unshift(foodEntry);
     this.saveFoodHistory(foodHistory);
 
+    // ADD THIS: Update inventory tracking
+    this.updateInventoryOnFoodLog(foodEntry);
+    this.updateFoodInventoryCalculations();
+
     alert('Food intake logged successfully!');
     this.renderFoodHistory();
+    this.renderFoodInventory(); // Refresh inventory display
 },
 
 // Calculate calories based on food type and amount
@@ -2356,6 +2513,205 @@ showFullFoodHistory: function() {
         return null;
     },
 
+// Add these methods to nutritionManager - around line 1800
+// UI Management for Inventory
+showFoodInventoryForm: function(item = null) {
+    const inventorySection = document.querySelector('.food-inventory-section');
+    if (inventorySection) {
+        inventorySection.innerHTML = this.templates.foodInventoryForm(item);
+        this.setupInventoryForm();
+    }
+},
+
+hideFoodInventoryForm: function() {
+    this.renderFoodInventory();
+},
+
+setupInventoryForm: function() {
+    const form = document.getElementById('food-inventory-form');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleInventorySubmit();
+        });
+    }
+},
+
+handleInventorySubmit: function() {
+    const formData = {
+        name: document.getElementById('inv-food-name').value.trim(),
+        brand: document.getElementById('inv-food-brand').value.trim(),
+        bagSize: parseFloat(document.getElementById('inv-bag-size').value),
+        bagSizeUnit: document.getElementById('inv-bag-unit').value,
+        cost: parseFloat(document.getElementById('inv-cost').value) || 0,
+        startDate: document.getElementById('inv-start-date').value
+    };
+
+    if (!this.validateInventoryForm(formData)) {
+        return;
+    }
+
+    const itemId = document.getElementById('inventory-id').value;
+    if (itemId) {
+        this.updateFoodInventory(itemId, formData);
+    } else {
+        this.addFoodToInventory(formData);
+    }
+},
+
+validateInventoryForm: function(formData) {
+    if (!formData.name) {
+        alert('Please enter food name');
+        return false;
+    }
+    if (!formData.bagSize || formData.bagSize <= 0) {
+        alert('Please enter valid bag size');
+        return false;
+    }
+    return true;
+},
+
+updateFoodInventory: function(itemId, formData) {
+    const itemIndex = this.foodInventory.findIndex(item => item.id === itemId);
+    if (itemIndex !== -1) {
+        this.foodInventory[itemIndex] = {
+            ...this.foodInventory[itemIndex],
+            ...formData
+        };
+        this.updateFoodInventoryCalculations();
+        this.saveFoodInventory();
+        alert('Food inventory updated!');
+        this.hideFoodInventoryForm();
+    }
+},
+
+markInventoryFinished: function(itemId) {
+    if (confirm('Mark this food as finished?')) {
+        const itemIndex = this.foodInventory.findIndex(item => item.id === itemId);
+        if (itemIndex !== -1) {
+            this.foodInventory[itemIndex].isActive = false;
+            this.saveFoodInventory();
+            this.renderFoodInventory();
+        }
+    }
+},
+
+editFoodInventory: function(itemId) {
+    const item = this.foodInventory.find(item => item.id === itemId);
+    if (item) {
+        this.showFoodInventoryForm(item);
+    }
+},
+
+calculateDaysRemaining: function(inventoryItem) {
+    if (!inventoryItem.dailyUsage || inventoryItem.dailyUsage <= 0) return 0;
+    return Math.floor(inventoryItem.currentAmount / inventoryItem.dailyUsage);
+},
+
+renderFoodInventory: function() {
+    const inventoryElement = document.querySelector('.food-inventory-section');
+    if (inventoryElement) {
+        inventoryElement.innerHTML = this.templates.foodInventory();
+    }
+},
+// Add these methods to nutritionManager - around line 1600
+// Food Inventory Management
+initializeFoodInventory: function() {
+    if (appState.currentPet) {
+        this.foodInventory = utils.loadData(`foodInventory_${appState.currentPet.id}`) || [];
+    }
+},
+
+saveFoodInventory: function() {
+    if (appState.currentPet) {
+        utils.saveData(`foodInventory_${appState.currentPet.id}`, this.foodInventory);
+    }
+},
+
+// Add food to inventory
+addFoodToInventory: function(foodData) {
+    const inventoryItem = {
+        id: 'food_inv_' + Date.now(),
+        name: foodData.name,
+        brand: foodData.brand || '',
+        bagSize: foodData.bagSize, // in kg or lbs
+        bagSizeUnit: foodData.bagSizeUnit || 'kg',
+        cost: foodData.cost || 0,
+        startDate: foodData.startDate || utils.getTodayDate(),
+        initialAmount: foodData.bagSize,
+        currentAmount: foodData.bagSize,
+        dailyUsage: 0,
+        estimatedFinish: null,
+        isActive: true
+    };
+
+    this.foodInventory.push(inventoryItem);
+    this.saveFoodInventory();
+    this.updateFoodInventoryCalculations();
+    return inventoryItem;
+},
+
+// Update inventory calculations based on feeding history
+updateFoodInventoryCalculations: function() {
+    const feedingHistory = this.getFoodHistory();
+    const recentUsage = this.calculateDailyFoodUsage(feedingHistory);
+    
+    this.foodInventory.forEach(item => {
+        if (item.isActive) {
+            item.dailyUsage = recentUsage;
+            item.estimatedFinish = this.calculateFinishDate(item);
+        }
+    });
+    
+    this.saveFoodInventory();
+},
+
+// Calculate daily food usage from history
+calculateDailyFoodUsage: function(feedingHistory) {
+    const last7Days = feedingHistory.filter(entry => {
+        const entryDate = new Date(entry.date);
+        const today = new Date();
+        const diffTime = Math.abs(today - entryDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 7;
+    });
+
+    if (last7Days.length === 0) return 0;
+
+    const totalConsumed = last7Days.reduce((sum, entry) => {
+        return sum + (entry.amountConsumed || 0);
+    }, 0);
+
+    return totalConsumed / 7; // Average daily consumption
+},
+
+// Calculate when food will run out
+calculateFinishDate: function(inventoryItem) {
+    if (!inventoryItem.dailyUsage || inventoryItem.dailyUsage <= 0) return null;
+    
+    const daysRemaining = inventoryItem.currentAmount / inventoryItem.dailyUsage;
+    const finishDate = new Date();
+    finishDate.setDate(finishDate.getDate() + Math.floor(daysRemaining));
+    
+    return finishDate.toISOString().split('T')[0];
+},
+
+// Update inventory when food is logged
+updateInventoryOnFoodLog: function(foodLog) {
+    if (!this.foodInventory.length) return;
+    
+    const activeItem = this.foodInventory.find(item => item.isActive);
+    if (activeItem && foodLog.amountConsumed > 0) {
+        // Convert cups to kg (approximate conversion - adjust based on food density)
+        const conversionRate = 0.12; // 1 cup ≈ 0.12kg for dry food
+        const consumedKg = foodLog.amountConsumed * conversionRate;
+        
+        activeItem.currentAmount = Math.max(0, activeItem.currentAmount - consumedKg);
+        this.updateFoodInventoryCalculations();
+        this.saveFoodInventory();
+    }
+},
+
     // Water Tracking Functions
     logWater: function(amount) {
         if (!appState.currentPet) return;
@@ -2490,11 +2846,12 @@ showFullFoodHistory: function() {
     },
     
     // Initialize Nutrition Section
-    init: function() {
-        this.renderNutritionView();
-        // Add this line:
+// Update the init method - around line 1450
+init: function() {
+    this.initializeFoodInventory(); // ADD THIS
+    this.renderNutritionView();
     document.addEventListener('change', this.handleFoodDropdown.bind(this));
-    }
+}
 };
 
 // Add to global window object
