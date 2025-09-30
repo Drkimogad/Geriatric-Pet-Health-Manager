@@ -330,60 +330,199 @@ footer p {
 
 
 /* Pet Summary Styles */
-.pet-summary {
-    grid-column: span 2;
+/* Enhanced Dashboard Pet Summary */
+.pet-summary-enhanced {
+    padding: 0;
 }
 
-.pet-info {
+.pet-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.pet-summary-photo {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.pet-summary-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pet-summary-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    color: white;
+    flex-shrink: 0;
+}
+
+.summary-mood {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    border: 2px solid #f8f9fa;
+}
+
+.pet-summary-basic h4 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+    font-size: 1.4em;
+}
+
+.pet-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.species-badge {
+    background: #007bff;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.temperament-badge {
+    background: #6c757d;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+/* Metrics Grid */
+.pet-metrics-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
 }
 
-.pet-basic h4 {
-    color: var(--primary);
-    margin: 0 0 1rem 0;
-    font-size: 1.4rem;
+.metric-card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid #007bff;
 }
 
-.pet-basic p {
-    margin: 0.75rem 0;
-    color: var(--neutral-text);
+.metric-icon {
+    font-size: 1.5em;
+    opacity: 0.8;
 }
 
-.pet-basic strong {
-    color: var(--neutral-dark);
-    min-width: 80px;
-    display: inline-block;
-}
-
-.pet-health-metrics {
+.metric-info {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-}
-
-.metric {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: var(--surface);
-    border-radius: 8px;
-    border: 1px solid var(--border);
-}
-
-.metric-label {
-    font-weight: 600;
-    color: var(--neutral-dark);
 }
 
 .metric-value {
+    font-size: 1.3em;
     font-weight: 700;
-    color: var(--primary);
-    font-size: 1.1rem;
+    color: #2c3e50;
+    line-height: 1;
 }
 
+.metric-label {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+/* Status Overview */
+.pet-status-overview {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #6c757d;
+}
+
+.status-item.conditions { border-left-color: #e74c3c; }
+.status-item.last-visit { border-left-color: #3498db; }
+.status-item.microchip { border-left-color: #9b59b6; }
+
+.status-label {
+    font-size: 0.85em;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.status-value {
+    font-size: 0.85em;
+    color: #495057;
+    font-weight: 600;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
+}
+
+/* Responsive Dashboard */
+@media (max-width: 768px) {
+    .pet-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .pet-summary-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .pet-meta {
+        justify-content: center;
+    }
+    
+    .status-item {
+        flex-direction: column;
+        gap: 5px;
+        align-items: flex-start;
+    }
+    
+    .status-value {
+        max-width: 100%;
+        text-align: left;
+    }
+}
 /* Today's Tasks Styles */
 .tasks-list {
     list-style: none;
