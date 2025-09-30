@@ -1744,16 +1744,18 @@ const nutritionManager = {
     templates: {
         // Main Nutrition View
         mainView: () => `
-            <div class="nutrition-header">
-                <h2>Nutrition & Diet Planner</h2>
-                <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
-                ${appState.currentPet ? `
-                    <div class="current-pet-banner">
-                        Planning for: <strong>${appState.currentPet.name}</strong>
-                        ${appState.currentPet.weight ? `(${appState.currentPet.weight} kg)` : ''}
-                    </div>
-                ` : '<p class="warning">Please select a pet first</p>'}
+                <div class="nutrition-header">
+        <div class="nutrition-header-top">
+            <h2>Nutrition & Diet Planner</h2>
+            <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
+        </div>
+        ${appState.currentPet ? `
+            <div class="current-pet-banner">
+                Planning for: <strong>${appState.currentPet.name}</strong>
+                ${appState.currentPet.weight ? `(${appState.currentPet.weight} kg)` : ''}
             </div>
+        ` : '<p class="warning">Please select a pet first</p>'}
+    </div>
 
             ${appState.currentPet ? nutritionManager.templates.calculatorView() : nutritionManager.templates.noPetView()}
         `,
