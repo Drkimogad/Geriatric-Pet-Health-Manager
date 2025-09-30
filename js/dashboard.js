@@ -3277,7 +3277,14 @@ todayActivity: () => {
         return utils.loadData(`activities_${appState.currentPet.id}`) || [];
     },
 
-   // Update saveActivity to handle scheduling
+    // GETS CALLED AND SAVES DATA AND PERSIST IT ADDED RECENTLY
+    saveActivities: function(activities) {
+    if (appState.currentPet) {
+        utils.saveData(`activities_${appState.currentPet.id}`, activities);
+    }
+},
+
+   // Update saveActivity to handle scheduling CREATES THE DATA
 saveActivity: function(activityData) {
     const activity = {
         id: 'activity_' + Date.now(),
