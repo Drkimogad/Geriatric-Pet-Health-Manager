@@ -221,6 +221,12 @@ else if (target.matches('[data-action="printActivityHistory"]')) {
             event.preventDefault();
             remindersManager.hideDayReminders();
         }
+            // In REMINDERS SECTION of setupEventDelegation, ADD:
+else if (target.matches('[data-action="showMainView"][data-manager="reminders"]')) {
+    console.log('🔄 REMINDERS_DELEGATION: Show main view for reminders');
+    event.preventDefault();
+    remindersManager.showMainView();
+}
         
         // 8. FORM SUBMISSIONS
         else if (target.matches('button[type="submit"], input[type="submit"]')) {
@@ -4247,13 +4253,18 @@ const remindersManager = {
     },
 
     getCalendarDays: function() {
+        console.log('📅 REMINDERS: Generating calendar for', this.currentMonth + 1, this.currentYear);
         const days = [];
         const firstDay = new Date(this.currentYear, this.currentMonth, 1);
         const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
         const startDay = firstDay.getDay();
         const daysInMonth = lastDay.getDate();
         
-        const today = new Date();
+        // DEBUG: Log today's date comparison
+    const today = new Date();
+    console.log('📅 REMINDERS: Today is:', today.toDateString());
+    console.log('📅 REMINDERS: Calendar month:', this.currentMonth, 'Year:', this.currentYear);
+        
         today.setHours(0, 0, 0, 0);
 
         // Previous month days
