@@ -109,6 +109,11 @@ else if (target.matches('input[type="checkbox"][data-task-id]')) {
             event.preventDefault();
             nutritionManager.saveNutritionPlan();
         }
+            // In setupEventDelegation, add this to the click handler
+else if (target.matches('[data-action="showFullFoodHistory"]')) {
+    event.preventDefault();
+    nutritionManager.showFullFoodHistory();
+}
         
         // 5. MEDICATION SECTION
         else if (target.matches('[data-action="showAddMedication"]')) {
@@ -1785,6 +1790,53 @@ const nutritionManager = {
             </div>
         `,
 
+
+        // Add to nutritionManager.templates - around line 1200
+foodLogForm: () => `
+    <div class="food-form-container">
+        <div class="form-header">
+            <h3>Log Daily Food Intake</h3>
+        </div>
+        <form id="food-log-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="log-food-date">Date</label>
+                    <input type="date" id="log-food-date" value="${utils.getTodayDate()}">
+                </div>
+                <div class="form-group">
+                    <label for="log-food-type">Meal Type</label>
+                    <select id="log-food-type">
+                        <option value="breakfast">Breakfast</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="treats">Treats/Snacks</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="log-food-offered">Amount Offered (cups)</label>
+                    <input type="number" id="log-food-offered" step="0.1" min="0" placeholder="e.g., 1.5">
+                </div>
+                <div class="form-group">
+                    <label for="log-food-consumed">Amount Consumed (cups)</label>
+                    <input type="number" id="log-food-consumed" step="0.1" min="0" placeholder="e.g., 1.2">
+                </div>
+                <div class="form-group">
+                    <label for="log-food-name">Food Name</label>
+                    <input type="text" id="log-food-name" placeholder="e.g., Hill's k/d">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="log-food-notes">Notes</label>
+                <textarea id="log-food-notes" rows="2" placeholder="Appetite, behavior, any concerns..."></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Food Log</button>
+                <button type="button" class="btn btn-secondary" onclick="nutritionManager.hideFoodLogForm()">Cancel</button>
+            </div>
+        </form>
+    </div>
+`,
+
         // Calculator and Planning View
         calculatorView: () => {
             const pet = appState.currentPet;
@@ -1982,30 +2034,39 @@ feedingSchedule: (nutritionData) => {
         },
 
         // Food History Template
-        foodHistory: () => {
-            const foodHistory = nutritionManager.getFoodHistory().slice(0, 5);
-            if (foodHistory.length === 0) {
-                return '<p class="no-data">No food history recorded</p>';
-            }
-            
-            return `
-                <div class="food-history-list">
+        // Replace the existing foodHistory template - around line 1250
+foodHistory: () => {
+    const foodHistory = nutritionManager.getFoodHistory().slice(0, 5);
+    
+    return `
+        <div class="food-history-section">
+            <div class="section-header">
+                <h4>Recent Food Intake</h4>
+                <button class="btn btn-primary btn-sm" onclick="nutritionManager.showFoodLogForm()">+ Log Food</button>
+            </div>
+            <div class="food-history-list">
+                ${foodHistory.length === 0 ? `
+                    <p class="no-data">No food intake logged yet</p>
+                ` : `
                     ${foodHistory.map(entry => `
                         <div class="food-history-entry">
-                            <div class="food-date">${formatDate(entry.date)}</div>
+                            <div class="food-date">${formatDate(entry.date)} - ${entry.mealType}</div>
                             <div class="food-details">
                                 <strong>${entry.foodName}</strong>
-                                <span>${entry.amount} cups • ${entry.calories} kcal</span>
+                                <span>Offered: ${entry.amountOffered}c • Ate: ${entry.amountConsumed}c</span>
                             </div>
+                            ${entry.notes ? `<div class="food-notes">${entry.notes}</div>` : ''}
                         </div>
                     `).join('')}
-                </div>
-                <button class="btn btn-secondary btn-sm" data-action="showFullFoodHistory">
-                      View Full History
-                </button>
-            `;
-        }
-    },
+                `}
+            </div>
+            ${foodHistory.length > 0 ? `
+                <button class="btn btn-secondary btn-sm" data-action="showFullFoodHistory">View Full History</button>
+            ` : ''}
+        </div>
+    `;
+}
+    }, // closes templates brace
 
     // Water goal based on weight (ml per day)
     get waterGoal() {
@@ -2013,7 +2074,169 @@ feedingSchedule: (nutritionData) => {
         return Math.round(appState.currentPet.weight * 50); // 50ml per kg
     },
 
-    // Calculation Functions
+
+// Add these methods to nutritionManager - around line 1500
+// Show/hide food log form
+showFoodLogForm: function() {
+    const foodHistoryCard = document.querySelector('.food-history');
+    if (foodHistoryCard) {
+        foodHistoryCard.innerHTML = this.templates.foodLogForm();
+        this.setupFoodLogForm();
+    }
+},
+
+hideFoodLogForm: function() {
+    this.renderFoodHistory();
+},
+
+// Setup form event listener
+setupFoodLogForm: function() {
+    const form = document.getElementById('food-log-form');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleFoodLogSubmit();
+        });
+    }
+},
+
+// Handle food log submission
+handleFoodLogSubmit: function() {
+    const formData = {
+        date: document.getElementById('log-food-date').value,
+        mealType: document.getElementById('log-food-type').value,
+        amountOffered: parseFloat(document.getElementById('log-food-offered').value) || 0,
+        amountConsumed: parseFloat(document.getElementById('log-food-consumed').value) || 0,
+        foodName: document.getElementById('log-food-name').value.trim(),
+        notes: document.getElementById('log-food-notes').value.trim(),
+        timestamp: new Date().toISOString()
+    };
+
+    if (!this.validateFoodLog(formData)) {
+        return;
+    }
+
+    this.logFood(formData);
+},
+
+// Validate food log data
+validateFoodLog: function(formData) {
+    if (!formData.date) {
+        alert('Please select a date');
+        return false;
+    }
+    if (!formData.foodName) {
+        alert('Please enter food name');
+        return false;
+    }
+    if (formData.amountOffered <= 0) {
+        alert('Please enter amount offered');
+        return false;
+    }
+    return true;
+},
+
+// Enhanced logFood method to handle detailed logging
+logFood: function(foodData) {
+    if (!appState.currentPet) return;
+
+    const foodEntry = {
+        id: 'food_' + Date.now(),
+        petId: appState.currentPet.id,
+        ...foodData,
+        calories: this.calculateFoodCalories(foodData),
+        date: foodData.date,
+        timestamp: new Date().toISOString()
+    };
+
+    let foodHistory = this.getFoodHistory();
+    foodHistory.unshift(foodEntry);
+    this.saveFoodHistory(foodHistory);
+
+    alert('Food intake logged successfully!');
+    this.renderFoodHistory();
+},
+
+// Calculate calories based on food type and amount
+calculateFoodCalories: function(foodData) {
+    // Simple calculation - you can enhance this with your food database
+    const selectedFood = this.getSelectedFood();
+    if (selectedFood && selectedFood.kcalPerCup) {
+        return Math.round(foodData.amountConsumed * selectedFood.kcalPerCup);
+    }
+    return 0;
+},
+
+// Enhanced getFoodHistory to include new fields
+getFoodHistory: function() {
+    if (!appState.currentPet) return [];
+    const history = utils.loadData(`foodHistory_${appState.currentPet.id}`) || [];
+    
+    // Convert old format to new format if needed
+    return history.map(entry => {
+        if (!entry.mealType) {
+            return {
+                ...entry,
+                mealType: 'general',
+                amountOffered: entry.amount || 0,
+                amountConsumed: entry.amount || 0
+            };
+        }
+        return entry;
+    });
+},
+
+// Render just the food history section
+renderFoodHistory: function() {
+    const foodHistoryElement = document.querySelector('.food-history');
+    if (foodHistoryElement) {
+        foodHistoryElement.innerHTML = this.templates.foodHistory();
+    }
+},
+    // Placeholder for full history view
+showFullFoodHistory: function() {
+    const foodHistory = this.getFoodHistory();
+    
+    let historyHTML = `
+        <div class="full-history-container">
+            <div class="history-header">
+                <h3>Complete Food History</h3>
+                <button class="btn btn-secondary" onclick="nutritionManager.renderNutritionView()">← Back</button>
+            </div>
+            <div class="history-stats">
+                <p>Total entries: ${foodHistory.length}</p>
+            </div>
+            <div class="full-history-list">
+    `;
+    
+    if (foodHistory.length === 0) {
+        historyHTML += `<p class="no-data">No food history recorded</p>`;
+    } else {
+        foodHistory.forEach(entry => {
+            historyHTML += `
+                <div class="history-entry">
+                    <div class="entry-header">
+                        <strong>${formatDate(entry.date)} - ${entry.mealType}</strong>
+                        <span class="food-name">${entry.foodName}</span>
+                    </div>
+                    <div class="entry-details">
+                        <span>Offered: ${entry.amountOffered}c</span>
+                        <span>Consumed: ${entry.amountConsumed}c</span>
+                        ${entry.calories ? `<span>Calories: ${entry.calories}</span>` : ''}
+                    </div>
+                    ${entry.notes ? `<div class="entry-notes">${entry.notes}</div>` : ''}
+                </div>
+            `;
+        });
+    }
+    
+    historyHTML += `</div></div>`;
+    
+    this.elements.nutritionContent.innerHTML = historyHTML;
+},
+
+     
+    // ✍️Calculation Functions
     calculateNutritionNeeds: function(pet) {
         if (!pet?.weight) {
             return { rer: 0, der: 0, recommended: 0 };
