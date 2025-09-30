@@ -589,10 +589,15 @@ generateTodayTasks: () => {
             }
         });
         // In taskManager.generateTodayTasks(), add:
-        const exerciseTasks = window.exerciseManager ? exerciseManager.generateScheduledExercises() : [];
+         // EXERCISE TASKS - RESTORE THIS CRITICAL LINE
+    const exerciseTasks = window.exerciseManager ? exerciseManager.generateScheduledExercises() : [];
+    console.log('🏃 TASK_MANAGER: Found exercise tasks:', exerciseTasks.length);
+    tasks.push(...exerciseTasks);
 
-        return tasks;
-    },
+    console.log('✅ TASK_MANAGER: Total tasks generated:', tasks.length);
+    return tasks;
+},
+
 
     // Toggle task completion - FIXED VERSION
 toggleTaskCompletion: (taskId) => {
