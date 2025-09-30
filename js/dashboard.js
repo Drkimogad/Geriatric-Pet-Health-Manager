@@ -555,25 +555,26 @@ const generateAlerts = () => {
 
 // Task Management
 const taskManager = {
-    // Generate today's tasks
-    generateTodayTasks: () => {
-        const tasks = [];
-        const today = utils.getTodayDate();
-        
-        // Medication tasks
-        appState.medications.forEach(med => {
-            if (med.schedule && med.schedule[today]) {
-                med.schedule[today].forEach(time => {
-                    tasks.push({
-                        id: `med_${med.id}_${time}`,
-                        type: 'medication',
-                        description: `Give ${med.name} (${med.dosage})`,
-                        time: time,
-                        completed: false
-                    });
+    // Generate today's tasks - FIXED VERSION
+generateTodayTasks: () => {
+    console.log('🔄 TASK_MANAGER: Generating today tasks...');
+    const tasks = [];
+    const today = utils.getTodayDate();
+    
+    // Medication tasks
+    appState.medications.forEach(med => {
+        if (med.schedule && med.schedule[today]) {
+            med.schedule[today].forEach(time => {
+                tasks.push({
+                    id: `med_${med.id}_${time}`,
+                    type: 'medication',
+                    description: `Give ${med.name} (${med.dosage})`,
+                    time: time,
+                    completed: false
                 });
-            }
-        });
+            });
+        }
+    });
 
         // Reminder tasks
         appState.reminders.forEach(reminder => {
@@ -654,6 +655,10 @@ const sectionManager = {
 //===============================
 const renderDashboard = () => {
     if (!dashboardElements.dashboardContent) return;
+
+        // REGENERATE TASKS WITH LATEST DATA
+    appState.todayTasks = taskManager.generateTodayTasks();
+    console.log('📊 DASHBOARD: Re-rendering with', appState.todayTasks.length, 'tasks');
     
     dashboardElements.dashboardContent.innerHTML = dashboardTemplates.mainDashboard();
     
