@@ -174,5 +174,73 @@ Export functionality
 
 The water logging works but needs manual entry option. Food logging doesn't exist yet beyond the placeholder.
 
+Your Approach is Spot On:
+Phase 1: Enhance Current Structure
 
+Keep all existing nutrition calculator logic
+
+Add food logging to the current feeding schedule
+
+Integrate water intake into the feeding form
+
+Implement basic food bag calculator
+
+Phase 2: Smart Water Integration
+
+Add daily water intake field to feeding form
+
+Use condition/age/breed/weight to calculate expected water intake
+
+Compare actual vs expected water consumption
+
+Generate alerts for polydipsia (excessive drinking) or oligodipsia (reduced drinking)
+
+The Smart Water Logic You're Describing:
+text
+DAILY WATER INTAKE CALCULATOR:
+Expected: (50ml × 4kg) + (food moisture) = 250ml daily
+Actual: 180ml logged today
+ALERT: "Water intake 28% below expected for kidney cat"
+For Kidney Cats (Your Use Case):
+
+Expected: Higher water needs to support kidney function
+
+Alert: "Reduced water intake - kidney risk increased"
+
+Suggestion: "Consider wet food or water fountain"
+
+For Diabetes:
+Expected: Normal range based on weight
+
+Alert: "Excessive water intake - possible glucose issues"
+
+The Formulas We Can Implement:
+Basic Water Needs:
+
+Dogs: 50-60ml per kg of body weight
+
+Cats: 40-50ml per kg of body weight
+
+Adjust for: Dry food (+20%), Hot weather (+15%), Activity level
+
+Condition Modifiers:
+
+Kidney disease: +20-30% water needs
+
+Diabetes: Monitor for excessive intake
+
+Hyperthyroidism: Increased needs
+
+Implementation Flow:
+User logs daily feeding
+     ↓
+[Auto-calculate expected water intake]
+     ↓
+[User enters actual water consumed]
+     ↓
+[System compares actual vs expected]
+     ↓
+[Condition-based alerts generated]
+     ↓
+"Kidney cat drinking 40% less than recommended"
 
