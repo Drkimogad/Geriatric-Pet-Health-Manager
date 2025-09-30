@@ -815,8 +815,8 @@ const petProfilesManager = {
     <div class="profiles-header">
         <h2>Manage Your Pet Profiles</h2>
         <div class="profiles-header-buttons">
-            <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
             <button class="btn btn-primary" data-action="showAddForm" data-manager="petProfiles">+ Add New Pet</button>
+            <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
         </div>
     </div>
             
@@ -5119,8 +5119,9 @@ window.formatDate = utils.formatDate;
 window.calculateAge = utils.calculateAge;
 
 // Activity logging function (placeholder)
+// REPLACE the placeholder function:
 window.logActivity = () => {
-    alert('Activity logging will be implemented in the Exercise section');
+    console.log('🏃 DASHBOARD: Log activity clicked - redirecting to exercise');
     sectionManager.showSection('exercise');
 };
 
