@@ -1060,90 +1060,168 @@ petForm: (pet = null) => {
 
         // Pet Detail View
         //DISPLAYED PET PROFILES IN PROFILE SECTION TO BE SET AS ACTIVE AS NEEDED
-        petDetail: (pet) => `
-            <div class="pet-detail-container">
-                <div class="detail-header">
-                    <h2>${pet.name}'s Profile</h2>
-                    <button class="btn btn-secondary" data-action="showMainView" data-manager="petProfiles">
-                     ← Back to List
-                    </button>
+// Pet Detail View - ENHANCED VERSION
+petDetail: (pet) => `
+    <div class="pet-detail-container">
+        <div class="detail-header">
+            <h2>${pet.name}'s Profile</h2>
+            <button class="btn btn-secondary" data-action="showMainView" data-manager="petProfiles">
+                ← Back to List
+            </button>
+        </div>
+        
+        <!-- PET PHOTO & QUICK INFO -->
+        ${pet.photo ? `
+        <div class="pet-detail-photo-section">
+            <div class="pet-photo-main">
+                <img src="${pet.photo}" alt="${pet.name}">
+            </div>
+        </div>
+        ` : ''}
+        
+        <div class="pet-detail-grid">
+            <!-- BASIC INFORMATION -->
+            <div class="detail-section">
+                <h3>🐾 Basic Information</h3>
+                <div class="detail-info">
+                    <div class="info-row">
+                        <span class="label">Name:</span>
+                        <span class="value">${pet.name}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Species:</span>
+                        <span class="value">${pet.species ? pet.species.charAt(0).toUpperCase() + pet.species.slice(1) : 'Not set'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Breed:</span>
+                        <span class="value">${pet.breed || 'Not set'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Age:</span>
+                        <span class="value">${calculateAge(pet.birthDate)} years</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Birth Date:</span>
+                        <span class="value">${formatDate(pet.birthDate) || 'Unknown'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Microchip:</span>
+                        <span class="value">${pet.microchip || 'Not set'}</span>
+                    </div>
                 </div>
-                
-                <div class="pet-detail-grid">
-                    <div class="detail-section">
-                        <h3>Basic Information</h3>
-                        <div class="detail-info">
-                            <div class="info-row">
-                                <span class="label">Species:</span>
-                                <span class="value">${pet.species ? pet.species.charAt(0).toUpperCase() + pet.species.slice(1) : 'Not set'}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">Breed:</span>
-                                <span class="value">${pet.breed || 'Not set'}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">Age:</span>
-                                <span class="value">${calculateAge(pet.birthDate)} years</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">Birth Date:</span>
-                                <span class="value">${formatDate(pet.birthDate) || 'Unknown'}</span>
-                            </div>
-                        </div>
+            </div>
+            
+            <!-- HEALTH INFORMATION -->
+            <div class="detail-section">
+                <h3>❤️ Health Information</h3>
+                <div class="detail-info">
+                    <div class="info-row">
+                        <span class="label">Weight:</span>
+                        <span class="value">${pet.weight ? pet.weight + ' kg' : 'Not set'}</span>
                     </div>
-                    
-                    <div class="detail-section">
-                        <h3>Health Information</h3>
-                        <div class="detail-info">
-                            <div class="info-row">
-                                <span class="label">Weight:</span>
-                                <span class="value">${pet.weight ? pet.weight + ' kg' : 'Not set'}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">Body Condition:</span>
-                                <span class="value">${pet.bodyConditionScore ? pet.bodyConditionScore + '/9' : 'Not set'}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">Mobility Score:</span>
-                                <span class="value">${pet.mobilityScore ? pet.mobilityScore + '/5' : 'Not set'}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">Conditions:</span>
-                                <span class="value">${pet.conditions?.length > 0 ? pet.conditions.join(', ') : 'None reported'}</span>
-                            </div>
-                        </div>
+                    <div class="info-row">
+                        <span class="label">Body Condition:</span>
+                        <span class="value">${pet.bodyConditionScore ? pet.bodyConditionScore + '/9' : 'Not set'}</span>
                     </div>
-                    
-                    <div class="detail-section full-width">
-                        <h3>Care Team</h3>
-                        <div class="detail-info">
-                            <div class="info-row">
-                                <span class="label">Primary Vet:</span>
-                                <span class="value">${pet.vetInfo?.name || 'Not specified'}</span>
-                            </div>
-                        </div>
+                    <div class="info-row">
+                        <span class="label">Mobility Score:</span>
+                        <span class="value">${pet.mobilityScore ? pet.mobilityScore + '/5' : 'Not set'}</span>
                     </div>
-                    
-                    ${pet.notes ? `
-                    <div class="detail-section full-width">
-                        <h3>Additional Notes</h3>
-                        <div class="notes-content">
-                            <p>${pet.notes}</p>
-                        </div>
+                    <div class="info-row">
+                        <span class="label">Conditions:</span>
+                        <span class="value">${pet.conditions?.length > 0 ? pet.conditions.join(', ') : 'None reported'}</span>
+                    </div>
+                    ${pet.dietaryRestrictions ? `
+                    <div class="info-row">
+                        <span class="label">Dietary Restrictions:</span>
+                        <span class="value">${pet.dietaryRestrictions}</span>
                     </div>
                     ` : ''}
                 </div>
-                
-                <div class="detail-actions">
-                    <button class="btn btn-primary" data-action="editPet" data-pet-id="${pet.id}">
-                      Edit Profile
-                    </button>
-                   <button class="btn btn-secondary" data-action="setCurrentPet" data-pet-id="${pet.id}">
-                      Set as Active Pet
-                   </button>
+            </div>
+            
+            <!-- BEHAVIOR & MOOD -->
+            <div class="detail-section">
+                <h3>😊 Behavior & Mood</h3>
+                <div class="detail-info">
+                    <div class="info-row">
+                        <span class="label">Temperament:</span>
+                        <span class="value">${pet.temperament ? 
+                            pet.temperament.charAt(0).toUpperCase() + pet.temperament.slice(1) : 'Not set'}</span>
+                    </div>
+                    ${pet.mood ? `
+                    <div class="info-row">
+                        <span class="label">Current Mood:</span>
+                        <span class="value mood-display">
+                            ${pet.mood.emoji || ''} ${pet.mood.label || ''} 
+                            ${pet.mood.scale ? `(Scale: ${pet.mood.scale}/5)` : ''}
+                        </span>
+                    </div>
+                    ` : ''}
                 </div>
             </div>
-        `
+            
+            <!-- VETERINARY & CARE TEAM -->
+            <div class="detail-section">
+                <h3>🏥 Veterinary & Care</h3>
+                <div class="detail-info">
+                    <div class="info-row">
+                        <span class="label">Primary Vet:</span>
+                        <span class="value">${pet.vetInfo?.name || 'Not specified'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Last Visit:</span>
+                        <span class="value">${formatDate(pet.vetInfo?.lastVisit) || 'Not recorded'}</span>
+                    </div>
+                    ${pet.insurance?.provider ? `
+                    <div class="info-row">
+                        <span class="label">Insurance:</span>
+                        <span class="value">${pet.insurance.provider} ${pet.insurance.policyNumber ? `(${pet.insurance.policyNumber})` : ''}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <!-- OWNER & EMERGENCY INFO -->
+            <div class="detail-section">
+                <h3>👤 Owner & Emergency</h3>
+                <div class="detail-info">
+                    ${pet.ownerInfo?.name ? `
+                    <div class="info-row">
+                        <span class="label">Owner:</span>
+                        <span class="value">${pet.ownerInfo.name}</span>
+                    </div>
+                    ` : ''}
+                    ${pet.emergencyContact?.name ? `
+                    <div class="info-row">
+                        <span class="label">Emergency Contact:</span>
+                        <span class="value">${pet.emergencyContact.name} ${pet.emergencyContact.phone ? `- ${pet.emergencyContact.phone}` : ''}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <!-- ADDITIONAL NOTES -->
+            ${pet.notes ? `
+            <div class="detail-section full-width">
+                <h3>📝 Additional Notes</h3>
+                <div class="notes-content">
+                    <p>${pet.notes}</p>
+                </div>
+            </div>
+            ` : ''}
+        </div>
+        
+        <div class="detail-actions">
+            <button class="btn btn-primary" data-action="editPet" data-pet-id="${pet.id}">
+                Edit Profile
+            </button>
+            <button class="btn btn-secondary" data-action="setCurrentPet" data-pet-id="${pet.id}">
+                Set as Active Pet
+            </button>
+        </div>
+    </div>
+`
     },
 
 //==========================================================
