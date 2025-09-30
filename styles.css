@@ -2563,7 +2563,322 @@ Nutrition & Diet Planner Section Styles===== */
     border-left: 4px solid #9C27B0;
 }
 
+/* Food Inventory Styles */
+.food-inventory-section {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
 
+.food-inventory-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--neutral-light);
+    padding-bottom: 10px;
+}
+
+.food-inventory-section .section-header h4 {
+    margin: 0;
+    color: var(--primary-dark);
+}
+
+/* Active Inventory Item */
+.active-inventory-item {
+    border: 2px solid var(--primary-light);
+    border-radius: 8px;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
+    margin-bottom: 15px;
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.inventory-header h5 {
+    margin: 0;
+    color: var(--primary-dark);
+    font-size: 16px;
+}
+
+.inventory-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.inventory-status.normal {
+    background: var(--success-light);
+    color: var(--success-dark);
+}
+
+.inventory-status.warning {
+    background: var(--warning-light);
+    color: var(--warning-dark);
+}
+
+/* Inventory Progress Bar */
+.inventory-progress {
+    margin-bottom: 15px;
+}
+
+.inventory-progress .progress-bar {
+    height: 8px;
+    background: var(--neutral-light);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.inventory-progress .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--neutral-dark);
+}
+
+/* Inventory Stats */
+.inventory-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: var(--neutral-light);
+    border-radius: 6px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--neutral-dark);
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.stat-value.warning {
+    color: var(--warning-dark);
+    background: var(--warning-light);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Refill Alert */
+.refill-alert {
+    background: var(--warning-light);
+    border: 1px solid var(--warning);
+    color: var(--warning-dark);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Inventory Actions */
+.inventory-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Inventory Form */
+.inventory-form-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.inventory-form-container .form-header {
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+}
+
+.inventory-form-container .form-header h4 {
+    margin: 0;
+    color: var(--primary-dark);
+}
+
+.inventory-form-container .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.inventory-form-container .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.inventory-form-container label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--neutral-dark);
+    font-size: 13px;
+}
+
+.inventory-form-container input,
+.inventory-form-container select {
+    padding: 8px 12px;
+    border: 1px solid var(--neutral-light);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.inventory-form-container input:focus,
+.inventory-form-container select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.inventory-form-container .form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* No Inventory State */
+.no-inventory {
+    text-align: center;
+    padding: 30px;
+    background: var(--neutral-light);
+    border-radius: 6px;
+    color: var(--neutral-dark);
+}
+
+.no-inventory p {
+    margin-bottom: 15px;
+}
+
+/* Inventory History */
+.inventory-history {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--neutral-light);
+}
+
+.inventory-history h5 {
+    margin: 0 0 10px 0;
+    color: var(--neutral-dark);
+    font-size: 14px;
+}
+
+.inventory-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--neutral-light);
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.inventory-item.inactive {
+    opacity: 0.7;
+}
+
+.inventory-item .food-name {
+    font-size: 13px;
+    color: var(--neutral-dark);
+}
+
+.inventory-item .food-status {
+    font-size: 11px;
+    background: var(--neutral-dark);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 8px;
+    text-transform: uppercase;
+}
+
+/* Button Styles for Inventory */
+.inventory-form-container .btn-xs {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+/* Responsive Design for Inventory */
+@media (max-width: 768px) {
+    .inventory-form-container .form-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .inventory-stats {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .inventory-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+    
+    .inventory-actions {
+        justify-content: flex-start;
+    }
+    
+    .food-inventory-section .section-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+
+/* Animation for Progress Updates */
+@keyframes progressPulse {
+    0% { transform: scaleX(1); }
+    50% { transform: scaleX(1.02); }
+    100% { transform: scaleX(1); }
+}
+
+.inventory-progress .progress-fill {
+    animation: progressPulse 0.5s ease-in-out;
+}
+
+/* Cost Highlight */
+.stat-item:has(.stat-value:contains('$')) {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+    border: 1px solid var(--primary-light);
+}
+
+/* Warning States */
+.active-inventory-item:has(.refill-alert) {
+    border-color: var(--warning);
+    background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+}
 
 
 /* Medication Manager Section Styles */
