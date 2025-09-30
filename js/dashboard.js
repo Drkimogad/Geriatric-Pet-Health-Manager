@@ -819,74 +819,89 @@ const petProfilesManager = {
 
         // Add/Edit Pet Form
         // PROFILE CREATION FORM 
-        petForm: (pet = null) => {
-            const isEdit = !!pet;
-            return `
-                <div class="pet-form-container">
-                    <div class="form-header">
-                        <h2>${isEdit ? 'Edit' : 'Add'} Pet Profile</h2>
-                    </div>
-                    
-                    <form id="pet-form">
-                        <input type="hidden" id="pet-id" value="${pet?.id || ''}">
-                        
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="pet-name">Pet Name *</label>
-                                <input type="text" id="pet-name" value="${pet?.name || ''}" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="pet-species">Species *</label>
-                                <select id="pet-species" required>
-                                    <option value="">Select Species</option>
-                                    <option value="dog" ${pet?.species === 'dog' ? 'selected' : ''}>Dog</option>
-                                    <option value="cat" ${pet?.species === 'cat' ? 'selected' : ''}>Cat</option>
-                                    <option value="other" ${pet?.species === 'other' ? 'selected' : ''}>Other</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="pet-breed">Breed</label>
-                                <input type="text" id="pet-breed" value="${pet?.breed || ''}" 
-                                       placeholder="e.g., Labrador, Siamese">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="pet-birthdate">Birth Date *</label>
-                                <input type="date" id="pet-birthdate" value="${pet?.birthDate || ''}" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="pet-weight">Weight (kg)</label>
-                                <input type="number" id="pet-weight" value="${pet?.weight || ''}" 
-                                       step="0.1" min="0" placeholder="Current weight">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="pet-body-condition">Body Condition Score (1-9)</label>
-                                <select id="pet-body-condition">
-                                    <option value="">Select BCS</option>
-                                    ${[1,2,3,4,5,6,7,8,9].map(score => `
-                                        <option value="${score}" ${pet?.bodyConditionScore === score ? 'selected' : ''}>
-                                            ${score} - ${score <= 3 ? 'Underweight' : score <= 6 ? 'Ideal' : 'Overweight'}
-                                        </option>
-                                    `).join('')}
-                                </select>
-                            </div>
+        // Add/Edit Pet Form - ENHANCED VERSION
+petForm: (pet = null) => {
+    const isEdit = !!pet;
+    return `
+        <div class="pet-form-container">
+            <div class="form-header">
+                <h2>${isEdit ? 'Edit' : 'Add'} Pet Profile</h2>
+            </div>
+            
+            <form id="pet-form">
+                <input type="hidden" id="pet-id" value="${pet?.id || ''}">
+                
+                <!-- BASIC INFORMATION SECTION -->
+                <div class="form-section">
+                    <h3>🐾 Basic Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="pet-name">Pet Name *</label>
+                            <input type="text" id="pet-name" value="${pet?.name || ''}" required>
                         </div>
                         
                         <div class="form-group">
-                            <label>Health Conditions</label>
-                            <div class="conditions-checklist">
-                                ${['Diabetes', 'Epilepsy', 'Arthritis', 'Kidney Disease', 'Heart Disease', 'Thyroid', 'Dental Disease', 'Cancer', 'Allergies', 'None'].map(condition => `
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" value="${condition}" 
-                                            ${pet?.conditions?.includes(condition) ? 'checked' : ''}>
-                                        ${condition}
-                                    </label>
+                            <label for="pet-species">Species *</label>
+                            <select id="pet-species" required>
+                                <option value="">Select Species</option>
+                                <option value="dog" ${pet?.species === 'dog' ? 'selected' : ''}>Dog</option>
+                                <option value="cat" ${pet?.species === 'cat' ? 'selected' : ''}>Cat</option>
+                                <option value="other" ${pet?.species === 'other' ? 'selected' : ''}>Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pet-breed">Breed</label>
+                            <input type="text" id="pet-breed" value="${pet?.breed || ''}" 
+                                   placeholder="e.g., Labrador, Siamese">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pet-birthdate">Birth Date *</label>
+                            <input type="date" id="pet-birthdate" value="${pet?.birthDate || ''}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pet-weight">Weight (kg)</label>
+                            <input type="number" id="pet-weight" value="${pet?.weight || ''}" 
+                                   step="0.1" min="0" placeholder="Current weight">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pet-microchip">Microchip Number</label>
+                            <input type="text" id="pet-microchip" value="${pet?.microchip || ''}" 
+                                   placeholder="15-digit microchip">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PET PHOTO SECTION -->
+                <div class="form-section">
+                    <h3>📸 Pet Photo</h3>
+                    <div class="form-group">
+                        <label for="pet-photo">Upload Photo</label>
+                        <input type="file" id="pet-photo" accept="image/*" 
+                               onchange="petProfilesManager.handleImageUpload(event)">
+                        <div id="photo-preview" class="photo-preview">
+                            ${pet?.photo ? `<img src="${pet.photo}" alt="${pet.name}">` : 'No photo selected'}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HEALTH INFORMATION SECTION -->
+                <div class="form-section">
+                    <h3>❤️ Health Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="pet-body-condition">Body Condition Score (1-9)</label>
+                            <select id="pet-body-condition">
+                                <option value="">Select BCS</option>
+                                ${[1,2,3,4,5,6,7,8,9].map(score => `
+                                    <option value="${score}" ${pet?.bodyConditionScore === score ? 'selected' : ''}>
+                                        ${score} - ${score <= 3 ? 'Underweight' : score <= 6 ? 'Ideal' : 'Overweight'}
+                                    </option>
                                 `).join('')}
-                            </div>
+                            </select>
                         </div>
                         
                         <div class="form-group">
@@ -900,28 +915,148 @@ const petProfilesManager = {
                                 <option value="5" ${pet?.mobilityScore === 5 ? 'selected' : ''}>5 - Very Mobile</option>
                             </select>
                         </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Health Conditions</label>
+                        <div class="conditions-checklist">
+                            ${['Diabetes', 'Epilepsy', 'Arthritis', 'Kidney Disease', 'Heart Disease', 'Thyroid', 'Dental Disease', 'Cancer', 'Allergies', 'None'].map(condition => `
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="${condition}" 
+                                        ${pet?.conditions?.includes(condition) ? 'checked' : ''}>
+                                    ${condition}
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BEHAVIOR & MOOD SECTION -->
+                <div class="form-section">
+                    <h3>😊 Behavior & Mood</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="pet-temperament">Temperament</label>
+                            <select id="pet-temperament">
+                                <option value="">Select Temperament</option>
+                                <option value="friendly" ${pet?.temperament === 'friendly' ? 'selected' : ''}>😊 Friendly</option>
+                                <option value="protective" ${pet?.temperament === 'protective' ? 'selected' : ''}>🛡️ Protective</option>
+                                <option value="aggressive" ${pet?.temperament === 'aggressive' ? 'selected' : ''}>😠 Aggressive</option>
+                                <option value="shy" ${pet?.temperament === 'shy' ? 'selected' : ''}>😌 Shy</option>
+                                <option value="energetic" ${pet?.temperament === 'energetic' ? 'selected' : ''}>⚡ Energetic</option>
+                                <option value="calm" ${pet?.temperament === 'calm' ? 'selected' : ''}>😌 Calm</option>
+                            </select>
+                        </div>
                         
                         <div class="form-group">
-                            <label for="pet-vet">Primary Veterinarian</label>
-                            <input type="text" id="pet-vet" value="${pet?.vetInfo?.name || ''}" 
+                            <label>Current Mood</label>
+                            <div class="mood-selection">
+                                <div class="mood-emoji-buttons">
+                                    ${['😊 Happy', '😴 Tired', '😠 Grumpy', '🐾 Playful', '😰 Anxious', '🤒 Sick', '😍 Affectionate', '😑 Neutral'].map(mood => {
+                                        const [emoji, label] = mood.split(' ');
+                                        return `
+                                            <button type="button" class="mood-emoji ${pet?.mood?.emoji === emoji ? 'selected' : ''}" 
+                                                    data-mood="${emoji}" data-label="${label}">
+                                                ${emoji}
+                                            </button>
+                                        `;
+                                    }).join('')}
+                                </div>
+                                <div class="mood-scale">
+                                    <label for="pet-mood-scale">Mood Scale (1-5):</label>
+                                    <select id="pet-mood-scale">
+                                        <option value="">Select Scale</option>
+                                        ${[1,2,3,4,5].map(scale => `
+                                            <option value="${scale}" ${pet?.mood?.scale === scale ? 'selected' : ''}>
+                                                ${scale} - ${scale === 1 ? 'Very Poor' : scale === 2 ? 'Poor' : scale === 3 ? 'Average' : scale === 4 ? 'Good' : 'Excellent'}
+                                            </option>
+                                        `).join('')}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VETERINARY & CARE TEAM SECTION -->
+                <div class="form-section">
+                    <h3>🏥 Veterinary & Care Team</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="pet-vet-name">Primary Veterinarian</label>
+                            <input type="text" id="pet-vet-name" value="${pet?.vetInfo?.name || ''}" 
                                    placeholder="Vet name or clinic">
                         </div>
                         
                         <div class="form-group">
-                            <label for="pet-notes">Additional Notes</label>
-                            <textarea id="pet-notes" rows="3" placeholder="Any additional health notes...">${pet?.notes || ''}</textarea>
+                            <label for="pet-last-visit">Last Vet Visit</label>
+                            <input type="date" id="pet-last-visit" value="${pet?.vetInfo?.lastVisit || ''}">
                         </div>
                         
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                               ${isEdit ? 'Update' : 'Add'} Pet Profile
-                           </button>
-                          <button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="petProfiles">Cancel</button>
+                        <div class="form-group">
+                            <label for="pet-insurance-provider">Insurance Provider</label>
+                            <input type="text" id="pet-insurance-provider" value="${pet?.insurance?.provider || ''}" 
+                                   placeholder="Insurance company">
                         </div>
-                    </form>
+                        
+                        <div class="form-group">
+                            <label for="pet-policy-number">Policy Number</label>
+                            <input type="text" id="pet-policy-number" value="${pet?.insurance?.policyNumber || ''}" 
+                                   placeholder="Insurance policy number">
+                        </div>
+                    </div>
                 </div>
-            `;
-        },
+
+                <!-- OWNER & EMERGENCY INFO -->
+                <div class="form-section">
+                    <h3>👤 Owner & Emergency Info</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="pet-owner-name">Owner's Name</label>
+                            <input type="text" id="pet-owner-name" value="${pet?.ownerInfo?.name || ''}" 
+                                   placeholder="Your name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pet-emergency-contact">Emergency Contact Name</label>
+                            <input type="text" id="pet-emergency-contact" value="${pet?.emergencyContact?.name || ''}" 
+                                   placeholder="Contact person">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pet-emergency-phone">Emergency Phone</label>
+                            <input type="tel" id="pet-emergency-phone" value="${pet?.emergencyContact?.phone || ''}" 
+                                   placeholder="Phone number">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADDITIONAL NOTES -->
+                <div class="form-section">
+                    <h3>📝 Additional Information</h3>
+                    <div class="form-group">
+                        <label for="pet-dietary-restrictions">Dietary Restrictions</label>
+                        <textarea id="pet-dietary-restrictions" rows="2" placeholder="Any food allergies or dietary needs...">${pet?.dietaryRestrictions || ''}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pet-notes">Additional Notes</label>
+                        <textarea id="pet-notes" rows="3" placeholder="Any other important information...">${pet?.notes || ''}</textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                       ${isEdit ? 'Update' : 'Add'} Pet Profile
+                   </button>
+                  <button type="button" class="btn btn-secondary" data-action="showMainView" data-manager="petProfiles">Cancel</button>
+                </div>
+            </form>
+        </div>
+    `;
+},
+
+        
 
         // Pet Detail View
         //DISPLAYED PET PROFILES IN PROFILE SECTION TO BE SET AS ACTIVE AS NEEDED
@@ -1019,16 +1154,30 @@ const petProfilesManager = {
         this.elements.profilesContent.innerHTML = this.templates.mainView();
     },
 
-    showAddForm: function() {
-        this.elements.profilesContent.innerHTML = this.templates.petForm();
-    },
+      // Update showEditForm to setup mood selection
+showEditForm: function(petId) {
+    console.log('📝 PET_MANAGER: Showing enhanced edit form for pet:', petId);
+    const pet = appState.pets.find(p => p.id === petId);
+    if (pet) {
+        this.elements.profilesContent.innerHTML = this.templates.petForm(pet);
+        
+        // Setup mood selection after form is rendered
+        setTimeout(() => {
+            this.setupMoodSelection();
+        }, 100);
+    }
+},
 
-    showEditForm: function(petId) {
-        const pet = appState.pets.find(p => p.id === petId);
-        if (pet) {
-            this.elements.profilesContent.innerHTML = this.templates.petForm(pet);
-        }
-    },
+// Update showAddForm to setup mood selection
+showAddForm: function() {
+    console.log('📝 PET_MANAGER: Showing enhanced add form');
+    this.elements.profilesContent.innerHTML = this.templates.petForm();
+    
+    // Setup mood selection after form is rendered
+    setTimeout(() => {
+        this.setupMoodSelection();
+    }, 100);
+},
 
     showPetDetail: function(petId) {
         const pet = appState.pets.find(p => p.id === petId);
@@ -1054,30 +1203,6 @@ const petProfilesManager = {
         }
     },
 
-    getFormData: function() {
-        const conditions = [];
-        document.querySelectorAll('.conditions-checklist input:checked').forEach(checkbox => {
-            if (checkbox.value !== 'None') {
-                conditions.push(checkbox.value);
-            }
-        });
-
-        return {
-            name: document.getElementById('pet-name').value.trim(),
-            species: document.getElementById('pet-species').value,
-            breed: document.getElementById('pet-breed').value.trim(),
-            birthDate: document.getElementById('pet-birthdate').value,
-            weight: document.getElementById('pet-weight').value ? parseFloat(document.getElementById('pet-weight').value) : null,
-            bodyConditionScore: document.getElementById('pet-body-condition').value ? parseInt(document.getElementById('pet-body-condition').value) : null,
-            mobilityScore: document.getElementById('pet-mobility').value ? parseInt(document.getElementById('pet-mobility').value) : null,
-            conditions: conditions.length > 0 ? conditions : ['None'],
-            vetInfo: {
-                name: document.getElementById('pet-vet').value.trim()
-            },
-            notes: document.getElementById('pet-notes').value.trim(),
-            createdAt: new Date().toISOString()
-        };
-    },
 
     validateForm: function(formData) {
         if (!formData.name) {
@@ -1094,6 +1219,132 @@ const petProfilesManager = {
         }
         return true;
     },
+
+
+// newly added section
+// Image Handling Functions
+handleImageUpload: function(event) {
+    console.log('📸 PET_MANAGER: Image upload triggered');
+    const file = event.target.files[0];
+    const preview = document.getElementById('photo-preview');
+    
+    if (file) {
+        console.log('📸 PET_MANAGER: Processing file:', file.name, file.type);
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            console.log('📸 PET_MANAGER: Image loaded successfully');
+            preview.innerHTML = `<img src="${e.target.result}" alt="Pet photo preview">`;
+        };
+        
+        reader.onerror = function() {
+            console.error('❌ PET_MANAGER: Failed to load image');
+            alert('Error loading image. Please try another file.');
+        };
+        
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = 'No photo selected';
+    }
+},
+
+// Mood Selection Handler
+setupMoodSelection: function() {
+    console.log('😊 PET_MANAGER: Setting up mood selection');
+    const moodButtons = document.querySelectorAll('.mood-emoji');
+    
+    moodButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            console.log('😊 PET_MANAGER: Mood selected:', this.dataset.mood, this.dataset.label);
+            
+            // Remove selected class from all buttons
+            moodButtons.forEach(btn => btn.classList.remove('selected'));
+            
+            // Add selected class to clicked button
+            this.classList.add('selected');
+        });
+    });
+},
+
+// Enhanced Form Data Collection
+getFormData: function() {
+    console.log('📋 PET_MANAGER: Collecting enhanced form data');
+    
+    const conditions = [];
+    document.querySelectorAll('.conditions-checklist input:checked').forEach(checkbox => {
+        if (checkbox.value !== 'None') {
+            conditions.push(checkbox.value);
+        }
+    });
+
+    // Get selected mood
+    const selectedMoodButton = document.querySelector('.mood-emoji.selected');
+    const moodEmoji = selectedMoodButton ? selectedMoodButton.dataset.mood : null;
+    const moodLabel = selectedMoodButton ? selectedMoodButton.dataset.label : null;
+    const moodScale = document.getElementById('pet-mood-scale').value;
+
+    // Get photo data
+    const photoPreview = document.querySelector('#photo-preview img');
+    const photoData = photoPreview ? photoPreview.src : null;
+
+    return {
+        // Basic Info
+        name: document.getElementById('pet-name').value.trim(),
+        species: document.getElementById('pet-species').value,
+        breed: document.getElementById('pet-breed').value.trim(),
+        birthDate: document.getElementById('pet-birthdate').value,
+        weight: document.getElementById('pet-weight').value ? parseFloat(document.getElementById('pet-weight').value) : null,
+        microchip: document.getElementById('pet-microchip').value.trim(),
+        
+        // Health Info
+        bodyConditionScore: document.getElementById('pet-body-condition').value ? parseInt(document.getElementById('pet-body-condition').value) : null,
+        mobilityScore: document.getElementById('pet-mobility').value ? parseInt(document.getElementById('pet-mobility').value) : null,
+        conditions: conditions.length > 0 ? conditions : ['None'],
+        
+        // Behavior & Mood
+        temperament: document.getElementById('pet-temperament').value,
+        mood: {
+            emoji: moodEmoji,
+            label: moodLabel,
+            scale: moodScale ? parseInt(moodScale) : null
+        },
+        
+        // Veterinary Info
+        vetInfo: {
+            name: document.getElementById('pet-vet-name').value.trim(),
+            lastVisit: document.getElementById('pet-last-visit').value
+        },
+        
+        // Insurance
+        insurance: {
+            provider: document.getElementById('pet-insurance-provider').value.trim(),
+            policyNumber: document.getElementById('pet-policy-number').value.trim()
+        },
+        
+        // Owner & Emergency
+        ownerInfo: {
+            name: document.getElementById('pet-owner-name').value.trim()
+        },
+        emergencyContact: {
+            name: document.getElementById('pet-emergency-contact').value.trim(),
+            phone: document.getElementById('pet-emergency-phone').value.trim()
+        },
+        
+        // Additional Info
+        dietaryRestrictions: document.getElementById('pet-dietary-restrictions').value.trim(),
+        notes: document.getElementById('pet-notes').value.trim(),
+        
+        // Photo
+        photo: photoData,
+        
+        // Metadata
+        createdAt: new Date().toISOString()
+    };
+},
+
+
+
+
 
     // IT ADDS PET PROFILE TO PROFILE SECTION PAGE 
     addPet: function(petData) {
