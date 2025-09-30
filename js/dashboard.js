@@ -396,26 +396,36 @@ const dashboardTemplates = {
         `;
     },
 
-    // Today's Tasks Template
-    todayTasks: () => {
-        const tasks = appState.todayTasks;
-        if (tasks.length === 0) {
-            return '<p>No tasks scheduled for today</p>';
-        }
-        
-        return `
-            <ul class="tasks-list">
-                ${tasks.map(task => `
-                    <li class="task-item ${task.completed ? 'completed' : ''}">
-                        <input type="checkbox" ${task.completed ? 'checked' : ''} data-task-id="${task.id}">
-                        <span class="task-time">${task.time}</span>
-                        <span class="task-description">${task.description}</span>
-                        <span class="task-type ${task.type}">${task.type}</span>
-                    </li>
-                `).join('')}
-            </ul>
-        `;
-    },
+    // Today's Tasks Template - FIXED VERSION
+todayTasks: () => {
+    const tasks = appState.todayTasks;
+    console.log('📋 TASK_MANAGER: Generating today tasks view -', tasks.length, 'tasks');
+    
+    if (tasks.length === 0) {
+        return '<p>No tasks scheduled for today</p>';
+    }
+    
+    // Log for debugging
+    tasks.forEach(task => {
+        console.log('📝 TASK_MANAGER: Task', task.id, '- completed:', task.completed, '- type:', task.type);
+    });
+    
+    return `
+        <ul class="tasks-list">
+            ${tasks.map(task => `
+                <li class="task-item ${task.completed ? 'completed' : 'pending'}">
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                           data-task-id="${task.id}"
+                           onchange="taskManager.toggleTaskCompletion('${task.id}')">
+                    <span class="task-time">${task.time}</span>
+                    <span class="task-description">${task.description}</span>
+                    <span class="task-type ${task.type}">${task.type}</span>
+                    ${task.completed ? '<span class="completed-badge">✅ Done</span>' : ''}
+                </li>
+            `).join('')}
+        </ul>
+    `;
+},
 
     // Alerts Template
     alerts: () => {
@@ -583,16 +593,29 @@ const taskManager = {
         return tasks;
     },
 
-    // Toggle task completion
-    toggleTaskCompletion: (taskId) => {
-        const task = appState.todayTasks.find(t => t.id === taskId);
-        if (task) {
-            task.completed = !task.completed;
-            utils.saveData('todayTasks', appState.todayTasks);
-            renderDashboard();
+    // Toggle task completion - FIXED VERSION
+toggleTaskCompletion: (taskId) => {
+    console.log('🔄 TASK_MANAGER: Toggling task completion for:', taskId);
+    const task = appState.todayTasks.find(t => t.id === taskId);
+    if (task) {
+        task.completed = !task.completed;
+        console.log('✅ TASK_MANAGER: Task', taskId, 'now completed:', task.completed);
+        utils.saveData('todayTasks', appState.todayTasks);
+        
+        // Force refresh of both dashboard and exercise views if needed
+        renderDashboard();
+        
+        // If it's an exercise task, also update the exercise manager
+        if (taskId.startsWith('exercise_')) {
+            const activityId = taskId.replace('exercise_', '');
+            console.log('🏃 TASK_MANAGER: Also updating exercise activity:', activityId);
+            // This will be handled by the central event delegation
         }
+    } else {
+        console.error('❌ TASK_MANAGER: Task not found:', taskId);
     }
-};
+}
+};  // end of dashboard manager section
 
 //=================================
 // Navigation Section
@@ -2829,16 +2852,18 @@ const exerciseManager = {
     templates: {
         // Main Exercise View
         mainView: () => `
-            <div class="exercise-header">
-                <h2>Exercise & Mobility Tracking</h2>
-                ${appState.currentPet ? `
-                    <div class="current-pet-banner">
-                        Tracking for: <strong>${appState.currentPet.name}</strong>
-                        <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
-                        ${appState.currentPet.mobilityScore ? `(Mobility: ${appState.currentPet.mobilityScore}/5)` : ''}
-                    </div>
-                ` : '<p class="warning">Please select a pet first</p>'}
+    <div class="exercise-header">
+        <div class="exercise-header-top">
+            <h2>Exercise & Mobility Tracking</h2>
+            <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
+        </div>
+        ${appState.currentPet ? `
+            <div class="current-pet-banner">
+                Exercise tracking for: <strong>${appState.currentPet.name}</strong>
+                ${appState.currentPet.mobilityScore ? `(Mobility: ${appState.currentPet.mobilityScore}/5)` : ''}
             </div>
+        ` : '<p class="warning">Please select a pet first</p>'}
+    </div>
 
             ${appState.currentPet ? exerciseManager.templates.exerciseDashboard() : exerciseManager.templates.noPetView()}
         `,
@@ -3477,7 +3502,7 @@ generateScheduledExercises: function() {
             type: 'exercise',
             description: `${activity.type} - ${activity.duration}min`,
             time: activity.scheduledTime || 'Anytime',
-            completed: false,
+            completed: false,  // ← INITIAL STATE
             activityId: activity.id
         });
     });
