@@ -1924,6 +1924,12 @@ foodLogForm: () => `
                         </form>
                     </div>
 
+                         <!-- ADD THIS NEW ALERTS CARD -->
+            <div class="nutrition-card smart-alerts">
+                <h3>Health Alerts</h3>
+                ${nutritionManager.templates.smartAlerts()}
+            </div>
+
                     <div class="nutrition-card feeding-schedule">
                         <h3>Feeding Schedule</h3>
                         ${nutritionManager.templates.feedingSchedule(nutritionData)}
@@ -2071,7 +2077,8 @@ foodHistory: () => {
         </div>
     `;
 },
-             // Add to nutritionManager.templates - around line 1300
+        
+// Add to nutritionManager.templates - around line 1300
 foodInventory: () => {
     const inventory = nutritionManager.foodInventory.filter(item => item.isActive);
     const activeItem = inventory[0]; // Currently active food
@@ -2214,17 +2221,531 @@ foodInventoryForm: (item = null) => {
         </div>
     `;
 },
-        
+        // Add to nutritionManager.templates - around line 1350
+smartAlerts: () => {
+    const alerts = nutritionManager.generateAlerts();
+    
+    return `
+        <div class="smart-alerts-section">
+            <div class="section-header">
+                <h4>Health Alerts</h4>
+                <div class="alert-controls">
+                    <span class="alert-count ${alerts.length > 0 ? 'has-alerts' : ''}">
+                        ${alerts.length} alert${alerts.length !== 1 ? 's' : ''}
+                    </span>
+                    ${alerts.length > 0 ? `
+                        <button class="btn-icon" onclick="nutritionManager.clearDismissedAlerts(); nutritionManager.renderSmartAlerts();" title="Clear all">
+                            🔄
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <div class="alerts-container">
+                ${alerts.length === 0 ? `
+                    <div class="no-alerts">
+                        <p>No alerts at this time</p>
+                        <small>All nutrition metrics are within normal ranges</small>
+                    </div>
+                ` : `
+                    <div class="alerts-list">
+                        ${alerts.map(alert => `
+                            <div class="alert-item ${alert.severity}">
+                                <div class="alert-icon">
+                                    ${alert.severity === 'high' ? '⚠️' : 
+                                      alert.severity === 'medium' ? '🔔' : 
+                                      alert.severity === 'info' ? 'ℹ️' : '💡'}
+                                </div>
+                                <div class="alert-content">
+                                    <div class="alert-header">
+                                        <strong>${alert.title}</strong>
+                                        <span class="alert-type">${alert.type}</span>
+                                    </div>
+                                    <p class="alert-message">${alert.message}</p>
+                                    <div class="alert-condition">${alert.condition}</div>
+                                    <small class="alert-time">${new Date(alert.timestamp).toLocaleTimeString()}</small>
+                                </div>
+                                <button class="alert-dismiss" onclick="nutritionManager.dismissAlert('${alert.id}'); nutritionManager.renderSmartAlerts();" title="Dismiss">
+                                    ×
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            </div>
+        </div>
+    `;
+}       
     }, // closes templates brace
-
-    // Water goal based on weight (ml per day)
-    get waterGoal() {
-        if (!appState.currentPet?.weight) return 1000;
-        return Math.round(appState.currentPet.weight * 50); // 50ml per kg
-    },
-
-    // ADD foodInventory property RIGHT HERE:
+    
+        // ADD foodInventory property RIGHT HERE:
     foodInventory: [],
+    // Add these methods to nutritionManager - around line 1800
+// UI Management for Inventory
+    showFoodInventoryForm: function(item = null) {
+    const inventorySection = document.querySelector('.food-inventory-section');
+    if (inventorySection) {
+        inventorySection.innerHTML = this.templates.foodInventoryForm(item);
+        this.setupInventoryForm();
+    }
+},
+
+hideFoodInventoryForm: function() {
+    this.renderFoodInventory();
+},
+
+setupInventoryForm: function() {
+    const form = document.getElementById('food-inventory-form');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleInventorySubmit();
+        });
+    }
+},
+
+handleInventorySubmit: function() {
+    const formData = {
+        name: document.getElementById('inv-food-name').value.trim(),
+        brand: document.getElementById('inv-food-brand').value.trim(),
+        bagSize: parseFloat(document.getElementById('inv-bag-size').value),
+        bagSizeUnit: document.getElementById('inv-bag-unit').value,
+        cost: parseFloat(document.getElementById('inv-cost').value) || 0,
+        startDate: document.getElementById('inv-start-date').value
+    };
+
+    if (!this.validateInventoryForm(formData)) {
+        return;
+    }
+
+    const itemId = document.getElementById('inventory-id').value;
+    if (itemId) {
+        this.updateFoodInventory(itemId, formData);
+    } else {
+        this.addFoodToInventory(formData);
+    }
+},
+
+validateInventoryForm: function(formData) {
+    if (!formData.name) {
+        alert('Please enter food name');
+        return false;
+    }
+    if (!formData.bagSize || formData.bagSize <= 0) {
+        alert('Please enter valid bag size');
+        return false;
+    }
+    return true;
+},
+
+updateFoodInventory: function(itemId, formData) {
+    const itemIndex = this.foodInventory.findIndex(item => item.id === itemId);
+    if (itemIndex !== -1) {
+        this.foodInventory[itemIndex] = {
+            ...this.foodInventory[itemIndex],
+            ...formData
+        };
+        this.updateFoodInventoryCalculations();
+        this.saveFoodInventory();
+        alert('Food inventory updated!');
+        this.hideFoodInventoryForm();
+    }
+},
+
+markInventoryFinished: function(itemId) {
+    if (confirm('Mark this food as finished?')) {
+        const itemIndex = this.foodInventory.findIndex(item => item.id === itemId);
+        if (itemIndex !== -1) {
+            this.foodInventory[itemIndex].isActive = false;
+            this.saveFoodInventory();
+            this.renderFoodInventory();
+        }
+    }
+},
+
+editFoodInventory: function(itemId) {
+    const item = this.foodInventory.find(item => item.id === itemId);
+    if (item) {
+        this.showFoodInventoryForm(item);
+    }
+},
+
+calculateDaysRemaining: function(inventoryItem) {
+    if (!inventoryItem.dailyUsage || inventoryItem.dailyUsage <= 0) return 0;
+    return Math.floor(inventoryItem.currentAmount / inventoryItem.dailyUsage);
+},
+
+renderFoodInventory: function() {
+    const inventoryElement = document.querySelector('.food-inventory-section');
+    if (inventoryElement) {
+        inventoryElement.innerHTML = this.templates.foodInventory();
+    }
+},
+// Add these methods to nutritionManager - around line 1600
+// Food Inventory Management
+initializeFoodInventory: function() {
+    if (appState.currentPet) {
+        this.foodInventory = utils.loadData(`foodInventory_${appState.currentPet.id}`) || [];
+    }
+},
+
+saveFoodInventory: function() {
+    if (appState.currentPet) {
+        utils.saveData(`foodInventory_${appState.currentPet.id}`, this.foodInventory);
+    }
+},
+
+// Add food to inventory
+addFoodToInventory: function(foodData) {
+    const inventoryItem = {
+        id: 'food_inv_' + Date.now(),
+        name: foodData.name,
+        brand: foodData.brand || '',
+        bagSize: foodData.bagSize, // in kg or lbs
+        bagSizeUnit: foodData.bagSizeUnit || 'kg',
+        cost: foodData.cost || 0,
+        startDate: foodData.startDate || utils.getTodayDate(),
+        initialAmount: foodData.bagSize,
+        currentAmount: foodData.bagSize,
+        dailyUsage: 0,
+        estimatedFinish: null,
+        isActive: true
+    };
+
+    this.foodInventory.push(inventoryItem);
+    this.saveFoodInventory();
+    this.updateFoodInventoryCalculations();
+    return inventoryItem;
+},
+
+// Update inventory calculations based on feeding history
+updateFoodInventoryCalculations: function() {
+    const feedingHistory = this.getFoodHistory();
+    const recentUsage = this.calculateDailyFoodUsage(feedingHistory);
+    
+    this.foodInventory.forEach(item => {
+        if (item.isActive) {
+            item.dailyUsage = recentUsage;
+            item.estimatedFinish = this.calculateFinishDate(item);
+        }
+    });
+    
+    this.saveFoodInventory();
+},
+
+// Calculate daily food usage from history
+calculateDailyFoodUsage: function(feedingHistory) {
+    const last7Days = feedingHistory.filter(entry => {
+        const entryDate = new Date(entry.date);
+        const today = new Date();
+        const diffTime = Math.abs(today - entryDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 7;
+    });
+
+    if (last7Days.length === 0) return 0;
+
+    const totalConsumed = last7Days.reduce((sum, entry) => {
+        return sum + (entry.amountConsumed || 0);
+    }, 0);
+
+    return totalConsumed / 7; // Average daily consumption
+},
+
+// Calculate when food will run out
+calculateFinishDate: function(inventoryItem) {
+    if (!inventoryItem.dailyUsage || inventoryItem.dailyUsage <= 0) return null;
+    
+    const daysRemaining = inventoryItem.currentAmount / inventoryItem.dailyUsage;
+    const finishDate = new Date();
+    finishDate.setDate(finishDate.getDate() + Math.floor(daysRemaining));
+    
+    return finishDate.toISOString().split('T')[0];
+},
+
+// Update inventory when food is logged
+updateInventoryOnFoodLog: function(foodLog) {
+    if (!this.foodInventory.length) return;
+    
+    const activeItem = this.foodInventory.find(item => item.isActive);
+    if (activeItem && foodLog.amountConsumed > 0) {
+        // Convert cups to kg (approximate conversion - adjust based on food density)
+        const conversionRate = 0.12; // 1 cup ≈ 0.12kg for dry food
+        const consumedKg = foodLog.amountConsumed * conversionRate;
+        
+        activeItem.currentAmount = Math.max(0, activeItem.currentAmount - consumedKg);
+        this.updateFoodInventoryCalculations();
+        this.saveFoodInventory();
+    }
+},
+
+    
+
+    // Add to nutritionManager properties - around line 1110 (after foodInventory)
+alertSystem: {
+    enabled: true,
+    lastCheck: null,
+    dismissedAlerts: []
+},
+
+// Add these methods to nutritionManager - around line 1900
+// Smart Alert System
+initializeAlertSystem: function() {
+    if (appState.currentPet) {
+        this.alertSystem = utils.loadData(`alertSystem_${appState.currentPet.id}`) || {
+            enabled: true,
+            lastCheck: null,
+            dismissedAlerts: []
+        };
+    }
+},
+
+saveAlertSystem: function() {
+    if (appState.currentPet) {
+        utils.saveData(`alertSystem_${appState.currentPet.id}`, this.alertSystem);
+    }
+},
+
+// Generate all alerts based on current data
+generateAlerts: function() {
+    if (!this.alertSystem.enabled || !appState.currentPet) return [];
+    
+    const alerts = [];
+    
+    // Add each type of alert
+    alerts.push(...this.generateAppetiteAlerts());
+    alerts.push(...this.generateWaterAlerts());
+    alerts.push(...this.generateInventoryAlerts());
+    alerts.push(...this.generateConditionAlerts());
+    
+    // Filter out dismissed alerts
+    return alerts.filter(alert => 
+        !this.alertSystem.dismissedAlerts.includes(alert.id)
+    );
+},
+
+// Appetite-based alerts
+generateAppetiteAlerts: function() {
+    const alerts = [];
+    const foodHistory = this.getFoodHistory();
+    const recentHistory = this.getRecentFoodHistory(3); // Last 3 days
+    
+    if (recentHistory.length === 0) return alerts;
+    
+    // Check for recent food refusal
+    const todayHistory = foodHistory.filter(entry => entry.date === utils.getTodayDate());
+    const totalConsumedToday = todayHistory.reduce((sum, entry) => sum + (entry.amountConsumed || 0), 0);
+    
+    if (totalConsumedToday === 0 && todayHistory.length > 0) {
+        alerts.push({
+            id: 'appetite_refusal_today',
+            type: 'appetite',
+            severity: 'high',
+            title: 'Food Refusal Today',
+            message: 'Your pet has not consumed any food today.',
+            condition: 'Monitor closely and contact vet if this continues',
+            timestamp: new Date().toISOString()
+        });
+    }
+    
+    // Check for consistently low intake
+    const avgDailyIntake = recentHistory.reduce((sum, entry) => sum + (entry.amountConsumed || 0), 0) / recentHistory.length;
+    const nutritionPlan = utils.loadData(`nutritionPlan_${appState.currentPet.id}`);
+    
+    if (nutritionPlan && avgDailyIntake < (nutritionPlan.needs.recommended * 0.3)) {
+        alerts.push({
+            id: 'appetite_low_consistent',
+            type: 'appetite',
+            severity: 'medium',
+            title: 'Consistently Low Food Intake',
+            message: `Average intake is ${avgDailyIntake.toFixed(1)} cups/day (less than 30% of recommended)`,
+            condition: 'Consider appetite stimulants or diet change',
+            timestamp: new Date().toISOString()
+        });
+    }
+    
+    return alerts;
+},
+
+// Water intake alerts
+generateWaterAlerts: function() {
+    const alerts = [];
+    const waterLog = this.getWaterLog();
+    const todayWater = this.getTodayWaterIntake();
+    
+    // Basic water requirement calculation
+    const expectedWater = this.calculateExpectedWaterIntake();
+    
+    if (todayWater > 0 && todayWater < (expectedWater * 0.5)) {
+        alerts.push({
+            id: 'water_intake_low',
+            type: 'water',
+            severity: 'medium',
+            title: 'Low Water Intake',
+            message: `Today's water intake (${todayWater}ml) is less than 50% of expected (${expectedWater}ml)`,
+            condition: 'Encourage drinking or consider wet food',
+            timestamp: new Date().toISOString()
+        });
+    }
+    
+    // Check for kidney disease specific alerts
+    if (appState.currentPet.conditions?.some(cond => cond.toLowerCase().includes('kidney'))) {
+        if (todayWater < (expectedWater * 0.7)) {
+            alerts.push({
+                id: 'water_kidney_concern',
+                type: 'water',
+                severity: 'high',
+                title: 'Kidney Health Concern',
+                message: 'Water intake is low for a pet with kidney condition',
+                condition: 'Increased hydration is crucial for kidney support',
+                timestamp: new Date().toISOString()
+            });
+        }
+    }
+    
+    return alerts;
+},
+
+// Inventory alerts
+generateInventoryAlerts: function() {
+    const alerts = [];
+    const activeInventory = this.foodInventory.filter(item => item.isActive);
+    
+    activeInventory.forEach(item => {
+        const daysRemaining = this.calculateDaysRemaining(item);
+        
+        if (daysRemaining <= 3) {
+            alerts.push({
+                id: `inventory_low_${item.id}`,
+                type: 'inventory',
+                severity: 'high',
+                title: 'Food Running Out Soon',
+                message: `${item.name} will run out in ${daysRemaining} days`,
+                condition: 'Order refill immediately',
+                timestamp: new Date().toISOString()
+            });
+        } else if (daysRemaining <= 7) {
+            alerts.push({
+                id: `inventory_warning_${item.id}`,
+                type: 'inventory',
+                severity: 'medium',
+                title: 'Food Supply Low',
+                message: `${item.name} will run out in ${daysRemaining} days`,
+                condition: 'Consider ordering refill',
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        // Prescription food alert
+        if (item.name.toLowerCase().includes('prescription') && daysRemaining <= 14) {
+            alerts.push({
+                id: `inventory_prescription_${item.id}`,
+                type: 'inventory',
+                severity: 'medium',
+                title: 'Prescription Food Refill',
+                message: 'Prescription food requires advance ordering',
+                condition: 'Contact your veterinarian for refill',
+                timestamp: new Date().toISOString()
+            });
+        }
+    });
+    
+    return alerts;
+},
+
+// Condition-specific alerts
+generateConditionAlerts: function() {
+    const alerts = [];
+    const conditions = appState.currentPet.conditions || [];
+    
+    conditions.forEach(condition => {
+        const conditionLower = condition.toLowerCase();
+        
+        if (conditionLower.includes('kidney')) {
+            alerts.push({
+                id: 'condition_kidney_reminder',
+                type: 'condition',
+                severity: 'info',
+                title: 'Kidney Health Reminder',
+                message: 'Monitor water intake and appetite closely',
+                condition: 'Regular vet checks recommended for kidney conditions',
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        if (conditionLower.includes('diabetes')) {
+            alerts.push({
+                id: 'condition_diabetes_reminder',
+                type: 'condition',
+                severity: 'info',
+                title: 'Diabetes Management',
+                message: 'Consistent feeding schedule is important',
+                condition: 'Monitor for changes in water consumption',
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        if (conditionLower.includes('arthritis')) {
+            alerts.push({
+                id: 'condition_arthritis_reminder',
+                type: 'condition',
+                severity: 'info',
+                title: 'Weight Management',
+                message: 'Maintain healthy weight for joint support',
+                condition: 'Excess weight can worsen arthritis symptoms',
+                timestamp: new Date().toISOString()
+            });
+        }
+    });
+    
+    return alerts;
+},
+
+// Utility methods for alerts
+getRecentFoodHistory: function(days = 3) {
+    const foodHistory = this.getFoodHistory();
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    
+    return foodHistory.filter(entry => new Date(entry.date) >= cutoffDate);
+},
+
+calculateExpectedWaterIntake: function() {
+    if (!appState.currentPet?.weight) return 1000;
+    
+    // Basic formula: 50ml per kg for dogs, 40ml per kg for cats
+    const baseRequirement = appState.currentPet.species === 'cat' ? 40 : 50;
+    let expected = Math.round(appState.currentPet.weight * baseRequirement);
+    
+    // Adjust for dry food (increases water needs)
+    const nutritionPlan = utils.loadData(`nutritionPlan_${appState.currentPet.id}`);
+    if (nutritionPlan?.selectedFood?.type === 'dry') {
+        expected = Math.round(expected * 1.2);
+    }
+    
+    return expected;
+},
+
+// Alert management
+dismissAlert: function(alertId) {
+    if (!this.alertSystem.dismissedAlerts.includes(alertId)) {
+        this.alertSystem.dismissedAlerts.push(alertId);
+        this.saveAlertSystem();
+    }
+},
+
+clearDismissedAlerts: function() {
+    this.alertSystem.dismissedAlerts = [];
+    this.saveAlertSystem();
+},
+
+// Alert rendering
+renderSmartAlerts: function() {
+    const alertsElement = document.querySelector('.smart-alerts-section');
+    if (alertsElement) {
+        alertsElement.innerHTML = this.templates.smartAlerts();
+    }
+},
 
 // Add these methods to nutritionManager - around line 1500
 // Show/hide food log form
@@ -2513,206 +3034,14 @@ showFullFoodHistory: function() {
         return null;
     },
 
-// Add these methods to nutritionManager - around line 1800
-// UI Management for Inventory
-showFoodInventoryForm: function(item = null) {
-    const inventorySection = document.querySelector('.food-inventory-section');
-    if (inventorySection) {
-        inventorySection.innerHTML = this.templates.foodInventoryForm(item);
-        this.setupInventoryForm();
-    }
-},
 
-hideFoodInventoryForm: function() {
-    this.renderFoodInventory();
-},
 
-setupInventoryForm: function() {
-    const form = document.getElementById('food-inventory-form');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleInventorySubmit();
-        });
-    }
-},
-
-handleInventorySubmit: function() {
-    const formData = {
-        name: document.getElementById('inv-food-name').value.trim(),
-        brand: document.getElementById('inv-food-brand').value.trim(),
-        bagSize: parseFloat(document.getElementById('inv-bag-size').value),
-        bagSizeUnit: document.getElementById('inv-bag-unit').value,
-        cost: parseFloat(document.getElementById('inv-cost').value) || 0,
-        startDate: document.getElementById('inv-start-date').value
-    };
-
-    if (!this.validateInventoryForm(formData)) {
-        return;
-    }
-
-    const itemId = document.getElementById('inventory-id').value;
-    if (itemId) {
-        this.updateFoodInventory(itemId, formData);
-    } else {
-        this.addFoodToInventory(formData);
-    }
-},
-
-validateInventoryForm: function(formData) {
-    if (!formData.name) {
-        alert('Please enter food name');
-        return false;
-    }
-    if (!formData.bagSize || formData.bagSize <= 0) {
-        alert('Please enter valid bag size');
-        return false;
-    }
-    return true;
-},
-
-updateFoodInventory: function(itemId, formData) {
-    const itemIndex = this.foodInventory.findIndex(item => item.id === itemId);
-    if (itemIndex !== -1) {
-        this.foodInventory[itemIndex] = {
-            ...this.foodInventory[itemIndex],
-            ...formData
-        };
-        this.updateFoodInventoryCalculations();
-        this.saveFoodInventory();
-        alert('Food inventory updated!');
-        this.hideFoodInventoryForm();
-    }
-},
-
-markInventoryFinished: function(itemId) {
-    if (confirm('Mark this food as finished?')) {
-        const itemIndex = this.foodInventory.findIndex(item => item.id === itemId);
-        if (itemIndex !== -1) {
-            this.foodInventory[itemIndex].isActive = false;
-            this.saveFoodInventory();
-            this.renderFoodInventory();
-        }
-    }
-},
-
-editFoodInventory: function(itemId) {
-    const item = this.foodInventory.find(item => item.id === itemId);
-    if (item) {
-        this.showFoodInventoryForm(item);
-    }
-},
-
-calculateDaysRemaining: function(inventoryItem) {
-    if (!inventoryItem.dailyUsage || inventoryItem.dailyUsage <= 0) return 0;
-    return Math.floor(inventoryItem.currentAmount / inventoryItem.dailyUsage);
-},
-
-renderFoodInventory: function() {
-    const inventoryElement = document.querySelector('.food-inventory-section');
-    if (inventoryElement) {
-        inventoryElement.innerHTML = this.templates.foodInventory();
-    }
-},
-// Add these methods to nutritionManager - around line 1600
-// Food Inventory Management
-initializeFoodInventory: function() {
-    if (appState.currentPet) {
-        this.foodInventory = utils.loadData(`foodInventory_${appState.currentPet.id}`) || [];
-    }
-},
-
-saveFoodInventory: function() {
-    if (appState.currentPet) {
-        utils.saveData(`foodInventory_${appState.currentPet.id}`, this.foodInventory);
-    }
-},
-
-// Add food to inventory
-addFoodToInventory: function(foodData) {
-    const inventoryItem = {
-        id: 'food_inv_' + Date.now(),
-        name: foodData.name,
-        brand: foodData.brand || '',
-        bagSize: foodData.bagSize, // in kg or lbs
-        bagSizeUnit: foodData.bagSizeUnit || 'kg',
-        cost: foodData.cost || 0,
-        startDate: foodData.startDate || utils.getTodayDate(),
-        initialAmount: foodData.bagSize,
-        currentAmount: foodData.bagSize,
-        dailyUsage: 0,
-        estimatedFinish: null,
-        isActive: true
-    };
-
-    this.foodInventory.push(inventoryItem);
-    this.saveFoodInventory();
-    this.updateFoodInventoryCalculations();
-    return inventoryItem;
-},
-
-// Update inventory calculations based on feeding history
-updateFoodInventoryCalculations: function() {
-    const feedingHistory = this.getFoodHistory();
-    const recentUsage = this.calculateDailyFoodUsage(feedingHistory);
-    
-    this.foodInventory.forEach(item => {
-        if (item.isActive) {
-            item.dailyUsage = recentUsage;
-            item.estimatedFinish = this.calculateFinishDate(item);
-        }
-    });
-    
-    this.saveFoodInventory();
-},
-
-// Calculate daily food usage from history
-calculateDailyFoodUsage: function(feedingHistory) {
-    const last7Days = feedingHistory.filter(entry => {
-        const entryDate = new Date(entry.date);
-        const today = new Date();
-        const diffTime = Math.abs(today - entryDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays <= 7;
-    });
-
-    if (last7Days.length === 0) return 0;
-
-    const totalConsumed = last7Days.reduce((sum, entry) => {
-        return sum + (entry.amountConsumed || 0);
-    }, 0);
-
-    return totalConsumed / 7; // Average daily consumption
-},
-
-// Calculate when food will run out
-calculateFinishDate: function(inventoryItem) {
-    if (!inventoryItem.dailyUsage || inventoryItem.dailyUsage <= 0) return null;
-    
-    const daysRemaining = inventoryItem.currentAmount / inventoryItem.dailyUsage;
-    const finishDate = new Date();
-    finishDate.setDate(finishDate.getDate() + Math.floor(daysRemaining));
-    
-    return finishDate.toISOString().split('T')[0];
-},
-
-// Update inventory when food is logged
-updateInventoryOnFoodLog: function(foodLog) {
-    if (!this.foodInventory.length) return;
-    
-    const activeItem = this.foodInventory.find(item => item.isActive);
-    if (activeItem && foodLog.amountConsumed > 0) {
-        // Convert cups to kg (approximate conversion - adjust based on food density)
-        const conversionRate = 0.12; // 1 cup ≈ 0.12kg for dry food
-        const consumedKg = foodLog.amountConsumed * conversionRate;
-        
-        activeItem.currentAmount = Math.max(0, activeItem.currentAmount - consumedKg);
-        this.updateFoodInventoryCalculations();
-        this.saveFoodInventory();
-    }
-},
-
-    // Water Tracking Functions
+        // Water goal based on weight (ml per day)
+    get waterGoal() {
+        if (!appState.currentPet?.weight) return 1000;
+        return Math.round(appState.currentPet.weight * 50); // 50ml per kg
+    },
+        // Water Tracking Functions
     logWater: function(amount) {
         if (!appState.currentPet) return;
 
@@ -2847,11 +3176,14 @@ updateInventoryOnFoodLog: function(foodLog) {
     
     // Initialize Nutrition Section
 // Update the init method - around line 1450
+// Update initialization
 init: function() {
-    this.initializeFoodInventory(); // ADD THIS
+    this.initializeFoodInventory();
+    this.initializeAlertSystem(); // ADD THIS
     this.renderNutritionView();
     document.addEventListener('change', this.handleFoodDropdown.bind(this));
 }
+    
 };
 
 // Add to global window object
