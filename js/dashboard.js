@@ -43,21 +43,33 @@ const setupEventDelegation = () => {
             petProfilesManager.setCurrentPet(petId);
         }
       // for entire mainview buttons across all managers      
-     else if (target.matches('[data-action="showMainView"]')) {
-                    console.log('showMainView delegation caught');
-        event.preventDefault();
-       const manager = target.getAttribute('data-manager');
-                    console.log('Manager:', manager);
-       if (manager === 'petProfiles') {
+     // for entire mainview buttons across all managers      
+else if (target.matches('[data-action="showMainView"]')) {
+    console.log('🔄 CENTRAL_DELEGATION: showMainView caught');
+    event.preventDefault();
+    const manager = target.getAttribute('data-manager');
+    console.log('📋 CENTRAL_DELEGATION: Manager:', manager);
+    
+    if (manager === 'petProfiles') {
+        console.log('🐕 CENTRAL_DELEGATION: Showing pet profiles main view');
         petProfilesManager.showMainView();
-         }
-        if (manager === 'medication') {
+    }
+    else if (manager === 'medication') {
+        console.log('💊 CENTRAL_DELEGATION: Showing medication main view');
         medicationManager.showMainView();
-          }
-         if (manager === 'exercise') {
-         exerciseManager.showMainView();
-         }
-        }
+    }
+    else if (manager === 'exercise') {
+        console.log('🏃 CENTRAL_DELEGATION: Showing exercise main view');
+        exerciseManager.showMainView();
+    }
+    else if (manager === 'reminders') {
+        console.log('📅 CENTRAL_DELEGATION: Showing reminders main view');
+        remindersManager.showMainView();
+    }
+    else {
+        console.error('❌ CENTRAL_DELEGATION: Unknown manager:', manager);
+    }
+}
         
         // 3. TASK MANAGEMENT
       //  else if (target.matches('input[type="checkbox"][data-task-id]')) {
@@ -221,12 +233,6 @@ else if (target.matches('[data-action="printActivityHistory"]')) {
             event.preventDefault();
             remindersManager.hideDayReminders();
         }
-            // In REMINDERS SECTION of setupEventDelegation, ADD:
-else if (target.matches('[data-action="showMainView"][data-manager="reminders"]')) {
-    console.log('🔄 REMINDERS_DELEGATION: Show main view for reminders');
-    event.preventDefault();
-    remindersManager.showMainView();
-}
         
         // 8. FORM SUBMISSIONS
         else if (target.matches('button[type="submit"], input[type="submit"]')) {
@@ -634,30 +640,35 @@ toggleTaskCompletion: (taskId) => {
 //===========================
 const sectionManager = {
     // Show specific section
-    showSection: (sectionName) => {
-        // Hide all sections
-        Object.values(dashboardElements).forEach(section => {
-            if (section && section.classList.contains('app-section')) {
-                section.style.display = 'none';
-            }
-        });
-
-        // Show requested section
-        const targetSection = dashboardElements[`${sectionName}Section`];
-        if (targetSection) {
-            targetSection.style.display = 'block';
+// Show specific section - UPDATED VERSION
+showSection: (sectionName) => {
+    console.log('🔄 SECTION_MANAGER: Showing section:', sectionName);
+    
+    // Hide all sections
+    Object.values(dashboardElements).forEach(section => {
+        if (section && section.classList.contains('app-section')) {
+            section.style.display = 'none';
         }
+    });
 
-        // Initialize section if needed
-        if (typeof window[`init${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}`] === 'function') {
-            window[`init${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}`]();
-        }
-    },
-
-    // Return to dashboard
-    showDashboard: () => {
-        sectionManager.showSection('dashboard');
+    // Show requested section
+    const targetSection = dashboardElements[`${sectionName}Section`];
+    if (targetSection) {
+        targetSection.style.display = 'block';
+        console.log('✅ SECTION_MANAGER: Section displayed:', sectionName);
     }
+
+    // SPECIAL CASE: If showing dashboard, REFRESH DATA
+    if (sectionName === 'dashboard') {
+        console.log('📊 SECTION_MANAGER: Refreshing dashboard data');
+        renderDashboard(); // Force refresh with latest data
+    }
+
+    // Initialize section if needed
+    if (typeof window[`init${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}`] === 'function') {
+        window[`init${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}`]();
+    }
+}
 };
 
 
