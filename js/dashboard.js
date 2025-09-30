@@ -759,63 +759,141 @@ const petProfilesManager = {
             </div>
         `,
 
-        // Pets List Template
-        petsList: () => {
-            if (appState.pets.length === 0) {
-                return `
-                    <div class="no-pets">
-                        <p>No pets added yet. Add your first pet to get started!</p>
+// Pets List Template - ENHANCED VERSION display saved profiles
+petsList: () => {
+    if (appState.pets.length === 0) {
+        return `
+            <div class="no-pets">
+                <div class="empty-state">
+                    <h3>No Pets Added Yet</h3>
+                    <p>Add your first pet to get started with health tracking!</p>
+                    <button class="btn btn-primary" data-action="showAddForm" data-manager="petProfiles">
+                        + Add Your First Pet
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="pets-grid">
+            ${appState.pets.map(pet => `
+                <div class="pet-card ${pet.id === appState.currentPet?.id ? 'active-pet' : ''}" data-pet-id="${pet.id}">
+                    <!-- PET PHOTO HEADER -->
+                    <div class="pet-card-header">
+                        ${pet.photo ? `
+                            <div class="pet-photo-thumbnail">
+                                <img src="${pet.photo}" alt="${pet.name}">
+                                ${pet.mood?.emoji ? `
+                                    <div class="mood-badge">${pet.mood.emoji}</div>
+                                ` : ''}
+                            </div>
+                        ` : `
+                            <div class="pet-photo-placeholder">
+                                🐾
+                                ${pet.mood?.emoji ? `
+                                    <div class="mood-badge">${pet.mood.emoji}</div>
+                                ` : ''}
+                            </div>
+                        `}
+                        <div class="pet-card-actions">
+                            <button class="btn-icon" data-action="editPet" data-pet-id="${pet.id}" title="Edit">✏️</button>
+                            <button class="btn-icon" data-action="viewPet" data-pet-id="${pet.id}" title="View Details">👁️</button>
+                            <button class="btn-icon delete" data-action="deletePet" data-pet-id="${pet.id}" title="Delete">🗑️</button>
+                        </div>
                     </div>
-                `;
-            }
-
-            return `
-                <div class="pets-grid">
-                    ${appState.pets.map(pet => `
-                        <div class="pet-card" data-pet-id="${pet.id}">
-                            <div class="pet-card-header">
-                                <h3>${pet.name}</h3>
-                                <div class="pet-actions">
-                                
-                                <button class="btn-icon" data-action="editPet" data-pet-id="${pet.id}" title="Edit">✏️</button>
-    <button class="btn-icon" data-action="viewPet" data-pet-id="${pet.id}" title="View Details">👁️</button>
-<button class="btn-icon delete" data-action="deletePet" data-pet-id="${pet.id}" title="Delete">🗑️</button>
-<button class="btn btn-secondary btn-sm" data-action="setCurrentPet" data-pet-id="${pet.id}">Set as Active</button>
-
-                                </div>
+                    
+                    <!-- PET BASIC INFO -->
+                    <div class="pet-card-body">
+                        <div class="pet-name-section">
+                            <h3>${pet.name}</h3>
+                            ${pet.id === appState.currentPet?.id ? '<span class="active-badge">Active</span>' : ''}
+                        </div>
+                        
+                        <div class="pet-quick-info">
+                            <div class="info-item">
+                                <span class="label">Species:</span>
+                                <span class="value">${pet.species ? pet.species.charAt(0).toUpperCase() + pet.species.slice(1) : '—'}</span>
                             </div>
-                            <div class="pet-card-body">
-                                <div class="pet-info-row">
-                                    <span class="label">Species:</span>
-                                    <span class="value">${pet.species || 'Not set'}</span>
-                                </div>
-                                <div class="pet-info-row">
-                                    <span class="label">Breed:</span>
-                                    <span class="value">${pet.breed || 'Not set'}</span>
-                                </div>
-                                <div class="pet-info-row">
-                                    <span class="label">Age:</span>
-                                    <span class="value">${calculateAge(pet.birthDate) || 'Unknown'} years</span>
-                                </div>
-                                <div class="pet-info-row">
-                                    <span class="label">Weight:</span>
-                                    <span class="value">${pet.weight ? pet.weight + ' kg' : 'Not set'}</span>
-                                </div>
-                                <div class="pet-info-row">
-                                    <span class="label">Conditions:</span>
-                                    <span class="value">${pet.conditions?.length > 0 ? pet.conditions.join(', ') : 'None'}</span>
-                                </div>
+                            <div class="info-item">
+                                <span class="label">Breed:</span>
+                                <span class="value">${pet.breed || '—'}</span>
                             </div>
-                            <div class="pet-card-footer">
-                                <button class="btn btn-secondary btn-sm" data-action="setCurrentPet" data-pet-id="${pet.id}">
-                                 Set as Active
-                                 </button>
+                            <div class="info-item">
+                                <span class="label">Age:</span>
+                                <span class="value">${calculateAge(pet.birthDate) || '?'} years</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Weight:</span>
+                                <span class="value">${pet.weight ? pet.weight + ' kg' : '—'}</span>
                             </div>
                         </div>
-                    `).join('')}
+                        
+                        <!-- BEHAVIOR & TEMPERAMENT -->
+                        <div class="pet-behavior-info">
+                            ${pet.temperament ? `
+                                <div class="temperament-tag ${pet.temperament}">
+                                    ${pet.temperament.charAt(0).toUpperCase() + pet.temperament.slice(1)}
+                                </div>
+                            ` : ''}
+                            
+                            ${pet.mood ? `
+                                <div class="mood-info">
+                                    <span class="mood-emoji">${pet.mood.emoji || ''}</span>
+                                    ${pet.mood.scale ? `<span class="mood-scale">${pet.mood.scale}/5</span>` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- HEALTH SUMMARY -->
+                        <div class="pet-health-summary">
+                            ${pet.conditions && pet.conditions.length > 0 && pet.conditions[0] !== 'None' ? `
+                                <div class="conditions-preview">
+                                    <strong>Conditions:</strong> 
+                                    ${pet.conditions.slice(0, 2).join(', ')}
+                                    ${pet.conditions.length > 2 ? ` +${pet.conditions.length - 2} more` : ''}
+                                </div>
+                            ` : ''}
+                            
+                            <div class="health-scores">
+                                ${pet.mobilityScore ? `
+                                    <div class="score-item">
+                                        <span class="score-label">Mobility:</span>
+                                        <span class="score-value">${pet.mobilityScore}/5</span>
+                                    </div>
+                                ` : ''}
+                                
+                                ${pet.bodyConditionScore ? `
+                                    <div class="score-item">
+                                        <span class="score-label">Body Score:</span>
+                                        <span class="score-value">${pet.bodyConditionScore}/9</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CARD FOOTER -->
+                    <div class="pet-card-footer">
+                        ${pet.id !== appState.currentPet?.id ? `
+                            <button class="btn btn-primary btn-sm" data-action="setCurrentPet" data-pet-id="${pet.id}">
+                                Set Active
+                            </button>
+                        ` : `
+                            <button class="btn btn-secondary btn-sm" data-section="dashboard">
+                                View Dashboard
+                            </button>
+                        `}
+                        <button class="btn btn-outline btn-sm" data-action="viewPet" data-pet-id="${pet.id}">
+                            Full Profile
+                        </button>
+                    </div>
                 </div>
-            `;
-        },
+            `).join('')}
+        </div>
+    `;
+},
+            
 
         // Add/Edit Pet Form
         // PROFILE CREATION FORM 
