@@ -2393,6 +2393,7 @@ saveFoodInventory: function() {
     if (appState.currentPet) {
         utils.saveData(`foodInventory_${appState.currentPet.id}`, this.foodInventory);
     }
+    this.renderSmartAlerts(); // Refresh alerts
 },
 
 // Add food to inventory
@@ -3058,6 +3059,7 @@ showFullFoodHistory: function() {
         this.saveWaterLog(waterLog);
         
         this.renderWaterTracker();
+        this.renderSmartAlerts(); // Refresh alerts
     },
 
     getWaterLog: function() {
@@ -3091,6 +3093,7 @@ showFullFoodHistory: function() {
         let foodHistory = this.getFoodHistory();
         foodHistory.unshift(foodEntry); // Add to beginning
         this.saveFoodHistory(foodHistory);
+        this.renderSmartAlerts(); // Refresh alerts
     },
 
     getFoodHistory: function() {
