@@ -3090,6 +3090,70 @@ todayActivity: () => {
             `;
         },
 
+        // Full Activity History log Template
+fullActivityHistory: () => {
+    const allActivities = exerciseManager.getActivities();
+    console.log('📊 EXERCISE_MANAGER: Full history - loading', allActivities.length, 'activities');
+    
+    return `
+        <div class="full-history-container">
+            <div class="history-header">
+                <h2>Complete Activity History</h2>
+                <button class="btn btn-secondary" data-action="showMainView" data-manager="exercise">
+                    ← Back to Exercise
+                </button>
+            </div>
+            
+            <div class="history-controls">
+                <div class="history-stats">
+                    <span>Total Activities: ${allActivities.length}</span>
+                </div>
+            </div>
+            
+            <div class="full-history-list">
+                ${allActivities.length === 0 ? `
+                    <div class="no-activities">
+                        <p>No activities recorded yet</p>
+                        <button class="btn btn-primary" data-action="showActivityForm">
+                            Log Your First Activity
+                        </button>
+                    </div>
+                ` : `
+                    ${allActivities.map(activity => `
+                        <div class="history-item ${activity.completed ? 'completed' : 'pending'}">
+                            <div class="activity-type-badge">
+                                ${activity.type.replace('_', ' ').toUpperCase()}
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-header">
+                                    <strong>${activity.type.replace('_', ' ').toUpperCase()}</strong>
+                                    <span class="activity-date">${formatDate(activity.date)}</span>
+                                </div>
+                                <div class="activity-meta">
+                                    <span class="duration">${activity.duration} minutes</span>
+                                    <span class="intensity">${activity.intensity || 'Not specified'}</span>
+                                    ${activity.scheduledTime ? `<span class="scheduled-time">${activity.scheduledTime}</span>` : ''}
+                                </div>
+                                ${activity.notes ? `
+                                    <div class="activity-notes">
+                                        <p>${activity.notes}</p>
+                                    </div>
+                                ` : ''}
+                                <div class="activity-status">
+                                    ${activity.completed ? 
+                                        `✅ Completed at ${new Date(activity.completedAt).toLocaleTimeString()}` : 
+                                        '⏳ Pending'
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                `}
+            </div>
+        </div>
+    `;
+},
+
         // Mobility Trend Template
         mobilityTrend: (trend) => {
             if (!trend || trend.assessments.length === 0) {
@@ -3277,28 +3341,41 @@ todayActivity: () => {
         return utils.loadData(`activities_${appState.currentPet.id}`) || [];
     },
 
-    // GETS CALLED AND SAVES DATA AND PERSIST IT ADDED RECENTLY
-    saveActivities: function(activities) {
+    // Add this RIGHT AFTER getActivities function
+        // GETS CALLED AND SAVES DATA AND PERSIST IT ADDED RECENTLY
+saveActivities: function(activities) {
+    console.log('💾 EXERCISE_MANAGER: Saving activities to storage', activities.length, 'activities');
     if (appState.currentPet) {
         utils.saveData(`activities_${appState.currentPet.id}`, activities);
+        console.log('✅ EXERCISE_MANAGER: Activities saved successfully for pet:', appState.currentPet.id);
+    } else {
+        console.error('❌ EXERCISE_MANAGER: No current pet for saving activities');
     }
 },
 
    // Update saveActivity to handle scheduling CREATES THE DATA
 saveActivity: function(activityData) {
+    console.log('💾 EXERCISE_MANAGER: saveActivity called with data:', activityData);
+    
     const activity = {
         id: 'activity_' + Date.now(),
         petId: appState.currentPet.id,
         ...activityData,
         completed: false,
-        // Add scheduledTime if provided, otherwise use current time
         scheduledTime: activityData.scheduledTime || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
         timestamp: new Date().toISOString()
     };
 
+    console.log('📝 EXERCISE_MANAGER: Created activity object:', activity);
+
     const activities = this.getActivities();
+    console.log('📋 EXERCISE_MANAGER: Retrieved', activities.length, 'existing activities');
+    
     activities.unshift(activity);
+    console.log('➕ EXERCISE_MANAGER: Added new activity, total:', activities.length);
+    
     this.saveActivities(activities);
+    console.log('✅ EXERCISE_MANAGER: saveActivity completed successfully');
 
     alert('Activity logged successfully!');
     this.showMainView();
@@ -3439,13 +3516,19 @@ scheduleRecurringExercise: function(exerciseData) {
     },
 
     handleActivitySubmit: function(event) {
+        console.log('📝 EXERCISE_MANAGER: handleActivitySubmit called - form submission started');
         event.preventDefault();
         
         const formData = this.getActivityFormData();
+            console.log('📋 EXERCISE_MANAGER: Form data collected:', formData);
         if (this.validateActivityForm(formData)) {
+                    console.log('✅ EXERCISE_MANAGER: Form validation passed, saving activity...');
             this.saveActivity(formData);
+            } else {
+        console.log('❌ EXERCISE_MANAGER: Form validation failed');
         }
     },
+    
 // Update to include new fields:
    getActivityFormData: function() {
     return {
@@ -3519,9 +3602,14 @@ scheduleRecurringExercise: function(exerciseData) {
 },
 
     // View Management
+    //Update showMainView to Force Refresh
     showMainView: function() {
-        this.elements.exerciseContent.innerHTML = this.templates.mainView();
-    },
+    console.log('🔄 EXERCISE_MANAGER: showMainView called - refreshing display');
+    const activities = this.getActivities();
+    console.log('📊 EXERCISE_MANAGER: Displaying', activities.length, 'activities in main view');
+    this.elements.exerciseContent.innerHTML = this.templates.mainView();
+    console.log('✅ EXERCISE_MANAGER: Main view refreshed with latest data');
+},
 
     showMobilityForm: function() {
         this.elements.exerciseContent.innerHTML = this.templates.mobilityForm(appState.currentPet?.mobilityScore);
@@ -3531,9 +3619,12 @@ scheduleRecurringExercise: function(exerciseData) {
         this.elements.exerciseContent.innerHTML = this.templates.activityForm();
     },
 
+    //updated to show full history log now
     showActivityHistory: function() {
-        alert('Full activity history view will be implemented in next version');
-    },
+    console.log('📖 EXERCISE_MANAGER: showActivityHistory called - displaying full history');
+    this.elements.exerciseContent.innerHTML = this.templates.fullActivityHistory();
+    console.log('✅ EXERCISE_MANAGER: Full activity history displayed');
+},
 
     // Quick Log Functions
     logSuggestedExercise: function(exerciseId) {
