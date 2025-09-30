@@ -922,7 +922,101 @@ footer p {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px var(--primary-light);
 }
+/*===========added =============*/
+/* Enhanced Pet Form Styles */
+.form-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
 
+.form-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.2em;
+}
+
+/* Photo Upload Styles */
+.photo-preview {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.photo-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+}
+
+/* Mood Selection Styles */
+.mood-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mood-emoji-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.mood-emoji {
+    font-size: 2em;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mood-emoji:hover {
+    border-color: #007bff;
+    transform: scale(1.1);
+}
+
+.mood-emoji.selected {
+    border-color: #28a745;
+    background: #f8fff9;
+    transform: scale(1.15);
+}
+
+.mood-scale {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Enhanced Pet Card Styles */
+.pet-card-with-photo {
+    position: relative;
+}
+
+.pet-photo-thumbnail {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Detail View Enhancements */
+.pet-detail-photo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.pet-detail-photo img {
+    max-width: 300px;
+    max-height: 300px;
+    border-radius: 8px;
+    border: 3px solid #007bff;
+}
+/*========================*/
 /* Conditions Checklist */
 .conditions-checklist {
     display: grid;
