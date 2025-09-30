@@ -3870,14 +3870,17 @@ const remindersManager = {
     templates: {
         // Main Reminders View
         mainView: () => `
-            <div class="reminders-header">
-                <h2>Reminders & Appointments</h2>
-                ${appState.currentPet ? `
-                    <div class="current-pet-banner">
-                        Managing reminders for: <strong>${appState.currentPet.name}</strong>
-                    </div>
-                ` : '<p class="warning">Please select a pet first</p>'}
+    <div class="reminders-header">
+        <div class="reminders-header-top">
+            <h2>Reminders & Appointments</h2>
+            <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
+        </div>
+        ${appState.currentPet ? `
+            <div class="current-pet-banner">
+                Managing reminders for: <strong>${appState.currentPet.name}</strong>
             </div>
+        ` : '<p class="warning">Please select a pet first</p>'}
+    </div>
 
             ${appState.currentPet ? remindersManager.templates.remindersDashboard() : remindersManager.templates.noPetView()}
         `,
