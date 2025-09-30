@@ -3548,7 +3548,7 @@ scheduleRecurringExercise: function(exerciseData) {
     completeActivity: function(activityId) {
     this.completeExercise(activityId);
     this.showMainView(); // Refresh the view
-    }
+    },
 
     // Initialize Exercise Section
     init: function() {
