@@ -640,33 +640,31 @@ toggleTaskCompletion: (taskId) => {
 //===========================
 const sectionManager = {
     // Show specific section
-// Show specific section - UPDATED VERSION
-showSection: (sectionName) => {
-    console.log('🔄 SECTION_MANAGER: Showing section:', sectionName);
-    
-    // Hide all sections
-    Object.values(dashboardElements).forEach(section => {
-        if (section && section.classList.contains('app-section')) {
-            section.style.display = 'none';
+const sectionManager = {
+    // Show specific section
+    showSection: (sectionName) => {
+        // Hide all sections
+        Object.values(dashboardElements).forEach(section => {
+            if (section && section.classList.contains('app-section')) {
+                section.style.display = 'none';
+            }
+        });
+
+        // Show requested section
+        const targetSection = dashboardElements[`${sectionName}Section`];
+        if (targetSection) {
+            targetSection.style.display = 'block';
         }
-    });
 
-    // Show requested section
-    const targetSection = dashboardElements[`${sectionName}Section`];
-    if (targetSection) {
-        targetSection.style.display = 'block';
-        console.log('✅ SECTION_MANAGER: Section displayed:', sectionName);
-    }
+        // Initialize section if needed
+        if (typeof window[`init${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}`] === 'function') {
+            window[`init${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}`]();
+        }
+    },
 
-    // SPECIAL CASE: If showing dashboard, REFRESH DATA
-    if (sectionName === 'dashboard') {
-        console.log('📊 SECTION_MANAGER: Refreshing dashboard data');
-        renderDashboard(); // Force refresh with latest data
-    }
-
-    // Initialize section if needed
-    if (typeof window[`init${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}`] === 'function') {
-        window[`init${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}`]();
+    // Return to dashboard
+    showDashboard: () => {
+        sectionManager.showSection('dashboard');
     }
 }
 };
