@@ -3202,13 +3202,20 @@ footer p {
 }
 
 /* Reminders & Appointments Section Styles */
+/* Reminders Header Layout */
 .reminders-header {
-    margin-bottom: 2rem;
+    margin-bottom: 20px;
 }
 
-.reminders-header h2 {
-    color: var(--primary);
-    margin-bottom: 0.5rem;
+.reminders-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.reminders-header-top h2 {
+    margin: 0;
 }
 
 .current-pet-banner {
