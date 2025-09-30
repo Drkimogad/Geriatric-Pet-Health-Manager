@@ -2460,14 +2460,31 @@ footer p {
     }
 }
 
-/* Exercise & Mobility Section Styles */
+/*==============================================================
+              Exercise & Mobility Section Styles
+================================================================*/
+/* Exercise Header Layout Fix */
 .exercise-header {
-    margin-bottom: 2rem;
+    margin-bottom: 20px;
 }
 
-.exercise-header h2 {
-    color: var(--primary);
-    margin-bottom: 0.5rem;
+.exercise-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.exercise-header-top h2 {
+    margin: 0;
+}
+
+.current-pet-banner {
+    background: #e8f4fd;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border-left: 4px solid #007bff;
+    font-size: 14px;
 }
 
 /* Exercise Grid Layout */
