@@ -2398,19 +2398,22 @@ const medicationManager = {
     templates: {
         // Main Medication View
         mainView: () => `
-            <div class="medication-header">
-                <h2>Medication Manager</h2>
-                ${appState.currentPet ? `
-                    <div class="current-pet-banner">
-                        Manage medications for: <strong>${appState.currentPet.name}</strong>
-                    </div>
-                    <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
+                <div class="medication-header">
+        <div class="medication-header-top">
+            <h2>Medication Manager</h2>
+            <button class="btn btn-secondary" data-section="dashboard">← Back to Dashboard</button>
+        </div>
+        ${appState.currentPet ? `
+            <div class="current-pet-banner">
+                Manage medications for: <strong>${appState.currentPet.name}</strong>
+            </div>
                     
                 ` : '<p class="warning">Please select a pet first</p>'}
             </div>
 
             ${appState.currentPet ? medicationManager.templates.medicationDashboard() : medicationManager.templates.noPetView()}
         `,
+        
 
         // View when no pet is selected
         noPetView: () => `
