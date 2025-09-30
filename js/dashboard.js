@@ -3490,20 +3490,26 @@ scheduleRecurringExercise: function(exerciseData) {
         this.showMainView();
     },
 
-    saveActivity: function(activityData) {
-        const activity = {
-            id: 'activity_' + Date.now(),
-            petId: appState.currentPet.id,
-            ...activityData
-        };
+   saveActivity: function(activityData) {
+    console.log('saveActivity called - this:', this);
+    console.log('saveActivities function exists:', typeof this.saveActivities);
+    
+    const activity = {
+        id: 'activity_' + Date.now(),
+        petId: appState.currentPet.id,
+        ...activityData,
+        completed: false,
+        scheduledTime: activityData.scheduledTime || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        timestamp: new Date().toISOString()
+    };
 
-        const activities = this.getActivities();
-        activities.unshift(activity);
-        this.saveActivities(activities);
+    const activities = this.getActivities();
+    activities.unshift(activity);
+    this.saveActivities(activities); // This line is failing
 
-        alert('Activity logged successfully!');
-        this.showMainView();
-    },
+    alert('Activity logged successfully!');
+    this.showMainView();
+},
 
     // View Management
     showMainView: function() {
