@@ -3944,6 +3944,16 @@ saveActivities: function(activities) {
         console.error('❌ EXERCISE_MANAGER: No current pet for saving activities');
     }
 },
+    // Add this RIGHT AFTER saveActivities function
+refreshDashboardIfVisible: function() {
+    // Check if dashboard section is currently visible
+    if (dashboardElements.dashboardSection && 
+        dashboardElements.dashboardSection.style.display !== 'none') {
+        console.log('🔄 EXERCISE_MANAGER: Dashboard is visible, refreshing tasks...');
+        appState.todayTasks = taskManager.generateTodayTasks();
+        renderDashboard();
+    }
+},
 
    // Update saveActivity to handle scheduling CREATES THE DATA
 saveActivity: function(activityData) {
@@ -3953,7 +3963,9 @@ saveActivity: function(activityData) {
         id: 'activity_' + Date.now(),
         petId: appState.currentPet.id,
         ...activityData,
-        completed: false,
+        // CHANGE TO: Use provided completed status, default to false
+        completed: activityData.completed !== undefined ? activityData.completed : false,
+        
         scheduledTime: activityData.scheduledTime || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
         timestamp: new Date().toISOString()
     };
@@ -3968,6 +3980,8 @@ saveActivity: function(activityData) {
     
     this.saveActivities(activities);
     console.log('✅ EXERCISE_MANAGER: saveActivity completed successfully');
+    
+    this.refreshDashboardIfVisible(); // ADD THIS LINE - Real-time Dashboard Updates
 
     alert('Activity logged successfully!');
     this.showMainView();
@@ -4000,7 +4014,7 @@ getTodayActivities: function() {
             utils.saveData(`mobilityAssessments_${appState.currentPet.id}`, assessments);
         }
     },
-
+    
     // Exercise Suggestion Logic
     generateExerciseSuggestions: function(pet) {
         if (!pet || !pet.mobilityScore) return [];
@@ -4077,6 +4091,7 @@ completeExercise: function(activityId) {
         activity.completed = true;
         activity.completedAt = new Date().toISOString();
         this.saveActivities(activities);
+        this.refreshDashboardIfVisible(); // ADD THIS LINE
     }
 },
 
