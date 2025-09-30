@@ -384,30 +384,98 @@ const dashboardTemplates = {
         </div>
     `,
 
-    // Pet Summary Template
-    petSummary: () => {
-        const pet = appState.currentPet;
-        return `
-            <div class="pet-info">
-                <div class="pet-basic">
-                    <h4>${pet.name}</h4>
-                    <p><strong>Age:</strong> ${calculateAge(pet.birthDate)} years</p>
-                    <p><strong>Weight:</strong> ${pet.weight || 'N/A'} kg</p>
-                    <p><strong>Condition:</strong> ${pet.conditions?.join(', ') || 'None reported'}</p>
-                </div>
-                <div class="pet-health-metrics">
-                    <div class="metric">
-                        <span class="metric-label">Mobility Score</span>
-                        <span class="metric-value">${pet.mobilityScore || 'Not set'}/5</span>
+// Pet Summary Template - ENHANCED VERSION
+petSummary: () => {
+    const pet = appState.currentPet;
+    return `
+        <div class="pet-summary-enhanced">
+            <!-- QUICK PET HEADER -->
+            <div class="pet-summary-header">
+                ${pet.photo ? `
+                    <div class="pet-summary-photo">
+                        <img src="${pet.photo}" alt="${pet.name}">
+                        ${pet.mood?.emoji ? `<span class="summary-mood">${pet.mood.emoji}</span>` : ''}
                     </div>
-                    <div class="metric">
-                        <span class="metric-label">Last Vet Visit</span>
-                        <span class="metric-value">${formatDate(pet.lastVetVisit) || 'Not recorded'}</span>
+                ` : `
+                    <div class="pet-summary-placeholder">
+                        🐾
+                        ${pet.mood?.emoji ? `<span class="summary-mood">${pet.mood.emoji}</span>` : ''}
+                    </div>
+                `}
+                <div class="pet-summary-basic">
+                    <h4>${pet.name}</h4>
+                    <div class="pet-meta">
+                        <span class="species-badge">${pet.species ? pet.species.charAt(0).toUpperCase() + pet.species.slice(1) : 'Pet'}</span>
+                        ${pet.temperament ? `<span class="temperament-badge">${pet.temperament}</span>` : ''}
                     </div>
                 </div>
             </div>
-        `;
-    },
+            
+            <!-- HEALTH METRICS GRID -->
+            <div class="pet-metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">🎂</div>
+                    <div class="metric-info">
+                        <span class="metric-value">${calculateAge(pet.birthDate)}</span>
+                        <span class="metric-label">Years Old</span>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon">⚖️</div>
+                    <div class="metric-info">
+                        <span class="metric-value">${pet.weight || '?'}</span>
+                        <span class="metric-label">kg</span>
+                    </div>
+                </div>
+                
+                ${pet.mobilityScore ? `
+                <div class="metric-card">
+                    <div class="metric-icon">🚶</div>
+                    <div class="metric-info">
+                        <span class="metric-value">${pet.mobilityScore}</span>
+                        <span class="metric-label">/5 Mobility</span>
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${pet.bodyConditionScore ? `
+                <div class="metric-card">
+                    <div class="metric-icon">💪</div>
+                    <div class="metric-info">
+                        <span class="metric-value">${pet.bodyConditionScore}</span>
+                        <span class="metric-label">/9 Body Score</span>
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+            
+            <!-- QUICK STATUS -->
+            <div class="pet-status-overview">
+                ${pet.conditions && pet.conditions.length > 0 && pet.conditions[0] !== 'None' ? `
+                    <div class="status-item conditions">
+                        <span class="status-label">Conditions:</span>
+                        <span class="status-value">${pet.conditions.slice(0, 2).join(', ')}${pet.conditions.length > 2 ? '...' : ''}</span>
+                    </div>
+                ` : ''}
+                
+                ${pet.vetInfo?.lastVisit ? `
+                    <div class="status-item last-visit">
+                        <span class="status-label">Last Vet:</span>
+                        <span class="status-value">${formatDate(pet.vetInfo.lastVisit)}</span>
+                    </div>
+                ` : ''}
+                
+                ${pet.microchip ? `
+                    <div class="status-item microchip">
+                        <span class="status-label">Microchip:</span>
+                        <span class="status-value">${pet.microchip}</span>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+},
 
     // Today's Tasks Template - FIXED VERSION
 todayTasks: () => {
@@ -1360,32 +1428,71 @@ showAddForm: function() {
     },
 
 
-    validateForm: function(formData) {
-        if (!formData.name) {
-            alert('Please enter a pet name');
-            return false;
-        }
-        if (!formData.species) {
-            alert('Please select a species');
-            return false;
-        }
-        if (!formData.birthDate) {
-            alert('Please enter a birth date');
-            return false;
-        }
-        return true;
-    },
+validateForm: function(formData) {
+    console.log('✅ PET_MANAGER: Validating form data...');
+    
+    // Required field validation
+    if (!formData.name) {
+        alert('Please enter a pet name');
+        return false;
+    }
+    if (!formData.species) {
+        alert('Please select a species');
+        return false;
+    }
+    if (!formData.birthDate) {
+        alert('Please enter a birth date');
+        return false;
+    }
+
+    // Weight validation
+    if (formData.weight && (formData.weight < 0 || formData.weight > 200)) {
+        alert('Please enter a valid weight between 0 and 200 kg');
+        return false;
+    }
+
+    // Microchip validation (basic format check)
+    if (formData.microchip && !/^[0-9A-Za-z]{10,15}$/.test(formData.microchip)) {
+        alert('Microchip number should be 10-15 alphanumeric characters');
+        return false;
+    }
+
+    // Emergency phone validation (basic format)
+    if (formData.emergencyContact?.phone && !/^[\d\s\-\+\(\)]{10,20}$/.test(formData.emergencyContact.phone)) {
+        alert('Please enter a valid phone number');
+        return false;
+    }
+
+    console.log('✅ PET_MANAGER: Form validation passed');
+    return true;
+},
 
 
 // newly added section
-// Image Handling Functions
+// Image Handling Functions enhanced
 handleImageUpload: function(event) {
     console.log('📸 PET_MANAGER: Image upload triggered');
     const file = event.target.files[0];
     const preview = document.getElementById('photo-preview');
     
     if (file) {
-        console.log('📸 PET_MANAGER: Processing file:', file.name, file.type);
+        // File size validation (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Image size must be less than 2MB');
+            event.target.value = ''; // Clear the file input
+            preview.innerHTML = 'No photo selected';
+            return;
+        }
+
+        // File type validation
+        if (!file.type.startsWith('image/')) {
+            alert('Please select a valid image file');
+            event.target.value = '';
+            preview.innerHTML = 'No photo selected';
+            return;
+        }
+
+        console.log('📸 PET_MANAGER: Processing file:', file.name, file.type, Math.round(file.size/1024) + 'KB');
         const reader = new FileReader();
         
         reader.onload = function(e) {
