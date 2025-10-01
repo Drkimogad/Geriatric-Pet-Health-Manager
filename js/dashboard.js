@@ -2121,7 +2121,7 @@ feedingSchedule: (nutritionData) => {
         // Food History Template
         // Replace the existing foodHistory template - around line 1250
 foodHistory: () => {
-    const foodHistory = nutritionManager.getFoodHistory().slice(0, 5);
+    const foodHistory = nutritionManager.getFoodHistory();
     
     return `
         <div class="food-history-section">
@@ -2129,7 +2129,9 @@ foodHistory: () => {
                 <h4>Track Food & Water Intake</h4>
                 <button class="btn btn-primary btn-sm" data-action="showFoodLogForm">+ Log Food & Water</button>
             </div>
-            <div class="food-history-list">
+            
+            <!-- HIDDEN BY DEFAULT - ONLY SHOW WHEN VIEW LOG IS CLICKED -->
+            <div class="food-history-list" style="display: none;">
                 ${foodHistory.length === 0 ? `
                     <p class="no-data">No food or water intake logged yet</p>
                 ` : `
@@ -2146,13 +2148,12 @@ foodHistory: () => {
                     `).join('')}
                 `}
             </div>
-            ${foodHistory.length > 0 ? `
-                <div class="history-controls">
-                    <button class="btn btn-secondary btn-sm" data-action="toggleTrackingLog">
-                        📋 View Tracking Log
-                    </button>
-                </div>
-            ` : ''}
+            
+            <div class="history-controls">
+                <button class="btn btn-secondary btn-sm" data-action="toggleTrackingLog">
+                    ${foodHistory.length > 0 ? '📋 View Tracking Log' : 'No Entries Yet'}
+                </button>
+            </div>
         </div>
     `;
 },
@@ -2916,15 +2917,10 @@ logFood: function(foodData) {
     this.updateInventoryOnFoodLog(foodEntry);
     this.updateFoodInventoryCalculations();
 
-    // FIX: CLOSE THE FORM AND REFRESH UI
-    this.hideFoodLogForm(); // This will close the form
-    this.renderFoodHistory(); // This will refresh the food history display
-    this.renderFoodInventory(); // Refresh inventory
-    this.renderWaterTracker(); // Refresh water display  
-    this.renderSmartAlerts(); // Refresh alerts
-
+    // FIX: CLOSE FORM AND GO BACK TO EXERCISE PAGE
+    sectionManager.showSection('exercise'); // This returns to exercise page
+    
     alert('Food & water intake logged successfully!');
-    // REMOVED: this.showMainView() - we don't want to leave the nutrition section
 },
 
 // Calculate calories based on food type and amount
@@ -3316,15 +3312,19 @@ showNutritionForm: function() {
 
 // Add these methods around line 2150
 toggleTrackingLog: function() {
-    const fullHistoryContainer = document.querySelector('.full-history-container');
-    const foodHistorySection = document.querySelector('.food-history-section');
+    const foodHistoryList = document.querySelector('.food-history-list');
+    const toggleButton = document.querySelector('[data-action="toggleTrackingLog"]');
     
-    if (fullHistoryContainer) {
-        // Already showing full log, hide it
-        this.renderFoodHistory();
+    if (foodHistoryList.style.display === 'none') {
+        // Show the log entries
+        foodHistoryList.style.display = 'block';
+        toggleButton.textContent = '⬆️ Hide Tracking Log';
+        toggleButton.classList.add('active');
     } else {
-        // Show full log
-        this.showFullFoodHistory();
+        // Hide the log entries  
+        foodHistoryList.style.display = 'none';
+        toggleButton.textContent = '📋 View Tracking Log';
+        toggleButton.classList.remove('active');
     }
 },
 
