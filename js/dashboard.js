@@ -109,11 +109,6 @@ else if (target.matches('input[type="checkbox"][data-task-id]')) {
             event.preventDefault();
             nutritionManager.saveNutritionPlan();
         }
-            // In setupEventDelegation, add this to the click handler
-else if (target.matches('[data-action="showFullFoodHistory"]')) {
-    event.preventDefault();
-    nutritionManager.showFullFoodHistory();
-}
 
                // In setupEventDelegation - add these to the click handler (around line 80-120)
 else if (target.matches('[data-action="showFoodLogForm"]')) {
