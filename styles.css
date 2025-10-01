@@ -3307,7 +3307,21 @@ Nutrition & Diet Planner Section Styles===== */
     text-align: center;
 }
 
+.history-controls .btn.active {
+    background: var(--primary);
+    color: white;
+}
 
+.food-history-list {
+    transition: all 0.3s ease;
+    max-height: 0;
+    overflow: hidden;
+}
+
+.food-history-list[style*="display: block"] {
+    max-height: 500px;
+    margin-top: 15px;
+}
 
 /*==================================================
     Medication Manager Section Styles
