@@ -2345,7 +2345,6 @@ smartAlerts: () => {
     const inventorySection = document.querySelector('.food-inventory-section');
     if (inventorySection) {
         inventorySection.innerHTML = this.templates.foodInventoryForm(item);
-        this.setupInventoryForm();
     }
 },
 
@@ -2354,8 +2353,9 @@ hideFoodInventoryForm: function() {
 },
 
 
-handleInventorySubmit: function() {
-        if (event) event.preventDefault(); // Add this line
+handleInventorySubmit: function(event) {
+    if (event) event.preventDefault();
+    
     const formData = {
         name: document.getElementById('inv-food-name').value.trim(),
         brand: document.getElementById('inv-food-brand').value.trim(),
@@ -2398,6 +2398,11 @@ updateFoodInventory: function(itemId, formData) {
         };
         this.updateFoodInventoryCalculations();
         this.saveFoodInventory();
+        
+        // ADD UI UPDATES
+        this.renderFoodInventory();
+        this.renderSmartAlerts();
+        
         alert('Food inventory updated!');
         this.hideFoodInventoryForm();
     }
@@ -2467,6 +2472,11 @@ addFoodToInventory: function(foodData) {
     this.foodInventory.push(inventoryItem);
     this.saveFoodInventory();
     this.updateFoodInventoryCalculations();
+     // ADD UI UPDATES
+    this.renderFoodInventory();
+    this.renderSmartAlerts();
+    
+    alert('Food added to inventory successfully!');
     return inventoryItem;
 },
 
