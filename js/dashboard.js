@@ -3227,10 +3227,8 @@ logFood: function(foodData) {
     // Update inventory tracking
     this.updateInventoryOnFoodLog(foodEntry);
     this.updateFoodInventoryCalculations();
-
     // FIX: ENSURE FORM CLOSES AND GO TO EXERCISE PAGE
     this.hideFoodLogForm(); // Close the form first
-    sectionManager.showSection('exercise'); // Then go to exercise page
     
     alert('Food & water intake logged successfully!');
 },
