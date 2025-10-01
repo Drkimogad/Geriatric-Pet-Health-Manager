@@ -2908,17 +2908,17 @@ logFood: function(foodData) {
     foodHistory.unshift(foodEntry);
     this.saveFoodHistory(foodHistory);
 
-    // ADD WATER LOGGING
     if (foodData.waterIntake > 0) {
         this.logWater(foodData.waterIntake);
     }
 
-    // Update inventory tracking
     this.updateInventoryOnFoodLog(foodEntry);
     this.updateFoodInventoryCalculations();
 
-    // FIX: CLOSE FORM AND GO BACK TO EXERCISE PAGE
-    sectionManager.showSection('exercise'); // This returns to exercise page
+    // FIX: CLOSE FORM AND STAY IN NUTRITION MANAGER PAGE
+    this.hideFoodLogForm(); // Close the form
+    this.renderFoodHistory(); // Refresh food history display
+    this.renderSmartAlerts(); // Refresh alerts
     
     alert('Food & water intake logged successfully!');
 },
