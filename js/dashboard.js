@@ -1843,7 +1843,7 @@ const nutritionManager = {
 foodLogForm: () => `
     <div class="food-form-container">
         <div class="form-header">
-            <h3>Log Daily Food Intake</h3>
+            <h3>Log Daily Food & Water Intake</h3>
         </div>
         <form id="food-log-form">
             <div class="form-grid">
@@ -1872,14 +1872,29 @@ foodLogForm: () => `
                     <label for="log-food-name">Food Name</label>
                     <input type="text" id="log-food-name" placeholder="e.g., Hill's k/d">
                 </div>
+                <!-- ADD WATER FIELD -->
+                <div class="form-group">
+                    <label for="log-water-intake">Water Intake (ml)</label>
+                    <input type="number" id="log-water-intake" min="0" placeholder="e.g., 250">
+                </div>
             </div>
             <div class="form-group">
                 <label for="log-food-notes">Notes</label>
                 <textarea id="log-food-notes" rows="2" placeholder="Appetite, behavior, any concerns..."></textarea>
             </div>
-               <div class="form-actions">
-                    <button type="submit" class="btn btn-primary" data-action="saveFoodLog">Save Food Log</button>
-                   <button type="button" class="btn btn-secondary" data-action="hideFoodLogForm">Cancel</button>
+            <!-- ADD WATER GOAL DISPLAY -->
+            <div class="water-goal-display" id="water-goal-display" style="display: none;">
+                <div class="goal-info">
+                    <span class="goal-label">Expected Water Intake:</span>
+                    <span class="goal-value" id="expected-water-value">0 ml</span>
+                </div>
+                <div class="goal-note">
+                    Based on weight, food type, and health conditions
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" data-action="saveFoodLog">Save Food & Water Log</button>
+                <button type="button" class="btn btn-secondary" data-action="hideFoodLogForm">Cancel</button>
             </div>
         </form>
     </div>
@@ -2790,7 +2805,8 @@ showFoodLogForm: function() {
     const foodHistoryCard = document.querySelector('.food-history');
     if (foodHistoryCard) {
         foodHistoryCard.innerHTML = this.templates.foodLogForm();
-        this.setupFoodLogForm();
+        // ADD THIS LINE to setup water goal display
+        setTimeout(() => this.setupFoodLogForm(), 100);
     }
 },
 
@@ -2799,9 +2815,8 @@ hideFoodLogForm: function() {
 },
 
 // Handle food log submission
-// In handleFoodLogSubmit - make sure it gets the event parameter
 handleFoodLogSubmit: function(event) {
-    if (event) event.preventDefault(); // Add this line
+    if (event) event.preventDefault();
     
     const formData = {
         date: document.getElementById('log-food-date').value,
@@ -2809,6 +2824,7 @@ handleFoodLogSubmit: function(event) {
         amountOffered: parseFloat(document.getElementById('log-food-offered').value) || 0,
         amountConsumed: parseFloat(document.getElementById('log-food-consumed').value) || 0,
         foodName: document.getElementById('log-food-name').value.trim(),
+        waterIntake: parseInt(document.getElementById('log-water-intake').value) || 0, // ADD THIS
         notes: document.getElementById('log-food-notes').value.trim(),
         timestamp: new Date().toISOString()
     };
@@ -2838,7 +2854,6 @@ validateFoodLog: function(formData) {
 },
 
 // Enhanced logFood method to handle detailed logging
-// Update the logFood method - around line 1550
 logFood: function(foodData) {
     if (!appState.currentPet) return;
 
@@ -2855,13 +2870,20 @@ logFood: function(foodData) {
     foodHistory.unshift(foodEntry);
     this.saveFoodHistory(foodHistory);
 
-    // ADD THIS: Update inventory tracking
+    // ADD WATER LOGGING
+    if (foodData.waterIntake > 0) {
+        this.logWater(foodData.waterIntake);
+    }
+
+    // Update inventory tracking
     this.updateInventoryOnFoodLog(foodEntry);
     this.updateFoodInventoryCalculations();
 
-    alert('Food intake logged successfully!');
+    alert('Food & water intake logged successfully!');
     this.renderFoodHistory();
-    this.renderFoodInventory(); // Refresh inventory display
+    this.renderFoodInventory();
+    this.renderWaterTracker(); // Refresh water display
+    this.renderSmartAlerts(); // Refresh alerts
 },
 
 // Calculate calories based on food type and amount
@@ -3063,7 +3085,24 @@ showFullFoodHistory: function() {
         return null;
     },
 
-
+   // Add this method around line 2100
+setupFoodLogForm: function() {
+    const waterIntakeField = document.getElementById('log-water-intake');
+    const waterGoalDisplay = document.getElementById('water-goal-display');
+    
+    if (waterIntakeField && waterGoalDisplay) {
+        // Show expected water goal
+        const expectedWater = this.calculateExpectedWaterIntake();
+        document.getElementById('expected-water-value').textContent = expectedWater + ' ml';
+        waterGoalDisplay.style.display = 'block';
+        
+        // Real-time validation
+        waterIntakeField.addEventListener('input', () => {
+            const enteredWater = parseInt(waterIntakeField.value) || 0;
+            this.updateWaterIntakeFeedback(enteredWater, expectedWater);
+        });
+    }
+},
 
         // Water goal based on weight (ml per day)
     get waterGoal() {
@@ -3106,6 +3145,25 @@ showFullFoodHistory: function() {
         }
     },
 
+        // Add this method around line 2110
+updateWaterIntakeFeedback: function(enteredWater, expectedWater) {
+    const waterGoalDisplay = document.getElementById('water-goal-display');
+    if (!waterGoalDisplay) return;
+    
+    const percentage = (enteredWater / expectedWater) * 100;
+    
+    if (enteredWater === 0) {
+        waterGoalDisplay.className = 'water-goal-display';
+    } else if (percentage < 50) {
+        waterGoalDisplay.className = 'water-goal-display low-intake';
+    } else if (percentage >= 50 && percentage < 80) {
+        waterGoalDisplay.className = 'water-goal-display moderate-intake';
+    } else {
+        waterGoalDisplay.className = 'water-goal-display good-intake';
+    }
+},
+
+    
     // Food History Functions
     logFood: function(foodData) {
         if (!appState.currentPet) return;
@@ -3193,6 +3251,14 @@ showFullFoodHistory: function() {
     showFullFoodHistory: function() {
         alert('Full food history view will be implemented in next version');
     },
+    // Add this method around line 1450
+initializeWaterSystem: function() {
+    if (appState.currentPet) {
+        // Water data is already handled by getWaterLog() and saveWaterLog()
+        // This ensures water tracking is ready
+        console.log('💧 WATER: Water system initialized for', appState.currentPet.name);
+    }
+},
 
     // Add this method inside nutrition manager object.
        handleFoodDropdown: function(event) {
@@ -3211,6 +3277,7 @@ showFullFoodHistory: function() {
 init: function() {
     this.initializeFoodInventory();
     this.initializeAlertSystem(); // ADD THIS
+    this.initializeWaterSystem(); // ADD THIS LINE
     this.renderNutritionView();
     document.addEventListener('change', this.handleFoodDropdown.bind(this));
 }
