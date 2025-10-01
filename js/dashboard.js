@@ -2117,11 +2117,12 @@ feedingSchedule: (nutritionData) => {
         // Replace the existing foodHistory template - around line 1250
 foodHistory: () => {
     const foodHistory = nutritionManager.getFoodHistory();
+    const petName = appState.currentPet?.name || 'Your Pet';
     
     return `
-        <div class="food-history-section">
+        <div class="eating-drinking-history-section">
             <div class="section-header">
-                <h4>Track Food & Water Intake</h4>
+                <h4>${petName}'s Eating & Drinking History</h4>
                 <button class="btn btn-primary btn-sm" data-action="showFoodLogForm">+ Log Food & Water</button>
             </div>
             
@@ -2147,6 +2148,11 @@ foodHistory: () => {
             <div class="history-controls">
                 <button class="btn btn-secondary btn-sm" data-action="toggleTrackingLog">
                     ${foodHistory.length > 0 ? '📋 View Tracking Log' : 'No Entries Yet'}
+                </button>
+                
+                <!-- EXPORT BUTTON - HIDDEN BY DEFAULT -->
+                <button class="btn btn-accent btn-sm export-btn" data-action="exportFoodHistory" style="display: none;">
+                    💾 Export History
                 </button>
             </div>
         </div>
@@ -3296,6 +3302,27 @@ saveNutritionPlan: function() {
     
     alert('Nutrition plan saved successfully! Feeding schedule updated.');
 },
+    // ADD THIS NEW METHOD TO SHOW SAVED STATE
+renderSavedNutritionView: function() {
+    if (this.elements.nutritionContent) {
+        // This will render the full nutrition dashboard with form hidden
+        this.elements.nutritionContent.innerHTML = this.templates.mainView();
+        
+        // Manually hide the nutrition form and show saved state
+        const calculatorCard = document.querySelector('.nutrition-card.calculator');
+        if (calculatorCard) {
+            calculatorCard.innerHTML = `
+                <div class="saved-plan-display">
+                    <h3>✅ Nutrition Plan Active</h3>
+                    <p>Your feeding schedule is based on the saved nutrition plan.</p>
+                    <button class="btn btn-primary" data-action="showNutritionForm">
+                        ✏️ Adjust Nutrition Plan
+                    </button>
+                </div>
+            `;
+        }
+    }
+},
 
     // ADD THIS NEW METHOD
 updateFeedingScheduleDisplay: function(nutritionPlan) {
@@ -3391,16 +3418,24 @@ initializeWaterSystem: function() {
     },
     
     // Initialize Nutrition Section
-// Update the init method - around line 1450
 // Update initialization
 init: function() {
     this.initializeFoodInventory();
-    this.initializeAlertSystem(); // ADD THIS
-    this.initializeWaterSystem(); // ADD THIS LINE
-    this.renderNutritionView();
-    document.addEventListener('change', this.handleFoodDropdown.bind(this));
-}
+    this.initializeAlertSystem(); 
+    this.initializeWaterSystem();
     
+    // CHECK IF NUTRITION PLAN EXISTS - SHOW SAVED STATE IF IT DOES
+    const nutritionPlan = utils.loadData(`nutritionPlan_${appState.currentPet?.id}`);
+    if (nutritionPlan && nutritionPlan.selectedFood) {
+        // SHOW SAVED STATE (form hidden, schedule visible)
+        this.renderSavedNutritionView();
+    } else {
+        // SHOW FORM (no plan saved yet)
+        this.renderNutritionView();
+    }
+    
+    document.addEventListener('change', this.handleFoodDropdown.bind(this));
+}    
 };
 
 // Add to global window object
