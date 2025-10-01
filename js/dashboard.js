@@ -114,6 +114,54 @@ else if (target.matches('[data-action="showFullFoodHistory"]')) {
     event.preventDefault();
     nutritionManager.showFullFoodHistory();
 }
+
+               // In setupEventDelegation - add these to the click handler (around line 80-120)
+else if (target.matches('[data-action="showFoodLogForm"]')) {
+    event.preventDefault();
+    nutritionManager.showFoodLogForm();
+}
+else if (target.matches('[data-action="hideFoodLogForm"]')) {
+    event.preventDefault();
+    nutritionManager.hideFoodLogForm();
+}
+else if (target.matches('[data-action="saveFoodLog"]')) {
+    event.preventDefault();
+    nutritionManager.handleFoodLogSubmit();
+}
+else if (target.matches('[data-action="showFoodInventoryForm"]')) {
+    event.preventDefault();
+    nutritionManager.showFoodInventoryForm();
+}
+else if (target.matches('[data-action="hideFoodInventoryForm"]')) {
+    event.preventDefault();
+    nutritionManager.hideFoodInventoryForm();
+}
+else if (target.matches('[data-action="saveFoodInventory"]')) {
+    event.preventDefault();
+    nutritionManager.handleInventorySubmit();
+}      
+        
+            else if (target.matches('[data-action="editFoodInventory"]')) {
+    event.preventDefault();
+    const itemId = target.getAttribute('data-item-id');
+    nutritionManager.editFoodInventory(itemId);
+}
+else if (target.matches('[data-action="markInventoryFinished"]')) {
+    event.preventDefault();
+    const itemId = target.getAttribute('data-item-id');
+    nutritionManager.markInventoryFinished(itemId);
+}   
+       else if (target.matches('[data-action="clearAllAlerts"]')) {
+    event.preventDefault();
+    nutritionManager.clearDismissedAlerts();
+    nutritionManager.renderSmartAlerts();
+}   
+       else if (target.matches('[data-action="dismissAlert"]')) {
+    event.preventDefault();
+    const alertId = target.getAttribute('data-alert-id');
+    nutritionManager.dismissAlert(alertId);
+    nutritionManager.renderSmartAlerts();
+}
         
         // 5. MEDICATION SECTION
         else if (target.matches('[data-action="showAddMedication"]')) {
@@ -1829,9 +1877,9 @@ foodLogForm: () => `
                 <label for="log-food-notes">Notes</label>
                 <textarea id="log-food-notes" rows="2" placeholder="Appetite, behavior, any concerns..."></textarea>
             </div>
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Save Food Log</button>
-                <button type="button" class="btn btn-secondary" onclick="nutritionManager.hideFoodLogForm()">Cancel</button>
+               <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" data-action="saveFoodLog">Save Food Log</button>
+                   <button type="button" class="btn btn-secondary" data-action="hideFoodLogForm">Cancel</button>
             </div>
         </form>
     </div>
@@ -2053,7 +2101,7 @@ foodHistory: () => {
         <div class="food-history-section">
             <div class="section-header">
                 <h4>Recent Food Intake</h4>
-                <button class="btn btn-primary btn-sm" onclick="nutritionManager.showFoodLogForm()">+ Log Food</button>
+                <button class="btn btn-primary btn-sm" data-action="showFoodLogForm">+ Log Food</button>
             </div>
             <div class="food-history-list">
                 ${foodHistory.length === 0 ? `
@@ -2087,14 +2135,14 @@ foodInventory: () => {
         <div class="food-inventory-section">
             <div class="section-header">
                 <h4>Food Inventory</h4>
-                <button class="btn btn-primary btn-sm" onclick="nutritionManager.showFoodInventoryForm()">+ Add Food</button>
+                <button class="btn btn-primary btn-sm" data-action="showFoodInventoryForm">+ Add Food</button>
             </div>
             
             ${activeItem ? nutritionManager.templates.activeFoodInventory(activeItem) : `
                 <div class="no-inventory">
                     <p>No active food inventory</p>
-                    <button class="btn btn-secondary btn-sm" onclick="nutritionManager.showFoodInventoryForm()">Set Up Food Tracking</button>
-                </div>
+                    <button class="btn btn-secondary btn-sm" data-action="showFoodInventoryForm">
+               </div>
             `}
             
             ${inventory.length > 1 ? `
@@ -2163,10 +2211,10 @@ activeFoodInventory: (item) => {
                 </div>
             ` : ''}
             
-            <div class="inventory-actions">
-                <button class="btn btn-secondary btn-xs" onclick="nutritionManager.editFoodInventory('${item.id}')">Edit</button>
-                <button class="btn btn-warning btn-xs" onclick="nutritionManager.markInventoryFinished('${item.id}')">Mark Finished</button>
-            </div>
+             <div class="inventory-actions">
+                <button class="btn btn-secondary btn-xs" data-action="editFoodInventory" data-item-id="${item.id}">Edit</button>
+                 <button class="btn btn-warning btn-xs" data-action="markInventoryFinished" data-item-id="${item.id}">Mark Finished</button>
+             </div>
         </div>
     `;
 },
@@ -2212,11 +2260,11 @@ foodInventoryForm: (item = null) => {
                         <input type="date" id="inv-start-date" value="${item?.startDate || utils.getTodayDate()}">
                     </div>
                 </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">${isEdit ? 'Update' : 'Add'} Food</button>
-                    <button type="button" class="btn btn-secondary" onclick="nutritionManager.hideFoodInventoryForm()">Cancel</button>
-                </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" data-action="saveFoodInventory">${isEdit ? 'Update' : 'Add'} Food</button>
+                <button type="button" class="btn btn-secondary" data-action="hideFoodInventoryForm">Cancel</button>
+            </div>
+                    
             </form>
         </div>
     `;
@@ -2234,9 +2282,7 @@ smartAlerts: () => {
                         ${alerts.length} alert${alerts.length !== 1 ? 's' : ''}
                     </span>
                     ${alerts.length > 0 ? `
-                        <button class="btn-icon" onclick="nutritionManager.clearDismissedAlerts(); nutritionManager.renderSmartAlerts();" title="Clear all">
-                            🔄
-                        </button>
+                <button class="btn-icon" data-action="clearAllAlerts" title="Clear all">🔄</button>
                     ` : ''}
                 </div>
             </div>
@@ -2265,9 +2311,7 @@ smartAlerts: () => {
                                     <div class="alert-condition">${alert.condition}</div>
                                     <small class="alert-time">${new Date(alert.timestamp).toLocaleTimeString()}</small>
                                 </div>
-                                <button class="alert-dismiss" onclick="nutritionManager.dismissAlert('${alert.id}'); nutritionManager.renderSmartAlerts();" title="Dismiss">
-                                    ×
-                                </button>
+                        <button class="alert-dismiss" data-action="dismissAlert" data-alert-id="${alert.id}" title="Dismiss">×</button>                                    ×
                             </div>
                         `).join('')}
                     </div>
@@ -2294,17 +2338,9 @@ hideFoodInventoryForm: function() {
     this.renderFoodInventory();
 },
 
-setupInventoryForm: function() {
-    const form = document.getElementById('food-inventory-form');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleInventorySubmit();
-        });
-    }
-},
 
 handleInventorySubmit: function() {
+        if (event) event.preventDefault(); // Add this line
     const formData = {
         name: document.getElementById('inv-food-name').value.trim(),
         brand: document.getElementById('inv-food-brand').value.trim(),
@@ -2762,19 +2798,11 @@ hideFoodLogForm: function() {
     this.renderFoodHistory();
 },
 
-// Setup form event listener
-setupFoodLogForm: function() {
-    const form = document.getElementById('food-log-form');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleFoodLogSubmit();
-        });
-    }
-},
-
 // Handle food log submission
-handleFoodLogSubmit: function() {
+// In handleFoodLogSubmit - make sure it gets the event parameter
+handleFoodLogSubmit: function(event) {
+    if (event) event.preventDefault(); // Add this line
+    
     const formData = {
         date: document.getElementById('log-food-date').value,
         mealType: document.getElementById('log-food-type').value,
