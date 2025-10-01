@@ -1,36 +1,88 @@
 :root {
-    /* Primary Colors */
-    --primary: #2C5AA0;    /* Calming Blue */
-    --primary-light: #6A93D4;
-    --primary-dark: #1A3A6B;
+    /* === SAGE & CLAY THEME (ACTIVE) === */
+    /* Primary - Sage Green */
+    --primary: #8A9B68;
+    --primary-light: #A8B992;
+    --primary-dark: #6B7D4E;
     
-    /* Secondary Colors */
-    --secondary: #34A853;  /* Healthy Green */
-    --secondary-light: #81C995;
-    --secondary-dark: #2E8B47;
+    /* Secondary - Warm Clay */
+    --secondary: #C17C74;
+    --secondary-light: #D4A6A0;
+    --secondary-dark: #A8645C;
     
-    /* Accent Colors */
-    --accent: #FF6B35;     /* Warm Orange - for alerts/important */
-    --accent-light: #FF9D71;
-    --accent-dark: #E55A2B;
+    /* Accent - Muted Terracotta */
+    --accent: #B5654A;
+    --accent-light: #CB8E7A;
+    --accent-dark: #954C35;
     
-    /* Neutral Colors */
-    --neutral-light: #F8F9FA;
-    --neutral-medium: #E9ECEF;
-    --neutral-dark: #6C757D;
-    --neutral-text: #212529;
+    /* Neutrals - Warm Greys */
+    --neutral-light: #FAF9F7;
+    --neutral-medium: #EDEBE9;
+    --neutral-dark: #8A817C;
+    --neutral-text: #3C3B37;
     
-    /* Status Colors */
-    --success: #28A745;
-    --warning: #FFC107;
-    --error: #DC3545;
-    --info: #17A2B8;
+    /* Status - Earthy versions */
+    --success: #689F38;
+    --warning: #FF8F00;
+    --error: #C62828;
+    --info: #0277BD;
     
-    /* Layout Colors */
-    --background: #FFFFFF;
-    --surface: #F5F7FA;
-    --border: #DEE2E6;
+    /* Layout */
+    --background: #FFFEFB;
+    --surface: #F8F6F2;
+    --border: #E0DED9;
 }
+
+/* === WARM MUSTARD & CREAM (SET 1 - COMMENTED) === */
+/*
+:root {
+    --primary: #D4A017;
+    --primary-light: #E6C870;
+    --primary-dark: #B8860B;
+    --secondary: #F5F5DC;
+    --secondary-light: #FFF8E1;
+    --secondary-dark: #E6D7B8;
+    --accent: #C44536;
+    --accent-light: #D67B6B;
+    --accent-dark: #A33224;
+    --neutral-light: #FAF9F7;
+    --neutral-medium: #EDEBE9;
+    --neutral-dark: #8A817C;
+    --neutral-text: #3C3B37;
+    --success: #689F38;
+    --warning: #FF8F00;
+    --error: #C62828;
+    --info: #0277BD;
+    --background: #FFFEFB;
+    --surface: #F8F6F2;
+    --border: #E0DED9;
+}
+*/
+
+/* === SLATE & SPICE (SET 3 - COMMENTED) === */
+/*
+:root {
+    --primary: #6D6875;
+    --primary-light: #8D8993;
+    --primary-dark: #554E5F;
+    --secondary: #B5838D;
+    --secondary-light: #C9A1A8;
+    --secondary-dark: #9C6A73;
+    --accent: #E6A872;
+    --accent-light: #EDC4A1;
+    --accent-dark: #D18C4A;
+    --neutral-light: #FAF9F7;
+    --neutral-medium: #EDEBE9;
+    --neutral-dark: #8A817C;
+    --neutral-text: #3C3B37;
+    --success: #689F38;
+    --warning: #FF8F00;
+    --error: #C62828;
+    --info: #0277BD;
+    --background: #FFFEFB;
+    --surface: #F8F6F2;
+    --border: #E0DED9;
+}*/
 
 /* Reset and Base Styles */
 * {
