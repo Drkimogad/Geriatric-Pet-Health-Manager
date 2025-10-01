@@ -168,6 +168,11 @@ else if (target.matches('[data-action="markInventoryFinished"]')) {
     event.preventDefault();
     nutritionManager.toggleTrackingLog();
 }
+               // add eventListener for export button
+        else if (target.matches('[data-action="exportFoodHistory"]')) {
+    event.preventDefault();
+    nutritionManager.exportFoodHistory();
+}
         
         // 5. MEDICATION SECTION
         else if (target.matches('[data-action="showAddMedication"]')) {
@@ -3364,22 +3369,64 @@ showNutritionForm: function() {
     this.renderNutritionView(); // This will reload the entire nutrition view with form
 },
 
+ // EXPORT FOOD HISTORY
+exportFoodHistory: function() {
+    const foodHistory = this.getFoodHistory();
+    if (foodHistory.length === 0) {
+        alert('No history to export');
+        return;
+    }
+
+    // Create CSV content
+    let csvContent = 'Date,Meal Type,Food Name,Offered (cups),Consumed (cups),Water (ml),Calories,Notes\n';
+    
+    foodHistory.forEach(entry => {
+        const row = [
+            entry.date,
+            entry.mealType,
+            `"${entry.foodName}"`,
+            entry.amountOffered,
+            entry.amountConsumed,
+            entry.waterIntake || '0',
+            entry.calories || '0',
+            `"${entry.notes || ''}"`
+        ].join(',');
+        csvContent += row + '\n';
+    });
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pet-food-history-${utils.getTodayDate()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    alert('Food history exported as CSV!');
+},
+    
 
 // Add these methods around line 2150
 toggleTrackingLog: function() {
     const foodHistoryList = document.querySelector('.food-history-list');
     const toggleButton = document.querySelector('[data-action="toggleTrackingLog"]');
+    const exportButton = document.querySelector('.export-btn');
     
     if (foodHistoryList.style.display === 'none') {
-        // Show the log entries
+        // Show the log entries and export button
         foodHistoryList.style.display = 'block';
         toggleButton.textContent = '⬆️ Hide Tracking Log';
         toggleButton.classList.add('active');
+        if (exportButton) exportButton.style.display = 'inline-block';
     } else {
-        // Hide the log entries  
+        // Hide the log entries and export button
         foodHistoryList.style.display = 'none';
         toggleButton.textContent = '📋 View Tracking Log';
         toggleButton.classList.remove('active');
+        if (exportButton) exportButton.style.display = 'none';
     }
 },
 
