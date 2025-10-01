@@ -3208,23 +3208,38 @@ updateWaterIntakeFeedback: function(enteredWater, expectedWater) {
 
     
     // Food History Functions
-    logFood: function(foodData) {
-        if (!appState.currentPet) return;
+logFood: function(foodData) {
+    if (!appState.currentPet) return;
 
-        const foodEntry = {
-            id: 'food_' + Date.now(),
-            petId: appState.currentPet.id,
-            ...foodData,
-            date: utils.getTodayDate(),
-            timestamp: new Date().toISOString()
-        };
+    const foodEntry = {
+        id: 'food_' + Date.now(),
+        petId: appState.currentPet.id,
+        ...foodData,
+        calories: this.calculateFoodCalories(foodData),
+        date: foodData.date,
+        timestamp: new Date().toISOString()
+    };
 
-        let foodHistory = this.getFoodHistory();
-        foodHistory.unshift(foodEntry); // Add to beginning
-        this.saveFoodHistory(foodHistory);
-        this.renderSmartAlerts(); // Refresh alerts
-    },
+    let foodHistory = this.getFoodHistory();
+    foodHistory.unshift(foodEntry);
+    this.saveFoodHistory(foodHistory);
 
+    // ADD WATER LOGGING
+    if (foodData.waterIntake > 0) {
+        this.logWater(foodData.waterIntake);
+    }
+
+    // Update inventory tracking
+    this.updateInventoryOnFoodLog(foodEntry);
+    this.updateFoodInventoryCalculations();
+
+    // FIX: ENSURE FORM CLOSES AND GO TO EXERCISE PAGE
+    this.hideFoodLogForm(); // Close the form first
+    sectionManager.showSection('exercise'); // Then go to exercise page
+    
+    alert('Food & water intake logged successfully!');
+},
+    
     getFoodHistory: function() {
         if (!appState.currentPet) return [];
         return utils.loadData(`foodHistory_${appState.currentPet.id}`) || [];
@@ -3265,26 +3280,46 @@ updateWaterIntakeFeedback: function(enteredWater, expectedWater) {
     },
 
     // Save Nutrition Plan
-    saveNutritionPlan: function() {
+saveNutritionPlan: function() {
     if (!appState.currentPet) return;
 
-    const selectedFood = this.getSelectedFood(); // Get current food selection
+    const selectedFood = this.getSelectedFood();
     
     const nutritionPlan = {
         calculatedOn: new Date().toISOString(),
         needs: this.calculateNutritionNeeds(appState.currentPet),
-        selectedFood: selectedFood, // Include the selected food
+        selectedFood: selectedFood,
         activityLevel: document.getElementById('activity-level').value,
         weightGoal: document.getElementById('weight-goal').value
     };
 
     utils.saveData(`nutritionPlan_${appState.currentPet.id}`, nutritionPlan);
     
-    // Update the display with current food data
-   // this.renderNutritionView();
-    // HIDE THE FORM AFTER SAVING
+    // FIX: UPDATE FEEDING SCHEDULE WITH NEW CALCULATIONS
+    this.updateFeedingScheduleDisplay(nutritionPlan);
+    
+    // Hide the form after saving
     this.hideNutritionForm();
-    alert('Nutrition plan saved successfully!');
+    
+    alert('Nutrition plan saved successfully! Feeding schedule updated.');
+},
+
+    // ADD THIS NEW METHOD
+updateFeedingScheduleDisplay: function(nutritionPlan) {
+    const feedingScheduleCard = document.querySelector('.feeding-schedule');
+    if (feedingScheduleCard && nutritionPlan.selectedFood) {
+        // Recalculate feeding amounts with the new selected food
+        const schedule = this.calculateFeedingSchedule(nutritionPlan.needs.recommended);
+        
+        feedingScheduleCard.innerHTML = `
+            <h3>Feeding Schedule</h3>
+            ${this.templates.feedingSchedule({
+                ...nutritionPlan.needs,
+                selectedFood: nutritionPlan.selectedFood,
+                feedingSchedule: schedule
+            })}
+        `;
+    }
 },
     
 // ADD THESE FUNCTIONS TO SHOW AND HIDE NUTRITION FORM 
