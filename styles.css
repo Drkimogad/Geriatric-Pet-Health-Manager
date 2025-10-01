@@ -2505,6 +2505,47 @@ Nutrition & Diet Planner Section Styles===== */
     font-size: 13px;
     color: var(--neutral-dark);
 }
+/* Updated for new class name */
+.eating-drinking-history-section {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.eating-drinking-history-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--neutral-light);
+    padding-bottom: 10px;
+}
+
+.eating-drinking-history-section .section-header h4 {
+    margin: 0;
+    color: var(--primary-dark);
+    font-size: 16px;
+}
+
+/* Export button styles */
+.export-btn {
+    margin-left: 10px;
+    background: var(--accent);
+    color: white;
+}
+
+.export-btn:hover {
+    background: var(--accent-dark);
+}
+
+.history-controls {
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Keep all your existing .food-history-list, .food-history-entry styles */
+/* They will work with the new container class */
 
 /* Responsive Design */
 @media (max-width: 768px) {
