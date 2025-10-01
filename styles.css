@@ -3283,9 +3283,35 @@ Nutrition & Diet Planner Section Styles===== */
     color: var(--neutral-dark);
     opacity: 0.8;
 }
+.saved-plan-display {
+    text-align: center;
+    padding: 20px;
+}
+
+.saved-plan-display h3 {
+    color: var(--success-dark);
+    margin-bottom: 10px;
+}
+
+.water-info {
+    color: var(--info-dark);
+    background: var(--info-light);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.history-controls {
+    margin-top: 10px;
+    text-align: center;
+}
 
 
-/* Medication Manager Section Styles */
+
+/*==================================================
+    Medication Manager Section Styles
+======================================*/
 /* Medication Header Layout */
 .medication-header {
     margin-bottom: 20px;
@@ -3301,8 +3327,9 @@ Nutrition & Diet Planner Section Styles===== */
 .medication-header-top h2 {
     margin: 0;
 }
-
-/* Medication Grid Layout */
+/*===================================
+    Medication Grid Layout
+=========================================*/
 .medication-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
