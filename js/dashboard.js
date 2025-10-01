@@ -125,6 +125,7 @@ else if (target.matches('[data-action="hideFoodLogForm"]')) {
     nutritionManager.hideFoodLogForm();
 }
 else if (target.matches('[data-action="saveFoodLog"]')) {
+        console.log('🎯 EVENT_DELEGATION: saveFoodLog button clicked');
     event.preventDefault();
     nutritionManager.handleFoodLogSubmit();
 }
@@ -161,6 +162,16 @@ else if (target.matches('[data-action="markInventoryFinished"]')) {
     const alertId = target.getAttribute('data-alert-id');
     nutritionManager.dismissAlert(alertId);
     nutritionManager.renderSmartAlerts();
+}
+           // listener for new button in feeding schedule container 
+           else if (target.matches('[data-action="showNutritionForm"]')) {
+    event.preventDefault();
+    nutritionManager.showNutritionForm();
+}
+     // add event listener for toggling in nutrition mnager
+           else if (target.matches('[data-action="toggleTrackingLog"]')) {
+    event.preventDefault();
+    nutritionManager.toggleTrackingLog();
 }
         
         // 5. MEDICATION SECTION
@@ -2115,12 +2126,12 @@ foodHistory: () => {
     return `
         <div class="food-history-section">
             <div class="section-header">
-                <h4>Recent Food Intake</h4>
-                <button class="btn btn-primary btn-sm" data-action="showFoodLogForm">+ Log Food</button>
+                <h4>Track Food & Water Intake</h4>
+                <button class="btn btn-primary btn-sm" data-action="showFoodLogForm">+ Log Food & Water</button>
             </div>
             <div class="food-history-list">
                 ${foodHistory.length === 0 ? `
-                    <p class="no-data">No food intake logged yet</p>
+                    <p class="no-data">No food or water intake logged yet</p>
                 ` : `
                     ${foodHistory.map(entry => `
                         <div class="food-history-entry">
@@ -2128,6 +2139,7 @@ foodHistory: () => {
                             <div class="food-details">
                                 <strong>${entry.foodName}</strong>
                                 <span>Offered: ${entry.amountOffered}c • Ate: ${entry.amountConsumed}c</span>
+                                ${entry.waterIntake ? `<span class="water-info">💧 ${entry.waterIntake}ml</span>` : ''}
                             </div>
                             ${entry.notes ? `<div class="food-notes">${entry.notes}</div>` : ''}
                         </div>
@@ -2135,7 +2147,11 @@ foodHistory: () => {
                 `}
             </div>
             ${foodHistory.length > 0 ? `
-                <button class="btn btn-secondary btn-sm" data-action="showFullFoodHistory">View Full History</button>
+                <div class="history-controls">
+                    <button class="btn btn-secondary btn-sm" data-action="toggleTrackingLog">
+                        📋 View Tracking Log
+                    </button>
+                </div>
             ` : ''}
         </div>
     `;
@@ -2826,7 +2842,14 @@ hideFoodLogForm: function() {
 
 // Handle food log submission
 handleFoodLogSubmit: function(event) {
+    console.log('🔴 DEBUG: handleFoodLogSubmit called');
     if (event) event.preventDefault();
+    console.log('🟡 DEBUG: Form fields exist?', {
+        date: !!document.getElementById('log-food-date'),
+        foodName: !!document.getElementById('log-food-name'),
+        offered: !!document.getElementById('log-food-offered'),
+        consumed: !!document.getElementById('log-food-consumed')
+    });
     
     const formData = {
         date: document.getElementById('log-food-date').value,
@@ -2834,15 +2857,19 @@ handleFoodLogSubmit: function(event) {
         amountOffered: parseFloat(document.getElementById('log-food-offered').value) || 0,
         amountConsumed: parseFloat(document.getElementById('log-food-consumed').value) || 0,
         foodName: document.getElementById('log-food-name').value.trim(),
-        waterIntake: parseInt(document.getElementById('log-water-intake').value) || 0, // ADD THIS
+        waterIntake: parseInt(document.getElementById('log-water-intake').value) || 0,
         notes: document.getElementById('log-food-notes').value.trim(),
         timestamp: new Date().toISOString()
     };
 
+    console.log('🟢 DEBUG: Form data collected:', formData);
+
     if (!this.validateFoodLog(formData)) {
+        console.log('🔴 DEBUG: Form validation failed');
         return;
     }
 
+    console.log('✅ DEBUG: Calling logFood with data');
     this.logFood(formData);
 },
 
@@ -2933,14 +2960,15 @@ renderFoodHistory: function() {
     }
 },
     // Placeholder for full history view
+// Update showFullFoodHistory to include water
 showFullFoodHistory: function() {
     const foodHistory = this.getFoodHistory();
     
     let historyHTML = `
         <div class="full-history-container">
             <div class="history-header">
-                <h3>Complete Food History</h3>
-                <button class="btn btn-secondary" onclick="nutritionManager.renderNutritionView()">← Back</button>
+                <h3>Complete Food & Water Tracking Log</h3>
+                <button class="btn btn-secondary" data-action="toggleTrackingLog">← Back to Summary</button>
             </div>
             <div class="history-stats">
                 <p>Total entries: ${foodHistory.length}</p>
@@ -2949,7 +2977,7 @@ showFullFoodHistory: function() {
     `;
     
     if (foodHistory.length === 0) {
-        historyHTML += `<p class="no-data">No food history recorded</p>`;
+        historyHTML += `<p class="no-data">No food or water history recorded</p>`;
     } else {
         foodHistory.forEach(entry => {
             historyHTML += `
@@ -2961,6 +2989,7 @@ showFullFoodHistory: function() {
                     <div class="entry-details">
                         <span>Offered: ${entry.amountOffered}c</span>
                         <span>Consumed: ${entry.amountConsumed}c</span>
+                        ${entry.waterIntake ? `<span>💧 Water: ${entry.waterIntake}ml</span>` : ''}
                         ${entry.calories ? `<span>Calories: ${entry.calories}</span>` : ''}
                     </div>
                     ${entry.notes ? `<div class="entry-notes">${entry.notes}</div>` : ''}
@@ -2971,8 +3000,12 @@ showFullFoodHistory: function() {
     
     historyHTML += `</div></div>`;
     
-    this.elements.nutritionContent.innerHTML = historyHTML;
+    const foodHistorySection = document.querySelector('.food-history-section');
+    if (foodHistorySection) {
+        foodHistorySection.innerHTML = historyHTML;
+    }
 },
+
 
      
     // ✍️Calculation Functions
@@ -3248,10 +3281,54 @@ updateWaterIntakeFeedback: function(enteredWater, expectedWater) {
     utils.saveData(`nutritionPlan_${appState.currentPet.id}`, nutritionPlan);
     
     // Update the display with current food data
-    this.renderNutritionView(); 
+   // this.renderNutritionView();
+    // HIDE THE FORM AFTER SAVING
+    this.hideNutritionForm();
     alert('Nutrition plan saved successfully!');
 },
+    
+// ADD THESE FUNCTIONS TO SHOW AND HIDE NUTRITION FORM 
+    // 1.ADD THIS NEW METHOD
+hideNutritionForm: function() {
+    const calculatorCard = document.querySelector('.nutrition-card.calculator');
+    if (calculatorCard) {
+        calculatorCard.innerHTML = `
+            <div class="saved-plan-display">
+                <h3>✅ Nutrition Plan Saved</h3>
+                <p>Your feeding schedule has been updated based on the saved plan.</p>
+                <button class="btn btn-primary" data-action="showNutritionForm">
+                    ✏️ Adjust Nutrition Plan
+                </button>
+            </div>
+        `;
+    }
+},
 
+// 2. ADD THIS METHOD TO SHOW FORM AGAIN
+showNutritionForm: function() {
+    this.renderNutritionView(); // This will reload the entire nutrition view with form
+},
+
+
+// Add these methods around line 2150
+toggleTrackingLog: function() {
+    const fullHistoryContainer = document.querySelector('.full-history-container');
+    const foodHistorySection = document.querySelector('.food-history-section');
+    
+    if (fullHistoryContainer) {
+        // Already showing full log, hide it
+        this.renderFoodHistory();
+    } else {
+        // Show full log
+        this.showFullFoodHistory();
+    }
+},
+
+
+
+
+
+    
     // View Management
     showWaterLog: function() {
         const waterLog = this.getWaterLog();
