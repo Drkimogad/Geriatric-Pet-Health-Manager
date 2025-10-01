@@ -2889,7 +2889,7 @@ validateFoodLog: function(formData) {
     }
     return true;
 },
-
+//======================================
 // Enhanced logFood method to handle detailed logging
 logFood: function(foodData) {
     if (!appState.currentPet) return;
@@ -2916,11 +2916,15 @@ logFood: function(foodData) {
     this.updateInventoryOnFoodLog(foodEntry);
     this.updateFoodInventoryCalculations();
 
-    alert('Food & water intake logged successfully!');
-    this.renderFoodHistory();
-    this.renderFoodInventory();
-    this.renderWaterTracker(); // Refresh water display
+    // FIX: CLOSE THE FORM AND REFRESH UI
+    this.hideFoodLogForm(); // This will close the form
+    this.renderFoodHistory(); // This will refresh the food history display
+    this.renderFoodInventory(); // Refresh inventory
+    this.renderWaterTracker(); // Refresh water display  
     this.renderSmartAlerts(); // Refresh alerts
+
+    alert('Food & water intake logged successfully!');
+    // REMOVED: this.showMainView() - we don't want to leave the nutrition section
 },
 
 // Calculate calories based on food type and amount
